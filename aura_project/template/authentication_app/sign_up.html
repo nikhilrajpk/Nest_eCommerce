@@ -65,6 +65,25 @@
                                     </div>
                                 {% endif %}
 
+                                <!-- validation errors -->
+                                {% if errors %}
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            {% for field, error in errors.items %}
+                                                {% if error %}
+                                                    {% if error is list %}
+                                                        {% for i in error %}
+                                                            <li>{{ i }}</li>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <li>{{ error }}</li>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+
 
                             <form class="row contact_form" action="" method="post" novalidate="novalidate">
                                 {% csrf_token %}
