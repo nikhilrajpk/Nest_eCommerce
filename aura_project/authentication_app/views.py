@@ -55,6 +55,7 @@ def register_view(request):
     
     if request.method == 'POST':
         email = request.POST.get('email')
+        username = email
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         password = request.POST.get('password')
@@ -104,7 +105,8 @@ def register_view(request):
         
         else:
             # Saving the user with field is_active as False
-            user = CustomUser(email = email, first_name = first_name, last_name = last_name, password = password)
+            user = CustomUser(email = email,username = username, first_name = first_name, last_name = last_name)
+            user.set_password(password)
             user.is_active = False
             user.save()
             
@@ -121,6 +123,7 @@ def register_view(request):
             try:
                 email_message = EmailMessage(mail_subject, message, to=[email])
                 email_message.send()
+                messages.success(request, 'OTP has been sent to your email.')
             except Exception as e:
                 messages.error(request, 'Error sending email. Please try again.')
                 return None
@@ -134,14 +137,13 @@ def register_view(request):
     return render(request, 'authentication_app/sign_up.html')
 
 def verify_otp(request):
-    # if request.method == 'GET':
-    #     return redirect('sign_up')
     
     if request.method == 'POST':
         
         # combining all the otp
-        input_otp = ''.join([request.POST.get(f'otp{i}') for i in range(1,7)])
-            
+        input_otp_values = [request.POST.get(f'otp{i}') for i in range(1,7)]
+        input_otp = ''.join([otp if otp is not None else '' for otp in input_otp_values])
+        
         # Retrieving session data
         session_otp = request.session.get('registration_otp')
         session_email = request.session.get('registered_email')
@@ -193,6 +195,38 @@ def verify_otp(request):
             return redirect('sign_up')
     else:
         return render(request, 'authentication_app/verify_otp.html')
+
+def resend_otp_view(request):
+    if request.method == 'POST':
+        
+        # Generating OTP
+        otp = send_otp(request)
+        
+        # Save the OTP to session
+        request.session['registration_otp'] = otp
+        email = request.session['registered_email']
+        
+        if not email:
+            messages.error(request, 'Session expired. Please register again.')
+            return redirect('sign_up')
+
+        # Send the OTP via email
+        mail_subject = 'Your OTP for email verification'
+        message = f'Your OTP is {otp}. Please enter it to verify your email.'
+        try:
+            email_message = EmailMessage(mail_subject, message, to=[email])
+            email_message.send()
+            messages.success(request, 'A new OTP has been sent to your email.')
+        except Exception as e:
+            messages.error(request, 'Error sending email. Please try again.')
+            return redirect('verify_otp')
+
+        print('redirecting to the verify OTP page')
+        return redirect('verify_otp')  # Redirect to OTP verification page
+
+    else:
+        return render(request, 'authentication_app/verify_otp.html')
+
 
 def login_view(request):
     # new_user = authenticate(
