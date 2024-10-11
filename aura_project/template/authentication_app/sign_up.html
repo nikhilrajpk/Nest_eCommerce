@@ -49,7 +49,7 @@
                                     {% endfor %}
                                 {% endif %}
 
-                                <!-- form error view -->
+                                <!-- form error view
                                 {% if form.errors %}
                                     <div class="alert alert-danger">
                                         <ul>
@@ -63,13 +63,13 @@
                                             {% endfor %}
                                         </ul>
                                     </div>
-                                {% endif %}
+                                {% endif %} -->
 
                                 <!-- validation errors -->
-                                {% if errors %}
+                                <!-- {% if errors %}
                                     <div class="alert alert-danger">
                                         <ul>
-                                            {% for field, error in errors.items %}
+                                            {% for error in errors.items %}
                                                 {% if error %}
                                                     {% if error is list %}
                                                         {% for i in error %}
@@ -82,25 +82,42 @@
                                             {% endfor %}
                                         </ul>
                                     </div>
-                                {% endif %}
+                                {% endif %} -->
 
 
                             <form class="row contact_form" action="" method="post" novalidate="novalidate">
                                 {% csrf_token %}
                                 <div class="col-md-12 form-group ">
-                                    {{form.email}}
+                                    <input type="email" class="form-control {% if errors.email_error %}is-invalid{% endif %}" name="email"  placeholder="Email" value="{{email}}" required>
+                                    {% if errors.email_error %}
+                                        <div class="invalid-feedback">{{ errors.email_error }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    {{form.first_name}}
+                                    <input type="text" class="form-control {% if errors.first_name_error %}is-invalid{% endif %}" name="first_name"  placeholder="First name" value="{{first_name}}" required>
+                                    {% if errors.first_name_error %}
+                                        <div class="invalid-feedback">{{ errors.first_name_error }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    {{form.last_name}}
+                                    <input type="text" class="form-control {% if errors.last_name_error %}is-invalid{% endif %}" name="last_name"  placeholder="Last name" value="{{last_name}}" required>
+                                    {% if errors.last_name_error %}
+                                        <div class="invalid-feedback">{{ errors.last_name_error }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    {{form.password1}}
+                                    <input type="password" class="form-control {% if errors.password_error %}is-invalid{% endif %}" name="password"  placeholder="password" required>
+                                    {% if errors.password_error %}
+                                        {% for error in errors.password_error %}
+                                            <div class="invalid-feedback">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    {{form.password2}}
+                                    <input type="password" class="form-control {% if errors.password_mismatch %}is-invalid{% endif %}" name="confirm_password"  placeholder="Confirm password" required>
+                                    {% if errors.password_mismatch %}
+                                        <div class="invalid-feedback">{{ errors.password_mismatch }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
                                     <button type="submit" value="submit" class="btn_3">

@@ -19,13 +19,13 @@ class Authentication_check:
             return 'Last name should not contain number or spaces!'
         return None
     
-    def pass_validator(self,password1):
+    def pass_validator(self,password):
         try:
-            validate_password(password1)
+            validate_password(password)
         except ValidationError as e:
             return e.messages
         return None
-    def password_mismatch(self,password1, password2):
-        if password1 != password2:
+    def password_mismatch(self,password, confirm_password):
+        if password != confirm_password:
             return 'Passwords do not match'
         return None
