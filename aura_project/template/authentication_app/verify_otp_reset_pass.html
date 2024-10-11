@@ -33,7 +33,7 @@
                     {% endfor %}
                 {% endif %}
 
-               <form action="{% url 'authentication_app:verify_otp' %}" method="post">
+               <form action="{% url 'authentication_app:reset_password_otp' %}" method="post">
                <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2"> 
                     {% csrf_token %}
                    <input class="m-2 text-center form-control rounded" type="text" id="first" maxlength="1" name="otp1" /> 
@@ -51,7 +51,7 @@
            <div class="card-2"> 
                <div class="content d-flex justify-content-center align-items-center"> <span>Didn't get the code</span> 
                    <!-- <a href="#" class="text-decoration-none ms-3">Resend(1/3)</a>  -->
-                   <form action="{% url 'authentication_app:resend_otp' %}" method="post">
+                   <form action="{% url 'authentication_app:reset_password_resend_otp' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="ms-3 border-0 bg-white text-danger">Resend</button>
                    </form>

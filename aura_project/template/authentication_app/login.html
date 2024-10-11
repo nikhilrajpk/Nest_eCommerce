@@ -31,7 +31,7 @@
                             <p>Every day, new trends and innovations are reshaping the world of home furnishings.
                                 A perfect example of this is how modern furniture combines style, comfort,
                                  and smart technology to create the perfect living experience for your home.</p>
-                            <a href="{% url 'sign_up' %}" class="btn_3">Create an Account</a>
+                            <a href="{% url 'authentication_app:sign_up' %}" class="btn_3">Create an Account</a>
                         </div>
                     </div>
                 </div>
@@ -50,14 +50,14 @@
                                 {% endfor %}
                             {% endif %}
 
-                            <form class="row contact_form" action="#" method="post" novalidate="novalidate">
+                            <form class="row contact_form" action="" method="post" novalidate="novalidate">
                                 {% csrf_token %}
                                 <div class="col-md-12 form-group p_star">
-                                    <input type="text" class="form-control" id="name" name="name" value=""
-                                        placeholder="Username" required>
+                                    <input type="email" class="form-control"  name="email" value="{{email}}"
+                                        placeholder="Email" required>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
-                                    <input type="password" class="form-control" id="password" name="password" value=""
+                                    <input type="password" class="form-control" id="password" name="password" 
                                         placeholder="Password" required>
                                 </div>
                                 <div class="col-md-12 form-group">
@@ -68,7 +68,7 @@
                                     <button type="submit" value="submit" class="btn_3">
                                         log in
                                     </button>
-                                    <a class="lost_pass" href="#">forget password?</a>
+                                    <a class="lost_pass" href="{% url 'authentication_app:forgot_password' %}">forget password?</a>
                                 </div>
                             </form>
                         </div>
