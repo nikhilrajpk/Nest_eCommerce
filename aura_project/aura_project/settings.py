@@ -52,6 +52,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication_app',
     'user_app',
+    
+    # Google sign in 
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'aura_project.urls'
@@ -118,6 +126,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SITE_ID = 1
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -173,3 +183,27 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'nestinterior123@gmail.com' # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = 'agze nrpb yveg ctxv'  # Replace with the generated app password
+
+
+# Google sign in
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend', # Default backend
+    'allauth.account.auth_backends.AuthenticationBackend', # for google
+    
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id' : '827003881372-1i1bl56p4nqd7b49av2lk2d0l3t09gac.apps.googleusercontent.com',
+            'secret' : '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',
+            'key' : ''
+        }
+    }
+}
+
+LOGIN_URL = 'authentication_app:login'
+LOGOUT_URL = 'authentication_app:logout'
+LOGIN_REDIRECT_URL = 'user_app:home'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'user_app:home'

@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('user_app.urls')),
     path('',include('authentication_app.urls')),
+    path('accounts/',include('allauth.urls')),  # google sign in path
 ]
 
 #setting urlpatterns for static and media files
