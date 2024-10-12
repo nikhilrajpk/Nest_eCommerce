@@ -52,6 +52,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication_app',
     'user_app',
+    'category_app',
+    'admin_app',
+    'address_app',
+    'cart_app',
+    'coupen_app',
+    'order_app',
+    'product_app',
+    'profile_app',
+    'wallet_app',
+    'wishlist_app',
+    
+    
     
     # Google sign in 
     'django.contrib.sites',

@@ -25,6 +25,18 @@ urlpatterns = [
     path('',include('user_app.urls')),
     path('',include('authentication_app.urls')),
     path('accounts/',include('allauth.urls')),  # google sign in path
+    path('',include('category_app.urls')),
+    path('',include('admin_app.urls')),
+    path('',include('address_app.urls')),
+    path('',include('cart_app.urls')),
+    path('',include('coupen_app.urls')),
+    path('',include('order_app.urls')),
+    path('',include('product_app.urls')),
+    path('',include('profile_app.urls')),
+    path('',include('wallet_app.urls')),
+    path('',include('wishlist_app.urls')),
+    
+    
 ]
 
 #setting urlpatterns for static and media files

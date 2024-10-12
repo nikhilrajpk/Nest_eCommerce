@@ -49,6 +49,12 @@
                                     {% endfor %}
                                 {% endif %}
 
+                                <script>
+                                    setTimeout (() => {
+                                        $(".alert").alert("close")
+                                    },3000)
+                                </script>
+
                                 <!-- form error view
                                 {% if form.errors %}
                                     <div class="alert alert-danger">
@@ -131,5 +137,9 @@
             </div>
         </div>
     </section>
+    <script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
     <!--================sign_up_part end =================-->
     {% endblock content %}

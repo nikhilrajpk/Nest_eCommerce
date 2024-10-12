@@ -33,6 +33,12 @@
                     {% endfor %}
                 {% endif %}
 
+                <script>
+                    setTimeout (() => {
+                        $(".alert").alert("close")
+                    },3000)
+                </script>
+
                <form action="{% url 'authentication_app:verify_otp' %}" method="post">
                <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2"> 
                     {% csrf_token %}
@@ -97,6 +103,10 @@
         }, 1000);
     });
 </script>
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </html>
