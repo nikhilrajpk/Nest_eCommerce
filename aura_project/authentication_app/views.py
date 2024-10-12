@@ -6,6 +6,8 @@ from django.contrib.auth import login,authenticate,logout
 from .models import CustomUser
 from .validators import Authentication_check
 
+from django.views.decorators.cache import never_cache
+
 from .utils import send_otp
 from django.core.mail import EmailMessage
 from datetime import datetime,timedelta
@@ -53,6 +55,8 @@ def validation_view(request,email,first_name,last_name,password,confirm_password
 
 
 def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('user_app:home')
     
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -139,7 +143,11 @@ def register_view(request):
     
     return render(request, 'authentication_app/sign_up.html')
 
+@never_cache
 def verify_otp(request):
+    if request.user.is_authenticated:
+        return redirect('user_app:home')
+    
     # Checking the token to allow to the OTP page
     if not request.session.get('otp_verification_allowed'):
         return redirect('authentication_app:sign_up')
@@ -207,7 +215,11 @@ def verify_otp(request):
         context = {'expiry_time': expiry_time}
         return render(request, 'authentication_app/verify_otp.html',context)
 
+@never_cache
 def resend_otp_view(request):
+    if request.user.is_authenticated:
+        return redirect('user_app:home')
+    
     if request.method == 'POST':
         
         # Generating OTP
@@ -238,19 +250,26 @@ def resend_otp_view(request):
     else:
         return render(request, 'authentication_app/verify_otp.html')
 
-
+@never_cache
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('user_app:home')
     
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        
+        remember_me = request.POST.get('remember_me')
         user = authenticate(request, email = email, password = password)
         
         print(user)
         # request.session['name'] = user.first_name
         if user is not None:
             login(request, user)
+            if remember_me:
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0) # expires when browser is closed
+                
             return redirect('user_app:home')
         else:
             messages.error(request, 'Email or Password wrong!')
@@ -267,6 +286,7 @@ def logout_view(request):
 # Forgot password starts
 
 def forgot_password_view(request):
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         request.session['reset_pass_email'] = email
