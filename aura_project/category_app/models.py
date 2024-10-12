@@ -12,6 +12,7 @@ def user_directory_path(instance, filename):
 class Category(models.Model):
     cid = ShortUUIDField(unique=True, length=10, max_length=20, prefix='cat', alphabet="abcdefgh12345")
     category_name = models.CharField(max_length=255)
+    cat_image = models.ImageField(upload_to='category/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_listed = models.BooleanField(default=True)
@@ -19,5 +20,5 @@ class Category(models.Model):
     def __str__(self) -> str:
         return self.category_name
     
-    # def category_image(self):
-    #     return mark_safe('<img src="%s" width="50" height="50" />' % (self.image.url))
+    def category_image(self):
+        return mark_safe('<img src="%s" width="50" height="50" />' % (self.image.url))
