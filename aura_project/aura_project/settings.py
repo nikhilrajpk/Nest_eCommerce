@@ -211,11 +211,30 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id' : env('GOOGLE_OAUTH_CLIENT_ID'),
             'secret' : env('GOOGLE_OAUTH_CLIENT_SECRET'),
             'key' : ''
-        }
+        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
+# Ensure email is required for signup
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 LOGIN_URL = 'authentication_app:login'
 LOGOUT_URL = 'authentication_app:logout'
 LOGIN_REDIRECT_URL = 'user_app:home'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'user_app:home'
+
+SOCIALACCOUNT_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'authentication_app.pipelines.save_user_details',  # Add your custom pipeline here
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)

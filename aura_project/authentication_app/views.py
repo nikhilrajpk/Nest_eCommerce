@@ -261,6 +261,11 @@ def login_view(request):
         remember_me = request.POST.get('remember_me')
         user = authenticate(request, email = email, password = password)
         
+        user_block = CustomUser.objects.get(email = email)
+        if user_block.is_block:
+            messages.error(request, 'you are blocked by the admin!')
+            return render(request,'authentication_app/login.html')
+        
         print(user)
         # request.session['name'] = user.first_name
         if user is not None:
@@ -269,8 +274,10 @@ def login_view(request):
                 request.session.set_expiry(1209600)  # 2 weeks
             else:
                 request.session.set_expiry(0) # expires when browser is closed
-                
-            return redirect('user_app:home')
+            if user.is_staff:
+                return redirect('admin_app:admin_home')
+            else:
+                return redirect('user_app:home')
         else:
             messages.error(request, 'Email or Password wrong!')
             return render(request,'authentication_app/login.html',{'email' : email})
