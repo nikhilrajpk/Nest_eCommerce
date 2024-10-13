@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
 from authentication_app.models import CustomUser
+from category_app.models import *
 from django.db.models import Q
 # Create your views here.
 
@@ -23,7 +24,6 @@ def users(request):
     
 
 def user_block(request,id):
-    print('user_block')
     if request.method == 'POST':
         user = CustomUser.objects.get(id = id)
         print(user)
@@ -35,3 +35,31 @@ def user_block(request,id):
             user.is_block = True
             user.save()
     return redirect('admin_app:users')
+
+def admin_category(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        query = request.GET.get('search_query')
+        if query:
+            category = Category.objects.all().filter(category_name__icontains = query)
+        else:
+            # category = Category.objects.all()
+            category =[ 
+                {'id':1,'category_name':'Chair', 'is_listed':True},
+                {'id':2,'category_name':'Table', 'is_listed':False},
+            ]
+        return render(request,'admin_app/category.html',{'category':category,'query':query})
+    
+    else:
+        return redirect('user_app:home')
+    
+def category_listed(request,id):
+    if request.method == 'POST':
+        category = Category.objects.get(id = id)
+        if category.is_listed:
+            print(category.is_listed)
+            category.is_listed = False
+            category.save()
+        elif not category.is_listed:
+            category.is_listed = True
+            category.save()
+    return redirect('admin_app:admin_category')

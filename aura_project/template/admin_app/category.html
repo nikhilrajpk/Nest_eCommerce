@@ -1,0 +1,96 @@
+{% extends 'admin_app/admin_base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    #unblock{
+        width: 4rem;
+        background-color: #d4a373;
+        border: none;
+        border-radius: 1rem;
+        color: white;
+    }
+    #unblock:hover{
+        background-color: #ff7d00;
+    }
+    #block{
+        width: 4rem;
+        background-color: #ff7d00;
+        border: none;
+        border-radius: 1rem;
+        color: white;
+    }
+    #block:hover{
+        background-color: #d4a373;
+    }
+    #search{
+		color: black;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+		border-radius: 10px;
+        border: 1px solid #666;
+		padding-left: 13px;
+		width: 12rem;
+		height: 30px;
+		
+	}
+	#search_btn{
+		color: #000;
+		background-color: violet;
+		height: 30px;
+        width: 5rem;
+		border-radius: 15px;
+		border: #666;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+	}
+</style>
+<div class="container mt-5">
+    <br><br><br>
+    <h2 class="mb-4">Category</h2>
+        <div class="col-sm-5">
+            <form action="" method="get"">
+                <input id="search" type="search" name="search_query" placeholder="Search users..." value="{{query}}" >
+                <button id="search_btn" type="submit">Search</button>
+            </form>
+            <form action="" method="post" style="margin-left: 50rem;transform: translateY(-2rem);">
+                <button id="search_btn" type="submit">Add</button>
+            </form>
+        </div><br>
+        
+    
+    <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Action</th>
+                <th scope="col">Available</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in category %}
+            <tr>
+                <td>{{cat.category_name}}</td>
+                <td>
+                    <form action="" method="post">
+                        <button id = "unblock" type="submit" class="btn_3">Edit</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="{% url 'admin_app:category_listed' cat.id %}" method="post">
+                        {% csrf_token %}
+                        {% if cat.is_listed %}
+                            <!-- <input type="text" name="block_button" value="unblock" hidden> -->
+                            <button id = "unblock" type="submit" class="btn_3">Unlist</button>
+                        {% else %}
+                            <!-- <input type="text" name="block_button" value="block" hidden> -->
+                            <button id="block" type="submit" class="btn_3">List</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}
