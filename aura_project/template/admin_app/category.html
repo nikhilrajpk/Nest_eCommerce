@@ -52,16 +52,30 @@
                 <input id="search" type="search" name="search_query" placeholder="Search users..." value="{{query}}" >
                 <button id="search_btn" type="submit">Search</button>
             </form>
-            <form action="" method="post" style="margin-left: 50rem;transform: translateY(-2rem);">
+            <form action="{% url 'admin_app:add_category' %}" method="post" style="margin-left: 50rem;transform: translateY(-2rem);">
                 <button id="search_btn" type="submit">Add</button>
             </form>
         </div><br>
         
-    
+    <!-- alert box  -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags}}">
+                <strong>{{message}}</strong>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <script>
+        setTimeout (() => {
+            $(".alert").alert("close")
+        },3000)
+    </script>
     <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
         <thead class="table-dark">
             <tr>
                 <th scope="col">Category</th>
+                <th scope="col">Image</th>
                 <th scope="col">Action</th>
                 <th scope="col">Available</th>
             </tr>
@@ -70,6 +84,7 @@
             {% for cat in category %}
             <tr>
                 <td>{{cat.category_name}}</td>
+                <td>{{cat.cat_image}}</td>
                 <td>
                     <form action="" method="post">
                         <button id = "unblock" type="submit" class="btn_3">Edit</button>
@@ -92,5 +107,8 @@
         </tbody>
     </table>
 </div>
-
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
 {% endblock content %}

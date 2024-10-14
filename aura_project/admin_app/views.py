@@ -2,6 +2,8 @@ from django.shortcuts import render,redirect
 from authentication_app.models import CustomUser
 from category_app.models import *
 from django.db.models import Q
+
+from django.contrib import messages
 # Create your views here.
 
 def admin_home(request):
@@ -42,11 +44,7 @@ def admin_category(request):
         if query:
             category = Category.objects.all().filter(category_name__icontains = query)
         else:
-            # category = Category.objects.all()
-            category =[ 
-                {'id':1,'category_name':'Chair', 'is_listed':True},
-                {'id':2,'category_name':'Table', 'is_listed':False},
-            ]
+            category = Category.objects.all()
         return render(request,'admin_app/category.html',{'category':category,'query':query})
     
     else:
@@ -63,3 +61,15 @@ def category_listed(request,id):
             category.is_listed = True
             category.save()
     return redirect('admin_app:admin_category')
+
+def add_category(request):
+    if request.method == 'POST':
+        category_name = request.POST.get('category_name')
+        category_image = request.POST.get('category_image')
+        is_listed = request.POST.get('available')
+        
+        new_category = Category(category_name = category_name, cat_image = category_image, is_listed = is_listed)
+        new_category.save()
+        messages.success(request,f'New category {category_name} added.')
+        return redirect('admin_app:admin_category')
+    return render(request,'admin_app/add_category.html')
