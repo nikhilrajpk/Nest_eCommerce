@@ -46,7 +46,7 @@
 </style>
 <div class="container mt-5">
     <br><br><br>
-    <h2 class="mb-4">Category</h2>
+    <h2 class="mb-4">Product</h2>
         <div class="col-sm-5">
             <form action="" method="get"">
                 <input id="search" type="search" name="search_query" placeholder="Search users..." value="{{query}}" >
@@ -56,9 +56,8 @@
                 {% csrf_token %}
                 <button id="search_btn" type="submit">Add</button>
             </form> -->
-            <a href="{% url 'admin_app:add_category' %}" ><button id="search_btn" type="button" style="margin-left: 50rem;transform: translateY(-2rem);">Add</button></a>
+            <a href="" ><button id="search_btn" type="button" style="margin-left: 50rem;transform: translateY(-2rem);">Add</button></a>
         </div><br>
-        
     <!-- alert box  -->
     {% if messages %}
         {% for message in messages %}
@@ -76,24 +75,28 @@
     <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
         <thead class="table-dark">
             <tr>
+                <th scope="col">Product</th>
                 <th scope="col">Category</th>
+                <th scope="col">Price</th>
                 <th scope="col">Image</th>
                 <th scope="col">Action</th>
                 <th scope="col">Available</th>
             </tr>
         </thead>
         <tbody>
-            {% for cat in category %}
+            {% for product in products %}
             <tr>
-                <td>{{cat.category_name}}</td>
-                <td><img src="{{cat.cat_image.url}}" alt="{{cat.category_name}}" width="50" height="50"></td>
+                <td>{{product.product_name}}</td>
+                <td>{{product.category_name}}</td>
+                <td>{{product.price}}</td>
+                <td><img src="" alt="{{product.product_name}}" width="50" height="50"></td>
                 <td>
-                    <a href="{% url 'admin_app:edit_category' cat.id %}" ><button id="unblock" type="button" >Edit</button></a>
+                    <a href="" ><button id="unblock" type="button" >Edit</button></a>
                 </td>
                 <td>
-                    <form action="{% url 'admin_app:category_listed' cat.id %}" method="post">
+                    <form action="{% url 'admin_app:product_listed' 1 %}" method="post">
                         {% csrf_token %}
-                        {% if cat.is_listed %}
+                        {% if product.is_listed %}
                             <button id = "unblock" type="submit" class="btn_3">Unlist</button>
                         {% else %}
                             <button id="block" type="submit" class="btn_3">List</button>
