@@ -1,0 +1,45 @@
+{% extends 'admin_app/admin_base.html' %}
+{% load static %}
+{% block content %}
+<br><br><br>
+<div class="container mt-5">
+    <h2 class="mb-4">Add New Offer</h2>
+    <form action="" method="POST">
+        {% csrf_token %}
+
+        <!-- Offer Title -->
+        <div class="mb-3">
+            <label for="offer-title" class="form-label">Offer Title:</label>
+            <input type="text" class="form-control" id="offer-title" name="offer_title" required value="{{offer.offer_title}}">
+        </div>
+
+        <!-- Offer Description -->
+        <div class="mb-3">
+            <label for="offer-description" class="form-label">Offer Description:</label>
+            <textarea class="form-control" id="offer-description" name="offer_description" rows="4" required>{{offer.offer_description}}</textarea>
+        </div>
+
+        <!-- Offer Percentage -->
+        <div class="mb-3">
+            <label for="offer-percentage" class="form-label">Offer Percentage:</label>
+            <input type="number" class="form-control" id="offer-percentage" name="offer_percentage" min="0" max="100" required value="{{offer.offer_percentage}}">
+        </div>
+
+        <!-- Start Date -->
+        <div class="mb-3">
+            <label for="start-date" class="form-label">Start Date:</label>
+            <input type="datetime-local" class="form-control" id="start-date" name="start_date" required value="{{offer.start_date|date:'Y-m-d\\TH:i'}}">
+        </div>
+
+        <!-- End Date -->
+        <div class="mb-3">
+            <label for="end-date" class="form-label">End Date:</label>
+            <input type="datetime-local" class="form-control" id="end-date" name="end_date" required value="{{offer.end_date|date:'Y-m-d\\TH:i'}}">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Edit Offer</button>
+    </form>
+</div>
+<br>
+{% endblock content %}

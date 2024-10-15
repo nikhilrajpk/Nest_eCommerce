@@ -32,10 +32,12 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
 
+    @property
     def discount_price(self):
-        discount =  self.price - (self.offer.offer_percentage * self.price/100)
-        return discount
-    
+        if self.offer:
+            discount = self.price - (self.offer.offer_percentage * self.price / 100)
+            return round(discount, 2)
+        return self.price
     
 RATING = (
     (1,"⭐☆☆☆☆"),

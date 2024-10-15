@@ -26,8 +26,8 @@
             <label for="offer" class="form-label">Offer:</label>
             <select class="form-select" id="offer" name="offer">
                 {% if product.offer %}
-                    <option value="">{{product.offer.offer_title}}</option>
-                    <option value="">None</option>
+                    <option value="{{ product.offer.id }}">{{product.offer.offer_title}}</option>
+                    <option value="0">None</option>
                     {% for offer in offers %}
                         <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
                     {% endfor %}

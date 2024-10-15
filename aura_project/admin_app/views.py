@@ -41,6 +41,8 @@ def user_block(request,id):
             user.save()
     return redirect('admin_app:users')
 
+# Category Details
+
 @never_cache
 def admin_category(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -110,6 +112,8 @@ def edit_category(request,id):
         return redirect('user_app:home')
     
     
+ # Product Details 
+    
 @never_cache
 def admin_product(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -177,9 +181,10 @@ def add_product(request):
             messages.success(request,f'New product {product_name} added.')
             return redirect('admin_app:admin_product')
         categories = Category.objects.all()
-        # offers = Offer.objects.all() 'offers' : offers
+        offers = Offer.objects.all()
         context = {
             'categories' : categories,
+            'offers' : offers
         }
         return render(request,'admin_app/add_product.html',context)
     else:
@@ -208,7 +213,9 @@ def edit_product(request,id):
             product.description = product_description
             product.price = price
             
-            if offer_id:
+            if offer_id == '0':
+                product.offer = None
+            elif offer_id:
                 offer = Offer.objects.get(id = offer_id)
                 product.offer = offer
             
@@ -234,11 +241,125 @@ def edit_product(request,id):
             messages.success(request,f'Product {product_name} edited.')
             return redirect('admin_app:admin_product')
         categories = Category.objects.all().exclude(id = product.category.id)
-        # offers = Offer.objects.all().exclude(id = product.offer.id) 'offers' : offers
+        if product.offer:
+            offers = Offer.objects.all().exclude(id = product.offer.id)
+        else:
+            offers = Offer.objects.all()
         context = {
             'product':product,
             'categories' : categories,
+            'offers' : offers
         }
         return render(request,'admin_app/edit_product.html',context)
     else:
         return redirect('user_app:home')
+    
+    
+# Offer Details
+
+def admin_offer(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        query = request.GET.get('search_query')
+        if query:
+            offers = Offer.objects.all().filter(offer_title__icontains = query)
+        else:
+            offers = Offer.objects.all()
+            
+        return render(request,'admin_app/offer.html',{'offers':offers,'query':query})
+    
+    else:
+        return redirect('user_app:home')
+    
+def add_offer(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        if request.method == 'POST':
+            offer_title = request.POST.get('offer_title')
+            offer_description = request.POST.get('offer_description')
+            offer_percentage = request.POST.get('offer_percentage')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            
+            offer = Offer(
+                offer_title = offer_title,
+                offer_description = offer_description,
+                offer_percentage = offer_percentage,
+                start_date = start_date,
+                end_date = end_date
+            )
+            
+            offer.save()
+            messages.success(request,f'New offer {offer_title} added.')
+            return redirect('admin_app:admin_offer')
+            
+        return render(request,'admin_app/add_offer.html')
+    else:
+        return redirect('user_app:home')
+    
+@never_cache
+def edit_offer(request,id):
+    if request.user.is_authenticated and request.user.is_staff:
+        offer = Offer.objects.get(id = id)    # Retrive data of the offer
+        if request.method == 'POST':
+            offer_title = request.POST.get('offer_title')
+            offer_description = request.POST.get('offer_description')
+            offer_percentage = request.POST.get('offer_percentage')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            
+            offer.offer_title = offer_title
+            offer.offer_description = offer_description
+            offer.offer_percentage = offer_percentage
+            offer.start_date = start_date
+            offer.end_date = end_date
+            
+            
+            offer.save()
+            
+            messages.success(request,f'Offer {offer_title} edited.')
+            return redirect('admin_app:admin_offer')
+        return render(request,'admin_app/edit_offer.html',{'offer':offer})
+    else:
+        return redirect('user_app:home')
+    
+@never_cache
+def edit_offer(request,id):
+    if request.user.is_authenticated and request.user.is_staff:
+        offer = Offer.objects.get(id = id)    # Retrive data of the offer
+        if request.method == 'POST':
+            offer_title = request.POST.get('offer_title')
+            offer_description = request.POST.get('offer_description')
+            offer_percentage = request.POST.get('offer_percentage')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            
+            offer.offer_title = offer_title
+            offer.offer_description = offer_description
+            offer.offer_percentage = offer_percentage
+            offer.start_date = start_date
+            offer.end_date = end_date
+            
+            
+            offer.save()
+            
+            messages.success(request,f'Offer {offer_title} edited.')
+            return redirect('admin_app:admin_offer')
+        return render(request,'admin_app/edit_offer.html',{'offer':offer})
+    else:
+        return redirect('user_app:home')
+    
+@never_cache
+def remove_offer(request,id):
+    if request.user.is_authenticated and request.user.is_staff:
+        print('hai')
+        offer = Offer.objects.get(id = id)    # Retrive data of the offer
+        if request.method == 'POST':
+            print('hello')
+            offer_title = offer.offer_title
+            offer.delete()
+            
+            messages.success(request,f'Offer {offer_title} removed.')
+            return redirect('admin_app:admin_offer')
+        return redirect('admin_app:admin_offer')
+    else:
+        return redirect('user_app:home')
+    

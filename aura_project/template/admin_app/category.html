@@ -52,10 +52,6 @@
                 <input id="search" type="search" name="search_query" placeholder="Search users..." value="{{query}}" >
                 <button id="search_btn" type="submit">Search</button>
             </form>
-            <!-- <form action="{% url 'admin_app:add_category' %}" method="post" style="margin-left: 50rem;transform: translateY(-2rem);">
-                {% csrf_token %}
-                <button id="search_btn" type="submit">Add</button>
-            </form> -->
             <a href="{% url 'admin_app:add_category' %}" ><button id="search_btn" type="button" style="margin-left: 50rem;transform: translateY(-2rem);">Add</button></a>
         </div><br>
         
