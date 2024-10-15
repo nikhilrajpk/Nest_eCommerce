@@ -22,7 +22,7 @@ class Product(models.Model):
     image_1 = models.ImageField(upload_to='products/', null=True, blank=True)
     image_2 = models.ImageField(upload_to='products/', null=True, blank=True)
     image_3 = models.ImageField(upload_to='products/', null=True, blank=True)
-    offer = models.CharField(max_length=255, null=True, blank=True)
+    offer = models.ForeignKey(Offer,on_delete=models.SET_NULL,null=True)
     is_listed = models.BooleanField(default=True)
     in_stock = models.BooleanField(default=True)
     material = models.CharField(max_length=255, null=True, blank=True)

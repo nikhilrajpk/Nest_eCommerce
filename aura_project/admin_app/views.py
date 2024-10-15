@@ -115,10 +115,9 @@ def admin_product(request):
     if request.user.is_authenticated and request.user.is_staff:
         query = request.GET.get('search_query')
         if query:
-            product = Product.objects.all().filter(Q(product_name__icontains = query)) #| Q(category.category_name__icontains = query)
+            products = Product.objects.all().filter(Q(product_name__icontains = query)| Q(category__category_name__icontains = query))
         else:
-            # product = Product.objects.all()
-            products = {'product_name':'Rocking chair','category_name':'Chair','price': 400,'is_listed':True}
+            products = Product.objects.all()
         return render(request,'admin_app/product.html',{'products':products,'query':query})
     
     else:
@@ -136,45 +135,110 @@ def product_listed(request,id):
             product.save()
     return redirect('admin_app:admin_product')
 
-# @never_cache
-# def add_product(request):
-#     if request.user.is_authenticated and request.user.is_staff:
-#         if request.method == 'POST':
-#             product_name = request.POST.get('product_name')
-#             category_image = request.FILES.get('product_image')
-#             is_listed = request.POST.get('available')
+@never_cache
+def add_product(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        if request.method == 'POST':
+            product_name = request.POST.get('product_name')
+            product_description = request.POST.get('description')
+            price = request.POST.get('price')
+            offer_id = request.POST.get('offer')
+            category_id = request.POST.get('category')
+            available_stock = request.POST.get('available_stock')
+            image_1 = request.FILES.get('image_1')
+            image_2 = request.FILES.get('image_2')
+            image_3 = request.FILES.get('image_3')
+            is_listed = request.POST.get('is_listed')
+            in_stock = request.POST.get('in_stock')
+            material = request.POST.get('material')
+            color = request.POST.get('color')
+                
+            category = Category.objects.get(id = category_id)
             
-#             new_category = Category(
-#                 category_name = category_name,
-#                 cat_image = category_image,
-#                 is_listed = is_listed
-#             )
-#             new_category.save()
-#             messages.success(request,f'New category {category_name} added.')
-#             return redirect('admin_app:admin_category')
-#         return render(request,'admin_app/add_category.html')
-#     else:
-#         return redirect('user_app:home')
+            new_product = Product(
+                product_name = product_name,
+                description = product_description,
+                price = price,
+                category = category,
+                available_stock = available_stock,
+                image_1 = image_1,
+                image_2 = image_2,
+                image_3 = image_3,
+                is_listed = is_listed,
+                in_stock = in_stock,
+                material = material,
+                color = color
+            )
+            if offer_id:
+                offer = Offer.objects.get(id = offer_id)
+                new_product = Product(offer = offer)
+            
+            new_product.save()
+            messages.success(request,f'New product {product_name} added.')
+            return redirect('admin_app:admin_product')
+        categories = Category.objects.all()
+        # offers = Offer.objects.all() 'offers' : offers
+        context = {
+            'categories' : categories,
+        }
+        return render(request,'admin_app/add_product.html',context)
+    else:
+        return redirect('user_app:home')
     
-# @never_cache
-# def edit_product(request,id):
-#     if request.user.is_authenticated and request.user.is_staff:
-#         category = Category.objects.get(id = id)    # Retrive data of the catgory
-#         if request.method == 'POST':
-#             category_name = request.POST.get('category_name')
-#             category_image = request.FILES.get('category_image')
-#             is_listed = request.POST.get('available')
+@never_cache
+def edit_product(request,id):
+    if request.user.is_authenticated and request.user.is_staff:
+        product = Product.objects.get(id = id)    # Retrive data of the product
+        if request.method == 'POST':
+            product_name = request.POST.get('product_name')
+            product_description = request.POST.get('description')
+            price = request.POST.get('price')
+            offer_id = request.POST.get('offer')
+            category_id = request.POST.get('category')
+            available_stock = request.POST.get('available_stock')
+            image_1 = request.FILES.get('image_1')
+            image_2 = request.FILES.get('image_2')
+            image_3 = request.FILES.get('image_3')
+            is_listed = request.POST.get('is_listed')
+            in_stock = request.POST.get('in_stock')
+            material = request.POST.get('material')
+            color = request.POST.get('color')
             
-#             category.category_name = category_name
-#             category.is_listed = is_listed
+            product.product_name = product_name
+            product.description = product_description
+            product.price = price
             
-#             if category_image:
-#                 category.cat_image = category_image
+            if offer_id:
+                offer = Offer.objects.get(id = offer_id)
+                product.offer = offer
             
-#             category.save()
+            category = Category.objects.get(id = category_id)
+            product.category = category
             
-#             messages.success(request,f'Category {category_name} edited.')
-#             return redirect('admin_app:admin_category')
-#         return render(request,'admin_app/edit_category.html',{'category':category})
-#     else:
-#         return redirect('user_app:home')
+            product.available_stock = available_stock
+            
+            if image_1:
+                product.image_1 = image_1
+            if image_2:
+                product.image_2 = image_2
+            if image_3:
+                product.image_3 = image_3
+                
+            product.is_listed = is_listed
+            product.in_stock = in_stock
+            product.material = material
+            product.color = color
+            
+            product.save()
+            
+            messages.success(request,f'Product {product_name} edited.')
+            return redirect('admin_app:admin_product')
+        categories = Category.objects.all().exclude(id = product.category.id)
+        # offers = Offer.objects.all().exclude(id = product.offer.id) 'offers' : offers
+        context = {
+            'product':product,
+            'categories' : categories,
+        }
+        return render(request,'admin_app/edit_product.html',context)
+    else:
+        return redirect('user_app:home')

@@ -4,6 +4,11 @@ from product_app.models import Product
 from cart_app.models import *
 from address_app.models import Address
 from coupen_app.models import Coupons
+from enum import unique
+from pyexpat import model
+from sys import prefix
+from pyparsing import alphas
+from shortuuid.django_fields import ShortUUIDField
 # Create your models here.
 
 STATUS = (
@@ -20,7 +25,7 @@ CHECKOUT_STATUS = (
 )
 
 class Order(models.Model):
-
+    # oid = ShortUUIDField(unique=True, length=10, max_length=20, prefix='ord', alphabet="abcdefgh12345")
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="orders")
     order_status = models.CharField(max_length=20, choices=STATUS, default="pending")
     order_date = models.DateTimeField(auto_now_add=True)
