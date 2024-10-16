@@ -1,6 +1,13 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% block content %}
+<style>
+    #wishlistLogoProduct{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
     <!-- banner part start-->
     <section class="banner_part">
         <div class="container">
@@ -85,26 +92,28 @@
     </section>
     <!-- banner part start-->
 
-    <!-- feature_part start-->
+    <!-- Latest product start-->
     <section class="feature_part padding_top">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="section_tittle text-center">
-                        <h2>Featured Category {{name | default:'hello'}}</h2>
+                        <h2>Latest Products</h2>
                     </div>
                 </div>
             </div>
             <div class="row align-items-center justify-content-between">
-                <div class="col-lg-7 col-sm-6">
-                    <div class="single_feature_post_text">
-                        <p>Premium Quality</p>
-                        <h3>Latest foam Sofa</h3>
-                        <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
-                        <img src="{% static 'img/feature/feature_1.png' %}" alt="">
+                {% for latest_product in latest_products %}
+                    <div class="col-lg-5 col-sm-6">
+                        <div class="single_feature_post_text" style="height: 30rem;">
+                            <p>Premium Quality</p>
+                            <h3>{{latest_product.product_name}}</h3>
+                            <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
+                            <img src="{{latest_product.image_1.url}}" alt="{{latest_product.product_name}}" width="400" height="350">
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-5 col-sm-6">
+                {% endfor %}
+                <!-- <div class="col-lg-5 col-sm-6">
                     <div class="single_feature_post_text">
                         <p>Premium Quality</p>
                         <h3>Latest foam Sofa</h3>
@@ -127,7 +136,7 @@
                         <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
                         <img src="{% static 'img/feature/feature_4.png' %}" alt="">
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
@@ -148,17 +157,29 @@
                     <div class="product_list_slider owl-carousel">
                         <div class="single_product_list_slider">
                             <div class="row align-items-center justify-content-between">
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_1.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
+                                {% for product in products %}
+                                    <div class="col-lg-3 col-sm-6">
+                                        <div class="single_product_item" style="height: 30rem;">
+                                            <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                            <div class="single_product_text">
+                                                <h4>{{product.product_name}}</h4>
+                                                {% if product.offer %}
+                                                    <h3><del>{{product.price}} Rs</del></h3>
+                                                    <h3>{{product.discount_price}} Rs</h3>
+                                                {% else %}
+                                                    <h3>{{product.price}} Rs</h3>
+                                                {% endif %}
+                                                <div id="wishlistLogoProduct">
+                                                    <a href="#" class="add_cart" >+ add to cart</a>
+                                                    <a href="#" class="add_cart" id="wishlistLogoProduct" ><i class="ti-heart"></i></a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
+                                {% endfor %}
+                                
+
+                                <!-- <div class="col-lg-3 col-sm-6">
                                     <div class="single_product_item">
                                         <img src="{% static 'img/product/product_2.png' %}" alt="">
                                         <div class="single_product_text">
@@ -227,10 +248,10 @@
                                             <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
-                        <div class="single_product_list_slider">
+                        <!-- <div class="single_product_list_slider">
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-lg-3 col-sm-6">
                                     <div class="single_product_item">
@@ -313,7 +334,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -369,14 +390,21 @@
             <div class="row align-items-center justify-content-between">
                 <div class="col-lg-12">
                     <div class="best_product_slider owl-carousel">
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_1.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
+                        {% for best_seller in best_sellers %}
+                            <div class="single_product_item">
+                                <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
+                                <div class="single_product_text">
+                                    <h4>{{best_seller.product_name}}</h4>
+                                    {% if best_seller.offer %}
+                                        <h3><del>{{best_seller.price}} Rs</del></h3>
+                                        <h3>{{best_seller.discount_price}} Rs</h3>
+                                    {% else %}
+                                        <h3>{{best_seller.price}} Rs</h3>
+                                    {% endif %}
+                                </div>
                             </div>
-                        </div>
-                        <div class="single_product_item">
+                        {% endfor %}
+                        <!-- <div class="single_product_item">
                             <img src="{% static 'img/product/product_2.png' %}" alt="">
                             <div class="single_product_text">
                                 <h4>Quartz Belt Watch</h4>
@@ -403,7 +431,7 @@
                                 <h4>Quartz Belt Watch</h4>
                                 <h3>$150.00</h3>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

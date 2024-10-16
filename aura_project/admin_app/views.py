@@ -175,7 +175,7 @@ def add_product(request):
             )
             if offer_id:
                 offer = Offer.objects.get(id = offer_id)
-                new_product = Product(offer = offer)
+                new_product.offer = offer
             
             new_product.save()
             messages.success(request,f'New product {product_name} added.')

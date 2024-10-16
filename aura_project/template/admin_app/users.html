@@ -43,11 +43,18 @@
 		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 		font-weight: 500;
 	}
+    #tdiv{
+        position: sticky;
+        z-index: 1;
+        top: 4.2rem;
+        background-color: white;
+        width: 100%;
+    }
 </style>
 <div class="container mt-5">
     <br><br><br>
-    <h2 class="mb-4">User Information</h2>
-        <div class="col-sm-5">
+    <div class="col-sm-5" id="tdiv">
+            <h2 class="mb-4">User Information</h2>
             <form action="" method="get"">
                 <input id="search" type="search" name="search_query" placeholder="Search users..." value="{{query}}" >
                 <button id="search_btn" type="submit">Search</button>
