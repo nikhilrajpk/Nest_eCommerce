@@ -2,6 +2,48 @@
 {% load static %}
 {% block content %}
 
+<style>
+    .page-btn{
+        background-color:#ebebeb;
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        justify-content: center;
+    }
+    .page-btn a{
+        display: inline-block;
+        text-decoration: none;
+        color: #ff3368;
+        font-size: 1.5rem;
+    }
+    #search{
+		color: black;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+		border-radius: 10px;
+        border: 1px solid #666;
+		padding-left: 13px;
+		width: 12rem;
+		height: 30px;
+		
+	}
+	#search_btn{
+		color: #000;
+		background-color: violet;
+		height: 30px;
+        width: 5rem;
+		border-radius: 15px;
+		border: #666;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+	}
+    .active-page {
+        font-weight: bold;
+        color: #ff6600; /* Customize as needed */
+        text-decoration: underline;
+    }
+    
+</style>
     <!--================Home Banner Area =================-->
     <!-- breadcrumb start-->
     <section class="breadcrumb breadcrumb_bg">
@@ -21,10 +63,10 @@
     <!-- breadcrumb start-->
 
     <!--================Category Product Area =================-->
-    <section class="cat_product_area section_padding">
+    <section id="category-section" class="cat_product_area section_padding">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3">
+                <!-- <div class="col-lg-3">
                     <div class="left_sidebar_area">
                         <aside class="left_widgets p_filter_widgets">
                             <div class="l_w_title">
@@ -32,39 +74,17 @@
                             </div>
                             <div class="widgets_inner">
                                 <ul class="list">
-                                    <li>
-                                        <a href="#">Frozen Fish</a>
-                                        <span>(250)</span>
-                                    </li>
-                                    <li>
-                                        <a href="#">Dried Fish</a>
-                                        <span>(250)</span>
-                                    </li>
-                                    <li>
-                                        <a href="#">Fresh Fish</a>
-                                        <span>(250)</span>
-                                    </li>
-                                    <li>
-                                        <a href="#">Meat Alternatives</a>
-                                        <span>(250)</span>
-                                    </li>
-                                    <li>
-                                        <a href="#">Fresh Fish</a>
-                                        <span>(250)</span>
-                                    </li>
-                                    <li>
-                                        <a href="#">Meat Alternatives</a>
-                                        <span>(250)</span>
-                                    </li>
-                                    <li>
-                                        <a href="#">Meat</a>
-                                        <span>(250)</span>
-                                    </li>
+                                    {% for category in categories %}
+                                        <li>
+                                            <a href="#">{{category.category_name}}</a>
+                                            <span>({{category.count_of_product}})</span>
+                                        </li>
+                                    {% endfor %}
                                 </ul>
                             </div>
                         </aside>
 
-                        <aside class="left_widgets p_filter_widgets">
+                         <aside class="left_widgets p_filter_widgets">
                             <div class="l_w_title">
                                 <h3>Product filters</h3>
                             </div>
@@ -129,7 +149,7 @@
                                     </li>
                                 </ul>
                             </div>
-                        </aside>
+                        </aside> 
 
                         <aside class="left_widgets p_filter_widgets price_rangs_aside">
                             <div class="l_w_title">
@@ -153,161 +173,75 @@
                             </div>
                         </aside>
                     </div>
-                </div>
-                <div class="col-lg-9">
+                </div> -->
+                <div class="col-lg-12">
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="product_top_bar d-flex justify-content-between align-items-center">
                                 <div class="single_product_menu">
-                                    <p><span>10000 </span> Prodict Found</p>
+                                    <p><span>{{total}} </span> Product Found</p>
                                 </div>
                                 <div class="single_product_menu d-flex">
-                                    <h5>short by : </h5>
-                                    <select>
-                                        <option data-display="Select">name</option>
-                                        <option value="1">price</option>
-                                        <option value="2">product</option>
-                                    </select>
-                                </div>
-                                <div class="single_product_menu d-flex">
-                                    <h5>show :</h5>
-                                    <div class="top_pageniation">
-                                        <ul>
-                                            <li>1</li>
-                                            <li>2</li>
-                                            <li>3</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="single_product_menu d-flex">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="search"
-                                            aria-describedby="inputGroupPrepend">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="inputGroupPrepend"><i
-                                                    class="ti-search"></i></span>
-                                        </div>
-                                    </div>
+                                    <form action="" method="get"">
+                                        <input id="search" type="search" name="search_query" placeholder="Search category..." value="{{query}}" >
+                                        <button id="search_btn" type="submit">Search</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <br><br>
                     <div class="row align-items-center latest_product_inner">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_1.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
+                        {% for category in categories %}
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="single_product_item">
+                                    {% if not category.is_listed %}
+                                        <!-- <a href="" aria-disabled="true" class="disabled-link"> -->
+                                            <img width="300rem" height="300rem" src="{{category.cat_image.url}}" alt="{{category.category_name}}">
+                                            <div class="single_product_text">
+                                                <h3>{{category.category_name}}</h3>
+                                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
+                                            </div>
+                                        <!-- </a> -->
+                                    {% else %}
+                                        <a href="{% url 'product_app:products_view' category.id %}">
+                                            <img width="300rem" height="300rem" src="{{category.cat_image.url}}" alt="{{category.category_name}}">
+                                            <div class="single_product_text">
+                                                <h4>{{category.category_name}}</h4>
+                                                <h3>Total product : {{category.count_of_product}}</h3>  
+                                            </div>
+                                        </a>
+                                    {% endif %}
                                 </div>
-                            </div>
+                            </div>   
+                        {% endfor %}
+
+
+                        <!-- Pagination Links -->
+                        <div class="page-btn">
+                            {% if categories.has_previous %}
+                                <a href="?page={{ categories.previous_page_number }}&search_query={{ query }}#category-section">
+                                    <span style="margin-right: 10px;">&lt;&lt;</span>
+                                </a>
+                            {% endif %}
+
+                            {% for i in categories.paginator.page_range %}
+                                <a href="?page={{ i }}&search_query={{ query }}#category-section" {% if i == categories.number %}class="active-page"{% endif %}>
+                                    <span style="margin: 10px;">{{ i }}</span>
+                                </a>
+                            {% endfor %}
+
+                            {% if categories.has_next %}
+                                <a href="?page={{ categories.next_page_number }}&search_query={{ query }}#category-section">
+                                    <span style="margin-left: 10px;">&gt;&gt;</span>
+                                </a>
+                            {% endif %}
                         </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_2.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_3.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_4.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_5.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_6.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_7.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_8.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="single_product_item">
-                                <img src="{% static 'img/product/product_2.png' %}" alt="">
-                                <div class="single_product_text">
-                                    <h4>Quartz Belt Watch</h4>
-                                    <h3>$150.00</h3>
-                                    <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="pageination">
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-center">
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Previous">
-                                                <i class="ti-angle-double-left"></i>
-                                            </a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">4</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">5</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">6</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#" aria-label="Next">
-                                                <i class="ti-angle-double-right"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
+
+                        
+                        
+                        
                     </div>
                 </div>
             </div>
@@ -315,59 +249,5 @@
     </section>
     <!--================End Category Product Area =================-->
 
-    <!-- product_list part start-->
-    <section class="product_list best_seller">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    <div class="section_tittle text-center">
-                        <h2>Best Sellers <span>shop</span></h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row align-items-center justify-content-between">
-                <div class="col-lg-12">
-                    <div class="best_product_slider owl-carousel">
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_1.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_2.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_3.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_4.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_5.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- product_list part end-->
 
 {% endblock content %}

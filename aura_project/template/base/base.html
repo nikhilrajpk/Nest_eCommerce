@@ -25,11 +25,18 @@
     <link rel="stylesheet" href="{% static 'css/slick.css' %}">
     <!-- style CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        #h_header{
+            position: sticky;
+            top: 0;
+            background-color: white;
+        }
+    </style>
 </head>
 
 <body>
     <!--::header part start::-->
-    <header class="main_menu home_menu">
+    <header id="h_header" class="main_menu home_menu">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-12">

@@ -29,6 +29,7 @@ class Product(models.Model):
     color = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     sold_count = models.PositiveIntegerField(blank=True, default=0)
+   
 
     def __str__(self):
         return self.product_name

@@ -1,0 +1,171 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    #wishlistLogoProduct{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .page-btn{
+        background-color:#ebebeb;
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        justify-content: center;
+    }
+    .page-btn a{
+        display: inline-block;
+        text-decoration: none;
+        color: #ff3368;
+        font-size: 1.5rem;
+    }
+    #search{
+		color: black;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+		border-radius: 10px;
+        border: 1px solid #666;
+		padding-left: 13px;
+		width: 12rem;
+		height: 30px;
+		
+	}
+	#search_btn{
+		color: #000;
+		background-color: violet;
+		height: 30px;
+        width: 5rem;
+		border-radius: 15px;
+		border: #666;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+	}
+    #back_btn{
+        color: #000;
+		background-color: violet;
+		height: fit-content;
+        width: fit-content;
+		border-radius: 15px;
+		border: #666;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+        margin-left: -50rem;
+    }
+    .active-page {
+        font-weight: bold;
+        color: #ff6600; /* Customize as needed */
+        text-decoration: underline;
+    }
+    
+</style>
+    <!--================Home Banner Area =================-->
+    <!-- breadcrumb start-->
+    <section class="breadcrumb breadcrumb_bg">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="breadcrumb_iner">
+                        <div class="breadcrumb_iner_item">
+                            
+                                <h2>{{category.category_name}}</h2>
+                                <p>Home<span>-</span>Category<span>-</span>{{category.category_name}}</p>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- breadcrumb start-->
+
+    <!--================Category Product Area =================-->
+    <section id="product-section" class="cat_product_area section_padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="product_top_bar d-flex justify-content-between align-items-center">
+                                <div class="single_product_menu">
+                                    <!-- <p><span>{{total}} </span> Product Found</p> -->
+                                </div>
+                                <div class="single_product_menu d-flex">
+                                    <a href="{% url 'category_app:category' %}"><button class="btn" id="back_btn">Back to category</button></a>
+                                    <form action="" method="get"">
+                                        <input id="search" type="search" name="search_query" placeholder="Search product..." value="{{query}}" >
+                                        <button id="search_btn" type="submit">Search</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br><br>
+                    <div class="row align-items-center latest_product_inner">
+                        {% for product in products %}
+                            <div class="col-lg-3 col-sm-6">
+                                <div class="single_product_item">
+                                    {% if not product.is_listed %}
+                                        <!-- <a href="" aria-disabled="true" class="disabled-link"> -->
+                                            <img width="300rem" height="300rem" src="{{product.image_1.url}}" alt="{{product.product_name}}">
+                                            <div class="single_product_text">
+                                                <h3>{{product.product_name}}</h3>
+                                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
+                                            </div>
+                                        <!-- </a> -->
+                                    {% else %}
+                                        <a href="{% url 'product_app:single_product' product.id %}">
+                                            <img width="300rem" height="300rem" src="{{product.image_1.url}}" alt="{{product.product_name}}">
+                                            <h3>{{product.product_name}}</h3>
+                                            {% if product.offer %}
+                                                <h4><del>{{product.price}} Rs</del></h4>
+                                                <h4>{{product.discount_price}} Rs</h4>
+                                            {% else %}
+                                                <h4>{{product.price}} Rs</h4>
+                                            {% endif %}
+                                            <div class="single_product_text">
+                                                <div id="wishlistLogoProduct">
+                                                    <a href="#" class="add_cart" style="margin-left: -6rem;">+ add to cart</a>
+                                                    <a href="#" class="add_cart" ><i class="ti-heart"></i></a>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>   
+                        {% endfor %}
+
+
+                        <!-- Pagination Links -->
+                        <div class="page-btn">
+                            {% if products.has_previous %}
+                                <a href="?page={{ products.previous_page_number }}&search_query={{ query }}#product-section">
+                                    <span style="margin-right: 10px;">&lt;&lt;</span>
+                                </a>
+                            {% endif %}
+
+                            {% for i in products.paginator.page_range %}
+                                <a href="?page={{ i }}&search_query={{ query }}#product-section" {% if i == products.number %}class="active-page"{% endif %}>
+                                    <span style="margin: 10px;">{{ i }}</span>
+                                </a>
+                            {% endfor %}
+
+                            {% if products.has_next %}
+                                <a href="?page={{ products.next_page_number }}&search_query={{ query }}#product-section">
+                                    <span style="margin-left: 10px;">&gt;&gt;</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--================End Product Area =================-->
+
+
+{% endblock content %}
