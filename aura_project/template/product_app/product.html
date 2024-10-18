@@ -127,7 +127,7 @@
                                             {% endif %}
                                             <div class="single_product_text">
                                                 <div id="wishlistLogoProduct">
-                                                    <a href="#" class="add_cart" style="margin-left: -6rem;">+ add to cart</a>
+                                                    <a href="{% url 'cart_app:add_to_cart' product.id %}" class="add_cart" style="margin-left: -6rem;">+ add to cart</a>
                                                     <a href="#" class="add_cart" ><i class="ti-heart"></i></a>
                                                 </div>
                                             </div>

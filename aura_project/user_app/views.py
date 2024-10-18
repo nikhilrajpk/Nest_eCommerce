@@ -6,7 +6,11 @@ from django.core.paginator import Paginator
 def home(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
+    
+    banners = Banner.objects.all()
+    
     latest_products = Product.objects.all().order_by('-id')[:4]
+    
     best_sellers = Product.objects.all().order_by('-sold_count')[:8]
     
     # Paginator for the products
@@ -18,6 +22,7 @@ def home(request):
     products = product_paginator.get_page(page)
         
     context = {
+        'banners':banners,
         'latest_products':latest_products,
         'products':products,
         'best_sellers':best_sellers,

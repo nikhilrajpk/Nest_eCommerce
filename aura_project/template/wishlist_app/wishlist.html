@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    #block{
+        width: 4.3rem;
+        background-color: #ff7d00;
+        border: none;
+        border-radius: 1rem;
+        color: white;
+    }
+    #block:hover{
+        background-color: #d4a373;
+    }
+</style>
+<!--================Cart Area =================-->
+<section class="cart_area padding_top">
+    <div class="container">
+      <div class="cart_inner">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Price</th>
+                <th scope="col">Discount price</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                    <div class="media">
+                        <div class="d-flex">
+                        <img src="{{item.product.image_1.url}}" alt="{{item.product.product_name}}" width="100" height="100"/>
+                        </div>
+                        <div class="media-body">
+                        <p>{{item.product.product_name}}</p>
+                        </div>
+                    </div>
+                    </td>
+                    <td>
+                    <h5>{{item.product.price}}</h5>
+                    </td>
+                    <td>
+                    <h5>{{item.product.discount_price}}</h5>
+                    </td>
+                    
+                    </td>
+                    <td>
+                        <h5>{{item.total_price}} </h5>
+                    </td>
+                    <td>
+                        <a href=""><button id="block">Add to cart</button></a>
+                    </td>
+                    <td>
+                        <form action="{% url 'cart_app:remove_cart_item' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button id="block" type="submit" >Remove</button>
+                        </form>
+                    </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </section>
+  <!--================End Cart Area =================-->
+
+  {% endblock content %}
