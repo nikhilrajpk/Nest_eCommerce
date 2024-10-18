@@ -156,6 +156,9 @@ def add_product(request):
             in_stock = request.POST.get('in_stock')
             material = request.POST.get('material')
             color = request.POST.get('color')
+            width = request.POST.get('width')
+            height = request.POST.get('height')
+            length = request.POST.get('length')
                 
             category = Category.objects.get(id = category_id)
             
@@ -171,7 +174,10 @@ def add_product(request):
                 is_listed = is_listed,
                 in_stock = in_stock,
                 material = material,
-                color = color
+                color = color,
+                length = length,
+                width = width,
+                height = height,
             )
             if offer_id:
                 offer = Offer.objects.get(id = offer_id)
@@ -208,6 +214,9 @@ def edit_product(request,id):
             in_stock = request.POST.get('in_stock')
             material = request.POST.get('material')
             color = request.POST.get('color')
+            width = request.POST.get('width')
+            height = request.POST.get('height')
+            length = request.POST.get('length')
             
             product.product_name = product_name
             product.description = product_description
@@ -235,6 +244,9 @@ def edit_product(request,id):
             product.in_stock = in_stock
             product.material = material
             product.color = color
+            product.width = width
+            product.length = length
+            product.height = height
             
             product.save()
             
@@ -350,16 +362,124 @@ def edit_offer(request,id):
 @never_cache
 def remove_offer(request,id):
     if request.user.is_authenticated and request.user.is_staff:
-        print('hai')
         offer = Offer.objects.get(id = id)    # Retrive data of the offer
         if request.method == 'POST':
-            print('hello')
             offer_title = offer.offer_title
             offer.delete()
             
             messages.success(request,f'Offer {offer_title} removed.')
             return redirect('admin_app:admin_offer')
         return redirect('admin_app:admin_offer')
+    else:
+        return redirect('user_app:home')
+    
+    
+@never_cache
+def admin_banner(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        query = request.GET.get('search_query')
+        if query:
+            banners = Banner.objects.all().filter(banner_name__icontains = query)
+        else:
+            banners = Banner.objects.all()
+            
+        return render(request,'admin_app/banner.html',{'banners':banners,'query':query})
+    
+    else:
+        return redirect('user_app:home')
+    
+def add_banner(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        if request.method == 'POST':
+            banner_name = request.POST.get('banner_name')
+            description = request.POST.get('description')
+            product_id = request.POST.get('product_id')
+            price = request.POST.get('price')
+            deal_price = request.POST.get('deal_price')
+            banner_image = request.FILES.get('banner_image')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            print(product_id)
+            product = Product.objects.get(id = product_id)
+            
+            new_banner = Banner(
+                banner_name = banner_name,
+                banner_description = description,
+                product = product,
+                price = price,
+                deal_price = deal_price,
+                banner_image = banner_image,
+                start_date = start_date,
+                end_date = end_date,
+            )
+            
+            new_banner.save()
+            messages.success(request,f'New banner {banner_name} added.')
+            return redirect('admin_app:admin_banner')
+        
+        products = Product.objects.all()
+        
+        context = {
+            'products':products,
+        }
+        
+        return render(request,'admin_app/add_banner.html',context)
+    else:
+        return redirect('user_app:home')
+
+
+def edit_banner(request,id):
+    if request.user.is_authenticated and request.user.is_staff:
+        banner = Banner.objects.get(id = id)
+        if request.method == 'POST':
+            banner_name = request.POST.get('banner_name')
+            description = request.POST.get('description')
+            product_id = request.POST.get('product_id')
+            price = request.POST.get('price')
+            deal_price = request.POST.get('deal_price')
+            banner_image = request.FILES.get('banner_image')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            
+            product = Product.objects.get(id = product_id)
+            
+            banner.banner_name = banner_name
+            banner.banner_description = description
+            banner.product = product
+            banner.price = price
+            banner.deal_price = deal_price
+            banner.start_date = start_date
+            banner.end_date = end_date
+            
+            if banner_image:
+                banner.banner_image = banner_image
+                
+            banner.save()
+            
+            messages.success(request,f' banner {banner_name} edited.')
+            return redirect('admin_app:admin_banner')
+        
+        products = Product.objects.exclude(id = banner.product.id)
+        
+        context = {
+            'banner':banner,
+            'products':products,
+        }
+        
+        return render(request,'admin_app/edit_banner.html',context)
+    else:
+        return redirect('user_app:home')
+    
+def remove_banner(request,id):
+    if request.user.is_authenticated and request.user.is_staff:
+        banner = Banner.objects.get(id = id)    # Retrive Banner
+        if request.method == 'POST':
+            banner_name = banner.banner_name
+            banner.delete()
+            
+            messages.success(request,f'Banner {banner_name} removed.')
+            return redirect('admin_app:admin_banner')
+        return redirect('admin_app:admin_banner')
     else:
         return redirect('user_app:home')
     

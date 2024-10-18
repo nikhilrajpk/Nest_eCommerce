@@ -1,0 +1,60 @@
+{% extends 'admin_app/admin_base.html' %}
+{% load static %}
+{% block content %}
+<br><br>
+    <div class="container mt-5">
+        <h2 class="mb-4">Add New Banner</h2>
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="banner-name" class="form-label">Banner Name:</label>
+                <input type="text" class="form-control" id="banner-name" name="banner_name" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="product" class="form-label">Product:</label>
+                <select class="form-select" id="product" name="product_id" required>
+    
+                    {% for product in products %}
+                        <option value="{{product.id}}">{{ product.product_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price:</label>
+                <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="deal_price" class="form-label">Deal price:</label>
+                <input type="number" step="0.01" class="form-control" id="deal_price" name="deal_price" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="banner-image" class="form-label">Banner Image:</label>
+                <input type="file" class="form-control" id="banner-image" name="banner_image" accept="image/*" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="start-date" class="form-label">Start Date:</label>
+                <input type="datetime-local" class="form-control" id="start-date" name="start_date" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="end-date" class="form-label">End Date:</label>
+                <input type="datetime-local" class="form-control" id="end-date" name="end_date" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Add Banner</button>
+        </form>
+    </div>
+<br><br>
+{% endblock content %}

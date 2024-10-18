@@ -19,4 +19,8 @@ urlpatterns = [
     path('add_offer/',views.add_offer,name='add_offer'),
     path('edit_offer/<id>/',views.edit_offer,name='edit_offer'),
     path('remove_offer/<id>/',views.remove_offer,name='remove_offer'),
+    path('admin_banner/',views.admin_banner,name='admin_banner'),
+    path('add_banner/',views.add_banner,name='add_banner'),
+    path('edit_banner/<id>/',views.edit_banner,name='edit_banner'),
+    path('remove_banner/<id>/',views.remove_banner,name='remove_banner'),
 ]

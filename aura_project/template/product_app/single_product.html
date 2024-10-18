@@ -34,10 +34,10 @@
                         <img height="300" width="450rem" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
                     </div>
                     <div class="m-2 small_image">
-                        <img height="300" width="450rem" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
+                        <img height="300" width="450rem" src="{{product.image_2.url}}" alt="{{product.product_name}}" />
                     </div>
                     <div class="m-2 small_image">
-                        <img height="300" width="450rem" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
+                        <img height="300" width="450rem" src="{{product.image_3.url}}" alt="{{product.product_name}}" />
                     </div>
                 </div>
 
@@ -65,6 +65,11 @@
                     <span>Unavailable</span>
                 {% endif %}
               </li>
+              {% if product.offer %}
+                <li>
+                    <span>Offer</span> : {{product.offer.offer_title}}
+                </li>
+              {% endif %}
             </ul>
             <p>
             </p>
@@ -136,50 +141,34 @@
                 </tr>
                 <tr>
                   <td>
-                    <h5>Depth</h5>
+                    <h5>Width</h5>
                   </td>
                   <td>
-                    <h5>85mm</h5>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>Weight</h5>
-                  </td>
-                  <td>
-                    <h5>52gm</h5>
+                    <h5>{{product.width}}cm</h5>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <h5>Quality checking</h5>
+                    <h5>Length</h5>
                   </td>
                   <td>
-                    <h5>yes</h5>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>Freshness Duration</h5>
-                  </td>
-                  <td>
-                    <h5>03days</h5>
+                    <h5>{{product.length}}cm</h5>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <h5>When packeting</h5>
+                    <h5>Height</h5>
                   </td>
                   <td>
-                    <h5>Without touch of hand</h5>
+                    <h5>{{product.height}}cm</h5>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <h5>Each Box contains</h5>
+                    <h5>Manufactured at</h5>
                   </td>
                   <td>
-                    <h5>60pcs</h5>
+                    <h5>{{product.created_at|date:'Y-m-d'}}</h5>
                   </td>
                 </tr>
               </tbody>
@@ -246,7 +235,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
+            <!-- <div class="col-lg-6">
               <div class="review_box">
                 <h4>Post a comment</h4>
                 <form class="row contact_form" action="contact_process.php" method="post" id="contactForm"
@@ -279,7 +268,7 @@
                   </div>
                 </form>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
@@ -407,7 +396,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
+            <!-- <div class="col-lg-6">
               <div class="review_box">
                 <h4>Add a Review</h4>
                 <p>Your Rating:</p>
@@ -467,7 +456,7 @@
                   </div>
                 </form>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -476,7 +465,7 @@
   <!--================End Product Description Area =================-->
 
   <!-- product_list part start-->
-  <section class="product_list best_seller">
+  <!-- <section class="product_list best_seller">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-12">
@@ -495,39 +484,11 @@
                 <h3>$150.00</h3>
               </div>
             </div>
-            <div class="single_product_item">
-              <img src="img/product/product_2.png" alt="">
-              <div class="single_product_text">
-                <h4>Quartz Belt Watch</h4>
-                <h3>$150.00</h3>
-              </div>
-            </div>
-            <div class="single_product_item">
-              <img src="img/product/product_3.png" alt="">
-              <div class="single_product_text">
-                <h4>Quartz Belt Watch</h4>
-                <h3>$150.00</h3>
-              </div>
-            </div>
-            <div class="single_product_item">
-              <img src="img/product/product_4.png" alt="">
-              <div class="single_product_text">
-                <h4>Quartz Belt Watch</h4>
-                <h3>$150.00</h3>
-              </div>
-            </div>
-            <div class="single_product_item">
-              <img src="img/product/product_5.png" alt="">
-              <div class="single_product_text">
-                <h4>Quartz Belt Watch</h4>
-                <h3>$150.00</h3>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </section> -->
   <!-- product_list part end-->
 
 {% endblock content %}

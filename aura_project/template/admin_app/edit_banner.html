@@ -1,0 +1,74 @@
+{% extends 'admin_app/admin_base.html' %}
+{% load static %}
+{% block content %}
+<br><br>
+    <div class="container mt-5">
+        <h2 class="mb-4">Edit Banner</h2>
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="banner-name" class="form-label">Banner Name:</label>
+                <input type="text" class="form-control" id="banner-name" name="banner_name" required value="{{banner.banner_name}}">
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required>{{banner.banner_description}}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="product" class="form-label">Product:</label>
+                <select class="form-select" id="product" name="product_id" required>
+                    {% if banner.product %}
+                    <option value="{{ banner.product.id }}">{{ banner.product.product_name }}</option>
+                    {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.product_name }}</option>
+                    {% endfor %}
+                    {% else %}
+                        {% for product in products %}
+                            <option value="{{ product.id }}">{{ product.product_name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price:</label>
+                <input type="number" step="0.01" class="form-control" id="price" name="price" required value="{{banner.price}}">
+            </div>
+
+            <div class="mb-3">
+                <label for="deal_price" class="form-label">Deal price:</label>
+                <input type="number" step="0.01" class="form-control" id="deal_price" name="deal_price" required value="{{banner.deal_price}}">
+            </div>
+
+            <div class="mb-3">
+                <label for="banner-image" class="form-label">Banner Image:</label>
+
+                <!-- Image Preview -->
+                {% if banner.banner_image %}
+                    <div class="mb-2">
+                        <img src="{{ banner.banner_image.url }}" alt="{{ banner.banner_name }}" width="100" height="100">
+                    </div>
+                {% endif %}
+
+                <input type="file" class="form-control" id="banner-image" name="banner_image" accept="image/*">
+            </div>
+
+            <div class="mb-3">
+                <label for="start-date" class="form-label">Start Date:</label>
+                <input type="datetime-local" class="form-control" id="start-date" name="start_date" required value="{{banner.start_date|date:'Y-m-d\\TH:i'}}">
+            </div>
+
+            <div class="mb-3">
+                <label for="end-date" class="form-label">End Date:</label>
+                <input type="datetime-local" class="form-control" id="end-date" name="end_date" required value="{{banner.end_date|date:'Y-m-d\\TH:i'}}">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Edit Banner</button>
+        </form>
+    </div>
+<br><br>
+{% endblock content %}
