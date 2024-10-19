@@ -8,6 +8,7 @@
         align-items: center;
     }
     .page-btn{
+        margin-top: 2rem;
         background-color:#ebebeb;
         display: flex;
         justify-content: center;
@@ -75,7 +76,7 @@
                         <div class="single_feature_post_text" style="height: 30rem;">
                             <p>Premium Quality</p>
                             <h3>{{latest_product.product_name}}</h3>
-                            <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
+                            <a href="{% url 'product_app:single_product' latest_product.id %}" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
                             <img src="{{latest_product.image_1.url}}" alt="{{latest_product.product_name}}" width="400" height="350">
                         </div>
                         {% if latest_product.offer %}
@@ -145,7 +146,7 @@
                                                 {% endif %}
                                                 <div id="wishlistLogoProduct">
                                                     <a href="{% url 'cart_app:add_to_cart' product.id %}" class="add_cart" >+ add to cart</a>
-                                                    <a href="#" class="add_cart" id="wishlistLogoProduct" ><i class="ti-heart"></i></a>
+                                                    <a href="{% url 'wishlist_app:add_to_wishlist' product.id %}" class="add_cart" id="wishlistLogoProduct" ><i class="ti-heart"></i></a>
                                                 </div>
                                             </div>
                                         </div>

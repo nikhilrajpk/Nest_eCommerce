@@ -29,7 +29,7 @@
               </tr>
             </thead>
             <tbody>
-                {% for item in cart_items %}
+                {% for item in wishlist_items %}
                 <tr>
                     <td>
                     <div class="media">
@@ -53,10 +53,10 @@
                         <h5>{{item.total_price}} </h5>
                     </td>
                     <td>
-                        <a href=""><button id="block">Add to cart</button></a>
+                        <a href="{% url 'cart_app:add_to_cart' item.product.id %}"><button id="block">Add to cart</button></a>
                     </td>
                     <td>
-                        <form action="{% url 'cart_app:remove_cart_item' item.id %}" method="post">
+                        <form action="{% url 'wishlist_app:remove_from_wishlist' item.id %}" method="post">
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>
