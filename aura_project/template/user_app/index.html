@@ -41,7 +41,11 @@
                                             <del><h4>{{banner.price}} Rs</h4></del>
                                             <h4>{{banner.deal_price}} Rs</h4>
                                             <p>{{banner.banner_description}}</p>
-                                            <a href="{%url 'product_app:single_product' banner.product.id %}" class="btn_2">Buy Now</a>
+                                            {% if not banner.product.is_listed or not banner.product.category.is_listed or banner.product.available_stock == 0 %}
+                                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3>
+                                            {% else %}
+                                                <a href="{%url 'product_app:single_product' banner.product.id %}" class="btn_2">Buy Now</a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -76,7 +80,13 @@
                         <div class="single_feature_post_text" style="height: 30rem;">
                             <p>Premium Quality</p>
                             <h3>{{latest_product.product_name}}</h3>
-                            <a href="{% url 'product_app:single_product' latest_product.id %}" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
+                    
+                            {% if latest_product.is_listed and latest_product.category.is_listed and latest_product.available_stock > 0 %}
+                                <a href="{% url 'product_app:single_product' latest_product.id %}" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
+                            {% else %}
+                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3>
+                            {% endif %}
+
                             <img src="{{latest_product.image_1.url}}" alt="{{latest_product.product_name}}" width="400" height="350">
                         </div>
                         {% if latest_product.offer %}
@@ -132,8 +142,8 @@
                         <div class="single_product_list_slider">
                             <div class="row align-items-center justify-content-between">
                                 {% for product in products %}
-                                <a href="{% url 'product_app:single_product' product.id %}">
-                                <div class="col-lg-3 col-sm-6">
+                                {% if not product.is_listed or not product.category.is_listed or product.available_stock == 0 %}
+                                        <div class="col-lg-3 col-sm-6">
                                         <div class="single_product_item" style="height: 30rem;">
                                             <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
                                             <div class="single_product_text">
@@ -144,14 +154,32 @@
                                                 {% else %}
                                                     <h3>{{product.price}} Rs</h3>
                                                 {% endif %}
-                                                <div id="wishlistLogoProduct">
-                                                    <a href="{% url 'cart_app:add_to_cart' product.id %}" class="add_cart" >+ add to cart</a>
-                                                    <a href="{% url 'wishlist_app:add_to_wishlist' product.id %}" class="add_cart" id="wishlistLogoProduct" ><i class="ti-heart"></i></a>
-                                                </div>
+                                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
                                             </div>
                                         </div>
                                     </div>
-                                </a>
+                                {% else %}
+                                    <a href="{% url 'product_app:single_product' product.id %}">
+                                    <div class="col-lg-3 col-sm-6">
+                                            <div class="single_product_item" style="height: 30rem;">
+                                                <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                                <div class="single_product_text">
+                                                    <h4>{{product.product_name}}</h4>
+                                                    {% if product.offer %}
+                                                        <h3><del>{{product.price}} Rs</del></h3>
+                                                        <h3>{{product.discount_price}} Rs</h3>
+                                                    {% else %}
+                                                        <h3>{{product.price}} Rs</h3>
+                                                    {% endif %}
+                                                    <div id="wishlistLogoProduct">
+                                                        <a href="{% url 'cart_app:add_to_cart' product.id %}" class="add_cart" >+ add to cart</a>
+                                                        <a href="{% url 'wishlist_app:add_to_wishlist' product.id %}" class="add_cart" id="wishlistLogoProduct" ><i class="ti-heart"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                {% endif %}
                                 {% endfor %}
                             </div>
                             <div class="page-btn">
@@ -308,20 +336,73 @@
             <div class="row align-items-center justify-content-between">
                 <div class="col-lg-12">
                     <div class="best_product_slider owl-carousel">
-                        {% for best_seller in best_sellers %}
-                            <div class="single_product_item">
-                                <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
-                                <div class="single_product_text">
-                                    <h4>{{best_seller.product_name}}</h4>
-                                    {% if best_seller.offer %}
-                                        <h3><del>{{best_seller.price}} Rs</del></h3>
-                                        <h3>{{best_seller.discount_price}} Rs</h3>
-                                    {% else %}
-                                        <h3>{{best_seller.price}} Rs</h3>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
+                        <!-- {% for product in products %}
+                                {% if not product.is_listed or not product.category.is_listed %}
+                                        <div class="single_product_item" style="margin-left: -20rem;">
+                                            <img height="300" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                            <div class="single_product_text">
+                                                <h4>{{product.product_name}}</h4>
+                                                {% if product.offer %}
+                                                    <h3><del>{{product.price}} Rs</del></h3>
+                                                    <h3>{{product.discount_price}} Rs</h3>
+                                                {% else %}
+                                                    <h3>{{product.price}} Rs</h3>
+                                                {% endif %}
+                                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
+                                            </div>
+                                        </div>
+                                {% else %}
+                                    <a href="{% url 'product_app:single_product' product.id %}">
+                                            <div class="single_product_item">
+                                                <img height="300" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                                <div class="single_product_text">
+                                                    <h4>{{product.product_name}}</h4>
+                                                    {% if product.offer %}
+                                                        <h3><del>{{product.price}} Rs</del></h3>
+                                                        <h3>{{product.discount_price}} Rs</h3>
+                                                    {% else %}
+                                                        <h3>{{product.price}} Rs</h3>
+                                                    {% endif %}
+                                                    <div id="wishlistLogoProduct">
+                                                        <a href="{% url 'cart_app:add_to_cart' product.id %}" class="add_cart" >+ add to cart</a>
+                                                        <a href="{% url 'wishlist_app:add_to_wishlist' product.id %}" class="add_cart" id="wishlistLogoProduct" ><i class="ti-heart"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </a>
+                                {% endif %}
+                                {% endfor %} -->
+                                        {% for best_seller in best_sellers %}
+                                        {% if best_seller.is_listed and best_seller.category.is_listed and best_seller.available_stock > 0 %}
+                                        <a href="{% url 'product_app:single_product' best_seller.id %}">
+                                            <div class="single_product_item">
+                                                <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
+                                                <div class="single_product_text">
+                                                    <h4>{{best_seller.product_name}}</h4>
+                                                    {% if best_seller.offer %}
+                                                        <h3><del>{{best_seller.price}} Rs</del></h3>
+                                                        <h3>{{best_seller.discount_price}} Rs</h3>
+                                                    {% else %}
+                                                        <h3>{{best_seller.price}} Rs</h3>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% else %}
+                                            <div class="single_product_item">
+                                                <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
+                                                <div class="single_product_text">
+                                                    <h4>{{best_seller.product_name}}</h4>
+                                                    {% if best_seller.offer %}
+                                                        <h3><del>{{best_seller.price}} Rs</del></h3>
+                                                        <h3>{{best_seller.discount_price}} Rs</h3>
+                                                    {% else %}
+                                                        <h3>{{best_seller.price}} Rs</h3>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% endfor %}
                         <!-- <div class="single_product_item">
                             <img src="{% static 'img/product/product_2.png' %}" alt="">
                             <div class="single_product_text">

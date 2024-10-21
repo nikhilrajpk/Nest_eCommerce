@@ -107,7 +107,7 @@
                         {% for product in products %}
                             <div class="col-lg-3 col-sm-6">
                                 <div class="single_product_item">
-                                    {% if not product.is_listed %}
+                                    {% if not product.is_listed or product.available_stock == 0 %}
                                         <!-- <a href="" aria-disabled="true" class="disabled-link"> -->
                                             <img width="300rem" height="300rem" src="{{product.image_1.url}}" alt="{{product.product_name}}">
                                             <div class="single_product_text">

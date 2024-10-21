@@ -82,6 +82,7 @@
             <tr>
                 <th scope="col">Product</th>
                 <th scope="col">Category</th>
+                <th scope="col">Quantity</th>
                 <th scope="col">Price</th>
                 <th scope="col">Offer</th>
                 <th scope="col">Deal price</th>
@@ -95,6 +96,7 @@
             <tr>
                 <td>{{product.product_name}}</td>
                 <td>{{product.category.category_name}}</td>
+                <td>{{product.quantity}}</td>
                 <td>{{product.price}} Rs</td>
                 <td>
                     {% if product.offer %}

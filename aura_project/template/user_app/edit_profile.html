@@ -1,0 +1,97 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    #user_header{
+        background-color: #ff3368;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Edit Profile Card -->
+            <div class="card shadow-sm">
+                <div class="card-header" id="user_header">
+                    <h4 class="text-center text-white">Edit Profile</h4>
+                </div>
+                <!-- alert box  -->
+                {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{message.tags}}">
+                        <strong>{{message}}</strong>
+                    </div>
+                {% endfor %}
+                {% endif %}
+
+                <script>
+                setTimeout (() => {
+                    $(".alert").alert("close")
+                },3000)
+                </script>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'user_app:edit_profile' %}">
+                        {% csrf_token %}
+                        <!-- First Name -->
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                        </div>
+                        
+                        <!-- Last Name -->
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                        </div>
+                        
+                        <!-- Email
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div> -->
+
+                        <!-- Address Section -->
+                        <h5 class="mt-4">Addresses:</h5>
+                        {% for address in user.addresses.all %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ address.get_address_type_display }} Address</h6>
+                                    <p class="card-text">
+                                        {{ address.street_address }}<br>
+                                        {{ address.landmark }}<br>
+                                        {{ address.state }}, {{ address.country }}<br>
+                                        Postal Code: {{ address.postal_code }}<br>
+                                        Phone: {{ address.phone }}<br>
+                                        {% if address.alternative_phone %}
+                                            Alternative Phone: {{ address.alternative_phone }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                    <div class="card-footer">
+                                        <a href="{% url 'user_app:edit_address' address.id %}" class="btn btn-sm btn-warning">Edit Address</a>
+                                        <form action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;">
+                                            {% csrf_token %}
+                                            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                                        </form>
+                                    </div> 
+                            </div>
+                        {% endfor %}
+
+                        <!-- Save Changes Button -->
+                        <button type="submit" class="btn btn-success btn-block mt-4">Save Changes</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'user_app:add_address' %}" class="btn btn-info">Add New Address</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous">
+</script>
+{% endblock content %}
