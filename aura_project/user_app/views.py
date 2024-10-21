@@ -59,7 +59,7 @@ def add_address(request):
         alternative_phone = request.POST.get('alternative_phone')
         address = request.POST.get('address')
         
-        print(state)
+        print(user_details.email)
         
         new_address = Address(
             user = user_details,
@@ -129,14 +129,10 @@ def edit_profile(request):
     }
     return render(request,'user_app/edit_profile.html',context)
 
-#<div class="card-footer">
-#<a href="{% url 'user_app:edit_address' address.id %}" class="btn btn-sm btn-warning">Edit Address</a>
-#<a href="{% url 'user_app:delete_address' address.id %}" class="btn btn-sm btn-danger">Delete</a>
-#</div>
 
 @login_required
 def edit_address(request,address_id):
-    address = Address.objects.get(id = address_id)
+    address = Address.objects.get(id=address_id)
     
     if request.method == 'POST':
         address_type = request.POST.get('address_type')
@@ -177,10 +173,10 @@ def edit_address(request,address_id):
     return render(request,'user_app/edit_address.html',context)
 
 
-# @login_required
-# def delete_address(request,address_id):
-#     if request.method == 'POST':
-#         address = Address.objects.get(id = address_id)
-#         address.delete()
+@login_required
+def delete_address(request,address_id):
+    if request.method == 'POST':
+        address = Address.objects.get(id = address_id)
+        address.delete()
     
-#         return redirect('user_app:edit_address')
+        return redirect('user_app:edit_profile')
