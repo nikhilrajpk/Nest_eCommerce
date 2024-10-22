@@ -69,7 +69,7 @@
                                 </div>
                                     <div class="card-footer">
                                         <a href="{% url 'user_app:edit_address' address.id %}" class="btn btn-sm btn-warning">Edit Address</a>
-                                        <form action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;">
+                                        <form action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;" onsubmit="return confirm('Do you want to delete the address ?');">
                                             {% csrf_token %}
                                             <button class="btn btn-sm btn-danger" type="submit">Delete</button>
                                         </form>
