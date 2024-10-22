@@ -101,7 +101,7 @@
                     <a href="{% url 'admin_app:edit_offer' offer.id %}" ><button id="unblock" type="button" >Edit</button></a>
                 </td>
                 <td>
-                    <form action="{% url 'admin_app:remove_offer' offer.id %}" method="post">
+                    <form onsubmit="return confirm('Do you want to remove {{offer.offer_title}}?');" action="{% url 'admin_app:remove_offer' offer.id %}" method="post">
                         {% csrf_token %}
                         <button id="block" type="submit" >Remove</button>
                     </form>

@@ -580,7 +580,7 @@ def remove_coupon(request,coupon_id):
         
         if request.method == 'POST':
             coupon.delete()
-            
+            messages.success(request,f'Coupon {coupon.code} removed.')
             return redirect('admin_app:admin_coupon')
     
     else:

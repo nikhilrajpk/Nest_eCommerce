@@ -107,7 +107,7 @@
                         <a href="{% url 'admin_app:edit_coupon' coupon.id %}" ><button id="unblock" type="button" >Edit</button></a>
                     </td>
                     <td>
-                        <form action="{% url 'admin_app:remove_coupon' coupon.id %}" method="post">
+                        <form onsubmit="return confirm('Do you want to remove {{coupon.code}}?');" action="{% url 'admin_app:remove_coupon' coupon.id %}" method="post">
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>

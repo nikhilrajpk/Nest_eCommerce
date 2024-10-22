@@ -111,7 +111,7 @@
                     <a href="{% url 'admin_app:edit_product' product.id %}" ><button id="unblock" type="button" >Edit</button></a>
                 </td>
                 <td>
-                    <form action="{% url 'admin_app:product_listed' product.id %}" method="post">
+                    <form onsubmit="return confirm('Do you want to {% if product.is_listed %} Unlist {{product.product_name}} {% else %} List {{product.product_name}} {% endif %} ?');" action="{% url 'admin_app:product_listed' product.id %}" method="post">
                         {% csrf_token %}
                         {% if product.is_listed %}
                             <button id = "unblock" type="submit" class="btn_3">Unlist</button>
