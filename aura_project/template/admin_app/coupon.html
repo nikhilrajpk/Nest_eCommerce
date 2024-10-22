@@ -1,0 +1,129 @@
+{% extends 'admin_app/admin_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    #unblock{
+        width: 4rem;
+        background-color: #d4a373;
+        border: none;
+        border-radius: 1rem;
+        color: white;
+    }
+    #unblock:hover{
+        background-color: #ff7d00;
+    }
+    #block{
+        width: 4rem;
+        background-color: #ff7d00;
+        border: none;
+        border-radius: 1rem;
+        color: white;
+    }
+    #block:hover{
+        background-color: #d4a373;
+    }
+    #search{
+		color: black;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+		border-radius: 10px;
+        border: 1px solid #666;
+		padding-left: 13px;
+		width: 12rem;
+		height: 30px;
+		
+	}
+	#search_btn{
+		color: #000;
+		background-color: violet;
+		height: 30px;
+        width: 5rem;
+		border-radius: 15px;
+		border: #666;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+	}
+    #tdiv{
+        position: sticky;
+        z-index: 1;
+        top: 4.2rem;
+        background-color: white;
+        width: 100%;
+    }
+</style>
+<br><br><br>
+<div class="container mt-5">
+    <div class="col-sm-5" id="tdiv">
+        <h2 class="mb-4">Coupon Details</h2>
+        <form action="" method="get"">
+            <input id="search" type="search" name="search_query" placeholder="Search offer..." value="{{query}}" >
+            <button id="search_btn" type="submit">Search</button>
+        </form>
+        <a href="{% url 'admin_app:add_coupon' %}" ><button id="search_btn" type="button" style="margin-left: 50rem;transform: translateY(-2rem);">Add</button></a>
+    </div><br>
+
+    <!-- alert box  -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags}}">
+                <strong>{{message}}</strong>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <script>
+        setTimeout (() => {
+            $(".alert").alert("close")
+        },3000)
+    </script>
+
+    {% if coupons %}
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Minimum Order Amount</th>
+                    <th scope="col">Maximum Order Amount</th>
+                    <th scope="col">Used Limit</th>
+                    <!-- <th scope="col">Created At</th> -->
+                    <th scope="col">Expiry Date</th>
+                    <th scope="col">Discount Amount</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coupon in coupons %}
+                <tr>
+                    <td>{{ coupon.code }}</td>
+                    <td>{{ coupon.minimum_order_amount }} Rs</td>
+                    <td>{{ coupon.maximum_order_amount }} Rs</td>
+                    <td>{{ coupon.used_limit }}</td>
+                    <!-- <td>{{ coupon.created_at|date:"d M Y H:i" }}</td> -->
+                    <td>{{ coupon.expiry_date|date:"d M Y H:i" }}</td>
+                    <td>{{ coupon.discount_amount }} Rs</td>
+                    <td>
+                        <a href="{% url 'admin_app:edit_coupon' coupon.id %}" ><button id="unblock" type="button" >Edit</button></a>
+                    </td>
+                    <td>
+                        <form action="{% url 'admin_app:remove_coupon' coupon.id %}" method="post">
+                            {% csrf_token %}
+                            <button id="block" type="submit" >Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No coupons available.</p>
+    {% endif %}
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous">
+</script>
+{% endblock content %}

@@ -2,6 +2,7 @@ from django.db import models
 
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from datetime import datetime
 
 class Coupons(models.Model):
     code = models.CharField(max_length=50, unique=True)
@@ -13,15 +14,18 @@ class Coupons(models.Model):
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     def clean(self):
-        # Ensure expiry_date is in the future
+        
+        if not isinstance(self.expiry_date, datetime):
+            raise ValidationError('Invalid expiry date format.')
+        
         if self.expiry_date < timezone.now():
             raise ValidationError('The coupon has already expired.')
 
-        # Ensure minimum order amount is less than maximum order amount
+        
         if self.minimum_order_amount > self.maximum_order_amount:
             raise ValidationError('Minimum order amount cannot be greater than the maximum order amount.')
 
     def save(self, *args, **kwargs):
-        # Call the clean method before saving to ensure validation is enforced
+        
         self.clean()
         super().save(*args, **kwargs)

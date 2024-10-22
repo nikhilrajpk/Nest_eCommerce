@@ -76,7 +76,11 @@
             {% for user in users %}
             <tr>
                 <td>{{user.first_name}}</td>
-                <td>{{user.phone | default:'1234567890'}}</td>
+                <td>
+                    {% for i in  user.addresses.all %}
+                        {{i.phone}}
+                    {% endfor %}
+                </td>
                 <td>{{user.email}}</td>
                 <td>{{user.date_joined}}</td>
                 <td>

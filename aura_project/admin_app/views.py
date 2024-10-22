@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from authentication_app.models import CustomUser
 from category_app.models import *
 from product_app.models import *
+from coupen_app.models import *
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
@@ -483,3 +484,104 @@ def remove_banner(request,id):
     else:
         return redirect('user_app:home')
     
+    
+def admin_coupon(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        query = request.GET.get('search_query')
+        if query:
+            coupons = Coupons.objects.all().filter(code__icontains = query)
+        else:
+            coupons = Coupons.objects.all()
+            
+        return render(request,'admin_app/coupon.html',{'coupons':coupons,'query':query})
+    
+    else:
+        return redirect('user_app:home')
+    
+def add_coupon(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        
+        if request.method == 'POST':
+            code = request.POST.get('code')
+            minimum_order_amount = request.POST.get('minimum_order_amount')
+            maximum_order_amount = request.POST.get('maximum_order_amount')
+            used_limit = request.POST.get('used_limit')
+            expiry_date_str = request.POST.get('expiry_date')
+            discount_amount = request.POST.get('discount_amount')
+            
+            # Converting string expiry date to datetime object.
+            expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+            
+            # Converting naive datetime to timezone-aware datetime
+            expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
+            
+            coupon = Coupons(
+                code = code,
+                minimum_order_amount = minimum_order_amount,
+                maximum_order_amount = maximum_order_amount,
+                used_limit = used_limit,
+                expiry_date = expiry_date,
+                discount_amount = discount_amount,
+            )
+            coupon.save()
+            
+            messages.success(request,f'New coupon {code} has added.')
+            return redirect('admin_app:admin_coupon')
+         
+        return render(request,'admin_app/add_coupon.html')
+    
+    else:
+        return redirect('user_app:home')
+    
+    
+def edit_coupon(request,coupon_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        coupon = Coupons.objects.get(id = coupon_id)
+        
+        if request.method == 'POST':
+            code = request.POST.get('code')
+            minimum_order_amount = request.POST.get('minimum_order_amount')
+            maximum_order_amount = request.POST.get('maximum_order_amount')
+            used_limit = request.POST.get('used_limit')
+            expiry_date_str = request.POST.get('expiry_date')
+            discount_amount = request.POST.get('discount_amount')
+            
+            # Converting string expiry date to datetime object.
+            expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+            
+            # Converting naive datetime to timezone-aware datetime
+            expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
+            
+            coupon.code = code
+            coupon.minimum_order_amount = minimum_order_amount
+            coupon.maximum_order_amount = maximum_order_amount
+            coupon.used_limit = used_limit
+            coupon.expiry_date = expiry_date
+            coupon.discount_amount = discount_amount
+            
+            coupon.save()
+            
+            messages.success(request,f'Coupon {code} edited.')
+            return redirect('admin_app:admin_coupon')
+        
+        context = {
+            'coupon':coupon
+        }
+        return render(request,'admin_app/edit_coupon.html',context)
+    
+    else:
+        return redirect('user_app:home')
+    
+    
+def remove_coupon(request,coupon_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        
+        coupon = Coupons.objects.get(id = coupon_id)
+        
+        if request.method == 'POST':
+            coupon.delete()
+            
+            return redirect('admin_app:admin_coupon')
+    
+    else:
+        return redirect('user_app:home')

@@ -23,4 +23,8 @@ urlpatterns = [
     path('add_banner/',views.add_banner,name='add_banner'),
     path('edit_banner/<id>/',views.edit_banner,name='edit_banner'),
     path('remove_banner/<id>/',views.remove_banner,name='remove_banner'),
+    path('admin_coupon/',views.admin_coupon,name='admin_coupon'),
+    path('add_coupon/',views.add_coupon,name='add_coupon'),
+    path('edit_coupon/<int:coupon_id>/',views.edit_coupon,name='edit_coupon'),
+    path('remove_coupon/<int:coupon_id>/',views.remove_coupon,name='remove_coupon'),
 ]
