@@ -13,6 +13,20 @@
         background-color: #d4a373;
     }
 </style>
+<!-- alert box  -->
+{% if messages %}
+{% for message in messages %}
+    <div class="alert alert-{{message.tags}}">
+        <strong>{{message}}</strong>
+    </div>
+{% endfor %}
+{% endif %}
+
+<script>
+setTimeout (() => {
+    $(".alert").alert("close")
+},3000)
+</script>
 <!--================Cart Area =================-->
 <section class="cart_area padding_top">
     <div class="container">
@@ -135,8 +149,12 @@
                 <td></td>
                 <td>
                   <div class="cupon_text float-right">
-                    <a class="btn_1" href="#">Close Coupon</a>
-                    <input type="text">
+                    <!-- <a class="btn_1" href="#">Close Coupon</a> -->
+                    <form action="{% url 'cart_app:check_coupon' %}" method="post">
+                      {% csrf_token %}
+                      <input type="text" name="coupon_code">
+                      <button type="submit" class="btn_1">Close Coupon</button>
+                    </form>
                   </div>
                 </td>
               </tr>
@@ -195,11 +213,15 @@
           </table>
           <div class="checkout_btn_inner float-right">
             <a class="btn_1" href="{% url 'user_app:home' %}">Continue Shopping</a>
-            <a class="btn_1 checkout_btn_1" href="#">Proceed to checkout</a>
+            <a class="btn_1 checkout_btn_1" href="{% url 'cart_app:checkout' cart.id %}">Proceed to checkout</a>
           </div>
         </div>
       </div>
   </section>
   <!--================End Cart Area =================-->
-
+  <script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous">
+</script>
   {% endblock content %}
