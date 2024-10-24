@@ -18,7 +18,7 @@ def confirm_order(request):
     # Getting the address from the checkout page
     address_id = request.POST.get('address_id')
     print(address_id)
-    address = Address.objects.get(id = address_id)
+    address = user.addresses.get(id = address_id)
     print(address)
     
     payment_method = request.POST.get('payment_method')

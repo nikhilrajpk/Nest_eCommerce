@@ -44,7 +44,7 @@ setTimeout (() => {
                             <label for="address">Select Address:</label>
                             <select class="form-control" id="address" name="address_id" required>
                                 {% for address in user.addresses.all %}
-                                <option value="1">
+                                <option value="{{ address.id }}">
                                     {{ address.street_address }}, {{ address.landmark }}, {{ address.state }},
                                     {{ address.country }} - {{ address.postal_code }}
                                 </option>
