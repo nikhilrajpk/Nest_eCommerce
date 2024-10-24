@@ -26,8 +26,8 @@ def add_to_cart(request,product_id):
 
     cart_item.save()
         
-    request.session['coupon_applied'] = False  # Reset coupon status to recalculate discount
-    request.session['discount_amount'] = 0 
+    # request.session['coupon_applied'] = False  # Reset coupon status to recalculate discount
+    # request.session['discount_amount'] = 0 
     
     return redirect('cart_app:cart')
     
@@ -57,55 +57,54 @@ def cart_view(request):
     
     request.session['cart_total'] = float(cart_total)
 
-    # Apply any existing discounts from coupons
-    cart_total_with_discount = cart_total  
+    # cart_total_with_discount = cart_total  
 
     # If a discount was already applied, recalculate the total with the discount
-    if request.session.get('coupon_applied', False):
-        discount = request.session.get('discount_amount', 0)
-        cart_total_with_discount = cart_total - Decimal(discount)
-        request.session['cart_total'] = float(cart_total_with_discount)
+    # if request.session.get('coupon_applied', False):
+    #     discount = request.session.get('discount_amount', 0)
+    #     cart_total_with_discount = cart_total - Decimal(discount)
+    #     request.session['cart_total'] = float(cart_total_with_discount)
 
       
     return render(request,'cart_app/cart.html',{
         'cart': cart,
         'cart_items': cart_items,
-        'cart_total':cart_total_with_discount,
+        # 'cart_total':cart_total_with_discount,
     })
 
-def check_coupon(request):
-    cart_total = Decimal(request.session.get('cart_total',0))
+# def check_coupon(request):
+#     cart_total = Decimal(request.session.get('cart_total',0))
     
-    if request.method == 'POST':
-        coupon_code = request.POST.get('coupon_code')
-        coupon_applied = request.session.get('coupon_applied')
-        if not coupon_applied:
-            print(coupon_code)
+#     if request.method == 'POST':
+#         coupon_code = request.POST.get('coupon_code')
+#         coupon_applied = request.session.get('coupon_applied')
+#         if not coupon_applied:
+#             print(coupon_code)
             
-            if coupon_code:
-                coupon = get_object_or_404(Coupons, code = coupon_code)
-                print(coupon)
+#             if coupon_code:
+#                 coupon = get_object_or_404(Coupons, code = coupon_code)
+#                 print(coupon)
                 
-                if coupon.used_limit > 0:
-                    print(coupon.used_limit)
-                    cart_total_discount = cart_total - coupon.discount_amount
+#                 if coupon.used_limit > 0:
+#                     print(coupon.used_limit)
+#                     cart_total_discount = cart_total - coupon.discount_amount
                     
-                    print(cart_total_discount)
+#                     print(cart_total_discount)
                     
-                    request.session['cart_total'] = float(cart_total_discount)
+#                     request.session['cart_total'] = float(cart_total_discount)
                     
-                    request.session['coupon_applied'] = True
-                    request.session['discount_amount'] = float(coupon.discount_amount)
+#                     request.session['coupon_applied'] = True
+#                     request.session['discount_amount'] = float(coupon.discount_amount)
                     
-                    messages.success(request,f'{coupon.code} applied successfully')
-                    return redirect('cart_app:cart')
-                else:
-                    messages.error(request,f'{coupon.code} is no longer available or expired')
-                    return redirect('cart_app:cart')
+#                     messages.success(request,f'{coupon.code} applied successfully')
+#                     return redirect('cart_app:cart')
+#                 else:
+#                     messages.error(request,f'{coupon.code} is no longer available or expired')
+#                     return redirect('cart_app:cart')
         
                     
-    messages.error(request, 'Invalid coupon code.')
-    return redirect('cart_app:cart')
+#     messages.error(request, 'Invalid coupon code.')
+#     return redirect('cart_app:cart')
 
 
     
@@ -148,6 +147,7 @@ def checkout(request,cart_id):
     user = CustomUser.objects.get(email = user_email)
     cart = Cart.objects.get(id = cart_id)
     cart_items = cart.items.all()
+    request.session['cart_id'] = cart_id
     
     cart_items_with_prices = []
     # Calculate the total price for each item
@@ -158,16 +158,63 @@ def checkout(request,cart_id):
             item.total_price = item.product.price * item.quantity
     
         cart_items_with_prices.append(item)
-    
-    # Calculate total cart value
     cart_total = sum(item.total_price for item in cart_items_with_prices)
     
+    # Apply coupon discount if applicable
+    discount = Decimal(request.session.get('discount_amount', 0))
+    cart_total_with_discount = cart_total - discount
+
     
+    request.session['cart_total'] = float(cart_total_with_discount)
+
+    coupon_code = request.session.get('coupon_code', '')
+
     context = {
         'user':user,
         'cart_items':cart_items,
         'cart_total':cart_total,
+        'cart_total_with_discount':cart_total_with_discount,
+        'coupon_code':coupon_code,
     }
     return render(request,'cart_app/checkout.html',context)
 
 # {% url 'checkout_app:process_order' %}
+
+def check_coupon(request):
+    cart_total = Decimal(request.session.get('cart_total', 0))
+
+    if request.method == 'POST':
+        coupon_code = request.POST.get('coupon_code')
+        coupon_applied = request.session.get('coupon_applied', False)
+        cart_id = request.session.get('cart_id')
+
+        #  coupon removal
+        if coupon_code == 'remove':
+            request.session['coupon_applied'] = False
+            request.session['discount_amount'] = 0
+            request.session['coupon_code'] = ''
+            messages.success(request, 'Coupon removed successfully.')
+            return redirect('cart_app:checkout', cart_id=cart_id)
+
+        # Apply coupon if not already applied
+        if not coupon_applied:
+            if coupon_code:
+                coupon = get_object_or_404(Coupons, code=coupon_code)
+
+                if coupon.used_limit > 0:
+                    discount = Decimal(coupon.discount_amount)
+                    cart_total_discount = cart_total - discount
+
+                    request.session['cart_total'] = float(cart_total_discount)
+                    request.session['coupon_applied'] = True
+                    request.session['discount_amount'] = float(coupon.discount_amount)
+                    request.session['coupon_code'] = coupon_code
+
+                    messages.success(request, f'{coupon.code} applied successfully.')
+                    return redirect('cart_app:checkout', cart_id=cart_id)
+                else:
+                    messages.error(request, f'{coupon.code} is no longer available or expired.')
+                    return redirect('cart_app:checkout', cart_id=cart_id)
+
+    messages.error(request, 'Invalid coupon code.')
+    return redirect('cart_app:checkout', cart_id=cart_id)

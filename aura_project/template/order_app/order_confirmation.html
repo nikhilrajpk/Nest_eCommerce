@@ -1,0 +1,90 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .btn-custom {
+        background-color: #ff7d00;
+        color: white;
+        border-radius: 1rem;
+    }
+    .btn-custom:hover {
+        background-color: #d4a373;
+    }
+    .order-summary-box {
+        border: 1px solid #e9ecef;
+        padding: 20px;
+        border-radius: 5px;
+    }
+</style>
+
+<!--================Order Confirmation Area =================-->
+<section class="order_confirmation_area section_padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h2 class="text-center">Order Confirmation</h2>
+
+                <!-- Billing Address -->
+                <div class="order-summary-box">
+                    <h4>Billing Address</h4>
+                    <p>
+                        {{ address.street_address }}, {{ address.landmark }}<br>
+                        {{ address.city }}, {{ address.state }}, {{ address.country }} - {{ address.postal_code }}
+                    </p>
+                </div>
+
+                <br>
+
+                <!-- Order Summary -->
+                <div class="order-summary-box">
+                    <h4>Your Order Summary</h4>
+                    <ul class="list-group">
+                        {% for item in cart_items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ item.product.product_name }}
+                            <span class="badge badge-primary badge-pill">x{{ item.quantity }}</span>
+                            <span>₹{{ item.total_price }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="list-group mt-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Subtotal:
+                            <span>₹{{ cart_total }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Discount:
+                            <span>₹{{ request.session.discount_amount }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Shipping:
+                            <span>₹50.00</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center font-weight-bold">
+                            Total:
+                            <span>₹{{ cart_total_with_discount | add:50 }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <br>
+
+                <!-- Payment Method -->
+                <div class="order-summary-box">
+                    <h4>Payment Method</h4>
+                    <p>{{ payment_method }}</p>
+                </div>
+                
+                <br>
+
+                <!-- Confirm Order Button -->
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<!--================End Order Confirmation Area =================-->
+{% endblock content %}
