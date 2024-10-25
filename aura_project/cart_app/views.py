@@ -25,6 +25,7 @@ def add_to_cart(request,product_id):
         cart_item.quantity += 1
 
     cart_item.save()
+    print(f"Cart item saved: {cart_item.product.product_name} with quantity {cart_item.quantity}")
         
     # request.session['coupon_applied'] = False  # Reset coupon status to recalculate discount
     # request.session['discount_amount'] = 0 
@@ -40,11 +41,21 @@ def cart_view(request):
     cart, created = Cart.objects.get_or_create(user = request.user)
     cart_items = cart.items.all()  # Related name from Cart_item
     
+    # List to hold the items that should stay in the cart
+    filtered_cart_items = []
+    
+    # Loop through cart items and remove those that are not listed
+    for item in cart_items:
+        if not item.product.is_listed or not item.product.category.is_listed:
+            item.delete()
+        else:
+            filtered_cart_items.append(item)
+    
     
     cart_items_with_prices = []
     
     # Calculate the total price for each item
-    for item in cart_items:
+    for item in filtered_cart_items:
         if item.product.offer:
             item.total_price = item.product.discount_price * item.quantity
         else:
@@ -68,8 +79,8 @@ def cart_view(request):
       
     return render(request,'cart_app/cart.html',{
         'cart': cart,
-        'cart_items': cart_items,
-        # 'cart_total':cart_total_with_discount,
+        'cart_items': filtered_cart_items,
+        'cart_total':cart_total,
     })
 
 # def check_coupon(request):

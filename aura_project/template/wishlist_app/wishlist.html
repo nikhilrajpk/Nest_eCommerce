@@ -18,6 +18,7 @@
     <div class="container">
       <div class="cart_inner">
         <div class="table-responsive">
+          {% if wishlist_items %}
           <table class="table">
             <thead>
               <tr>
@@ -65,6 +66,9 @@
               {% endfor %}
             </tbody>
           </table>
+          {% else %}
+              <h1>No items available</h1>
+          {% endif %}
         </div>
       </div>
   </section>

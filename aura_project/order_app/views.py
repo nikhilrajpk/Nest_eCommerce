@@ -8,6 +8,7 @@ from decimal import Decimal
 from django.contrib import messages
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import F
 
 # Create your views here.
 
@@ -153,7 +154,7 @@ def confirm_order(request):
 
     return render(request, 'order_app/order_confirmation.html', context)
 
-
+@login_required
 def order_view(request):
     if request.method == 'POST':
         user_id = request.user.id
@@ -172,6 +173,7 @@ def order_view(request):
         
         order.save()
         
+        # Creating order items for the items from cart.
         for item in cart_item:
             OrderItems.objects.create(
                 order = order,
@@ -179,6 +181,13 @@ def order_view(request):
                 quantity = item.quantity,
                 price = item.quantity * Decimal(item.product.price)
             )
+            # Reducing the available stock
+            item.product.available_stock = F('available_stock') - item.quantity
+            item.product.save()
+            
+            return redirect('order_app:order_view')
+            
+            
     user_id = request.user.id
     user = CustomUser.objects.get(id = user_id)
     orders = user.orders.all()
