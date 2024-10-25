@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+        .order-table {
+            margin-top: 2rem;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .btn-custom {
+            background-color: #ff7d00;
+            color: white;
+            border-radius: 1rem;
+        }
+        .btn-custom:hover {
+            background-color: #d4a373;
+        }
+    </style>
+
+<div class="container">
+    <h2 class="text-center mt-5">YOUR ORDERS</h2>
+    <div class="table-responsive order-table">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Id</th>
+                    <th>Order Status</th>
+                    <th>Order Date</th>
+                    <th>Delivering Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.order_status|title }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.delivery_date }}</td>
+                    <td>
+                        <a href="{% url 'order_details' order.id %}" class="btn btn-custom">view details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock content %}
