@@ -78,7 +78,7 @@
                 <br>
 
                 <!-- Confirm Order Button -->
-                <form action="" method="post">
+                <form action="{% url 'order_app:order_view' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
                 </form>

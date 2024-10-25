@@ -6,6 +6,8 @@ from authentication_app.models import *
 from order_app.models import *
 from decimal import Decimal
 from django.contrib import messages
+from datetime import timedelta
+from django.utils import timezone
 
 # Create your views here.
 
@@ -150,3 +152,39 @@ def confirm_order(request):
     }
 
     return render(request, 'order_app/order_confirmation.html', context)
+
+
+def order_view(request):
+    if request.method == 'POST':
+        user_id = request.user.id
+        user = CustomUser.objects.get(id = user_id)
+        cart = Cart.objects.get(user = user) # Getting the cart for the user
+        cart_item = cart.items.all()    # Getting all cart items for the cart
+        
+        delivery_date = timezone.now() + timedelta(days=7)
+        
+        # Creating and saving the order
+        order = Order(
+            user = user,
+            order_status = 'confirmed',
+            delivery_date = delivery_date
+        )
+        
+        order.save()
+        
+        for item in cart_item:
+            OrderItems.objects.create(
+                order = order,
+                product = item.product,
+                quantity = item.quantity,
+                price = item.quantity * Decimal(item.product.price)
+            )
+    user_id = request.user.id
+    user = CustomUser.objects.get(id = user_id)
+    orders = user.orders.all()
+    context = {
+        'orders':orders,
+    }
+    return render(request,'order_app/orders.html',context)
+
+# {% url 'order_details' order.id %}
