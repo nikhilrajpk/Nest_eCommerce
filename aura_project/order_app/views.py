@@ -4,6 +4,7 @@ from cart_app.models import *
 from address_app.models import *
 from authentication_app.models import *
 from order_app.models import *
+from product_app.models import *
 from decimal import Decimal
 from django.contrib import messages
 from datetime import timedelta
@@ -92,6 +93,7 @@ def confirm_order(request):
 
     # Getting the address from the checkout page
     address_id = request.POST.get('address_id')
+    request.session['address_id'] = address_id
     address = get_object_or_404(Address, id=address_id, user=user)
 
     payment_method = request.POST.get('payment_method')
@@ -118,6 +120,8 @@ def confirm_order(request):
     if coupon_code:
         try:
             coupon = Coupons.objects.get(code=coupon_code)
+            coupon.used_limit = F('used_limit') - 1
+            coupon.save()
         except Coupons.DoesNotExist:
             coupon = None
             messages.error(request, "Coupon not found or expired.")
@@ -164,11 +168,14 @@ def order_view(request):
         
         delivery_date = timezone.now() + timedelta(days=7)
         
+        address_id = request.session.get('address_id')
+        address = Address.objects.get(id = address_id)
         # Creating and saving the order
         order = Order(
             user = user,
             order_status = 'confirmed',
-            delivery_date = delivery_date
+            delivery_date = delivery_date,
+            address = address
         )
         
         order.save()
@@ -185,15 +192,71 @@ def order_view(request):
             item.product.available_stock = F('available_stock') - item.quantity
             item.product.save()
             
-            return redirect('order_app:order_view')
+            # Unlist the product if stock becomes 0
+            if item.product.available_stock == 0:
+                item.product.is_listed = False
+                item.product.save()
+            
+        cart_item.delete()
+        return redirect('order_app:order_view')
             
             
-    user_id = request.user.id
-    user = CustomUser.objects.get(id = user_id)
-    orders = user.orders.all()
+    orders = request.user.orders.all().order_by('-id')
     context = {
         'orders':orders,
     }
     return render(request,'order_app/orders.html',context)
 
 # {% url 'order_details' order.id %}
+
+
+@login_required
+def order_details(request,order_id):
+    order = Order.objects.get(id = order_id)
+    request.session['order_id'] = order_id
+    order_items = order.items.all()
+    total_price = 0
+    for item in order_items:
+        total_price += item.price
+        
+    context = {
+        'order':order,
+        'total_price':total_price,
+    }
+    
+    return render(request,'order_app/order_details.html',context)
+
+@login_required
+def submit_review(request, product_id):
+    order_id = request.session.get('order_id')
+    if request.method == 'POST':
+        rating = int(request.POST.get('rating'))
+        comment = request.POST.get('review')
+        
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Save the review
+        review = ProductReview(
+            user=request.user,
+            product=product,
+            rating=rating,
+            comment=comment
+        )
+        review.save()
+
+        
+        messages.success(request, "Thank you for your review!")
+        return redirect('order_app:order_detail', order_id=order_id)
+
+    try:
+        order_item = OrderItems.objects.get(product_id=product_id, order__user=request.user)
+    except OrderItems.DoesNotExist:
+        messages.error(request, "Order item does not exist.")
+        return redirect('order_app:order_detail', order_id=order_id)
+    
+    return render(request,'order_app/add_review.html',{'order_item':order_item})
+
+# {% url 'return_item' item.id %}
+# {% url 'cancel_order' order.id %}
+# {% url 'submit_review' order.id %}
+

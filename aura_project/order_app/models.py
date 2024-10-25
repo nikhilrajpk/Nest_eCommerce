@@ -30,6 +30,7 @@ class Order(models.Model):
     order_status = models.CharField(max_length=20, choices=STATUS, default="pending")
     order_date = models.DateTimeField(auto_now_add=True)
     delivery_date = models.DateTimeField()
+    address = models.ForeignKey(Address,on_delete=models.SET_NULL, null=True)
     
     def __str__(self) -> str:
         return f'{self.user.first_name}-{self.order_status}'

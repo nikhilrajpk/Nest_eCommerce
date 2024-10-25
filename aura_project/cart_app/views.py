@@ -211,7 +211,6 @@ def check_coupon(request):
         if not coupon_applied:
             if coupon_code:
                 coupon = get_object_or_404(Coupons, code=coupon_code)
-
                 if coupon.used_limit > 0:
                     discount = Decimal(coupon.discount_amount)
                     cart_total_discount = cart_total - discount
