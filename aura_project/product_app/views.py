@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from category_app.models import Category
 from product_app.models import *
 from django.core.paginator import Paginator
+from django.db.models import Count,Sum
 # Create your views here.
 
 def display_products(request,id):
@@ -36,8 +37,28 @@ def single_product_view(request,id):
     
     product = Product.objects.get(id = id)
     
+    # getting the review data
+    review_data = Product.objects.filter(id=id).aggregate(
+        total_reviews=Count('productreview'),
+        total_stars=Sum('productreview__rating')
+    )
+
+    #  total reviews and total stars from the aggregated data
+    total_reviews = review_data['total_reviews'] or 0
+    total_stars = review_data['total_stars'] or 0
+    
+    print(total_reviews)
+
+    # Calculating the average rating
+    if total_reviews > 0:
+        average_rating = total_stars / total_reviews
+    else:
+        average_rating = 0
+    
     context = {
         'product':product,
+        'total_review':total_reviews,
+        'average_rating':average_rating,
     }
     
     return render(request,'product_app/single_product.html',context)
