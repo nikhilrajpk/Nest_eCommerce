@@ -288,3 +288,22 @@ def cancel_order(request, order_id):
             messages.error(request, "Cancellation reason is required.")
     
     return redirect('order_app:order_details', order_id=order_id)
+
+
+@login_required
+def return_item(request, item_id):
+    if request.method == 'POST':
+        order_item = OrderItems.objects.get(id=item_id)
+        
+        # Get return item reason from form
+        return_reason = request.POST.get('return_reason')
+        if return_reason:
+            order_item.return_reason = return_reason
+            order_item.return_date = timezone.now()
+            order_item.save()
+
+            messages.success(request, "Order item returned successfully.")
+        else:
+            messages.error(request, "Return reason is required.")
+    
+    return redirect('order_app:order_details', order_id=order_item.order.id)

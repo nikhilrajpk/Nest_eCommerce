@@ -96,9 +96,40 @@ setTimeout (() => {
                     {% if order.order_status == 'delivered' %}
                     <td>
                             <!-- <a href="" class="btn btn-sm btn-outline-danger">Return Item</a> -->
-                            <form action="{% url 'order_app:cancel_order' order.id %}" method="post">
+                            <!-- <form action="{% url 'order_app:cancel_order' order.id %}" method="post">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Return Item</button>
-                            </form>
+                            </form> -->
+
+                        <!-- Button to trigger return item modal -->
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#returnItemModal{{ item.id }}">
+                            Return Item
+                        </button>
+
+                        <!-- Modal for return confirmation and reason input -->
+                        <div class="modal fade" id="returnItemModal{{ item.id }}" tabindex="-1" aria-labelledby="returnItemModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="returnItemModalLabel">Return Item</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="returnItemForm{{ item.id }}" method="post" action="{% url 'order_app:return_item' item.id %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <label for="return_reason" class="form-label">Reason for Return</label>
+                                                <textarea class="form-control" id="return_reason{{ item.id }}" name="return_reason" required></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-danger" form="returnItemForm{{ item.id }}">Confirm Return</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
 
                         </td>
                     {% endif %}

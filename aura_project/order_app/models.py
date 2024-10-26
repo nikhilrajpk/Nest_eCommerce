@@ -41,6 +41,8 @@ class OrderItems(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    return_reason = models.TextField(null=True, blank=True)
+    return_date = models.DateTimeField(auto_now_add=True,null=True)
 
     def __str__(self) -> str:
         return f'{self.product.product_name}-{self.quantity}'
@@ -67,8 +69,8 @@ class Checkout(models.Model):
 #     order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='cancel_order')
 #     canceled_date = models.DateTimeField(auto_now_add=True)
     
-class ReturnItem(models.Model):
-    reason = models.TextField()
-    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='return_item')
-    order_item = models.ForeignKey(OrderItems,on_delete=models.CASCADE,related_name='return_item')
-    return_date = models.DateTimeField(auto_now_add=True)
+# class ReturnItem(models.Model):
+#     reason = models.TextField()
+#     order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='return_item')
+#     order_item = models.ForeignKey(OrderItems,on_delete=models.CASCADE,related_name='return_item')
+#     return_date = models.DateTimeField(auto_now_add=True)
