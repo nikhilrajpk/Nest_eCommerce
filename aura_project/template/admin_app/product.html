@@ -96,7 +96,14 @@
             <tr>
                 <td>{{product.product_name}}</td>
                 <td>{{product.category.category_name}}</td>
-                <td>{{product.available_stock}}</td>
+                <td>
+                    <div>
+                    {{product.available_stock}}
+                    <button type="button" class="btn btn-sm btn-outline-danger">
+                        Add
+                    </button>
+                    </div>
+                </td>
                 <td>{{product.price}} Rs</td>
                 <td>
                     {% if product.offer %}
