@@ -246,13 +246,13 @@ def submit_review(request, product_id):
 
         
         messages.success(request, "Thank you for your review!")
-        return redirect('order_app:order_detail', order_id=order_id)
+        return redirect('order_app:order_details', order_id=order_id)
 
     try:
         order_item = OrderItems.objects.get(product_id=product_id, order__user=request.user)
     except OrderItems.DoesNotExist:
         messages.error(request, "Order item does not exist.")
-        return redirect('order_app:order_detail', order_id=order_id)
+        return redirect('order_app:order_details', order_id=order_id)
     
     return render(request,'order_app/add_review.html',{'order_item':order_item})
 
