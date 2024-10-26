@@ -42,6 +42,12 @@
                 <th>Quantity</th>
                 <th>Price (₹)</th>
                 <th>Total (₹)</th>
+                {% for item in items %}
+                    {% if item.return_reason %}
+                        <th></th>
+                        <th>Reason</th>
+                    {% endif %}
+                {% endfor %}
             </tr>
         </thead>
         <tbody>
@@ -56,6 +62,14 @@
                 <td>{{ item.product.price }}</td>
                 {% endif %}
                 <td>{{ item_total }}</td> 
+                {% if item.return_reason %}
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-danger" disabled>
+                                Item Returned!
+                            </button>
+                        </td>
+                        <td>{{item.return_reason}}</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

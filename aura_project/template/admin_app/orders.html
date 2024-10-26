@@ -99,7 +99,11 @@
                     {{order.address.phone}},<br>
                 </td>
                 <td>{{order.order_date}}</td>
+                {% if order.order_status != 'canceled' %}
                 <td>{{order.delivery_date}}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
                 <td>{{order.order_status}}</td>
                 <td>
                     <a href="{% url 'admin_app:show_order' order.id %}" ><button id="unblock" type="button" >Show</button></a>

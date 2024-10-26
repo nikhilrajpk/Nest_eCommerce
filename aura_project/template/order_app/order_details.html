@@ -99,11 +99,18 @@ setTimeout (() => {
                             <!-- <form action="{% url 'order_app:cancel_order' order.id %}" method="post">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Return Item</button>
                             </form> -->
+                        {% if item.return_reason %}
+                        <button type="button" class="btn btn-sm btn-outline-danger" disabled>
+                            Item Returned!
+                        </button>
+
+                        {% else %}
 
                         <!-- Button to trigger return item modal -->
                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#returnItemModal{{ item.id }}">
                             Return Item
                         </button>
+                        {% endif %}
 
                         <!-- Modal for return confirmation and reason input -->
                         <div class="modal fade" id="returnItemModal{{ item.id }}" tabindex="-1" aria-labelledby="returnItemModalLabel" aria-hidden="true">
@@ -183,7 +190,7 @@ setTimeout (() => {
             
 
         {% else %}
-            <a href="#" class="btn btn-success mt-3" disabled>Delivered</a>
+            <button class="btn btn-outline-success mt-3" disabled>Delivered</button>
         {% endif %}
     </div>
 

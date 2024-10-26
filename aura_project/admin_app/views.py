@@ -639,7 +639,8 @@ def show_order(request,order_id):
             'order': order,
             'order_items': zip(order_items, item_total_prices),  # Pass both items and their individual total prices
             'total_price': total_price,
-            'status_choices': STATUS
+            'status_choices': STATUS,
+            'items':order_items,
         }
         return render(request,'admin_app/show_order.html',context)
     
