@@ -10,6 +10,9 @@
             <p><strong>Order Date:</strong> {{ order.order_date }}</p>
             <p><strong>Delivery Date:</strong> {{ order.delivery_date }}</p>
             <p><strong>Status:</strong> {{ order.order_status|title }}</p>
+            {% if order.order_status == 'canceled' %}
+                <p><strong>Reason for Cancellation:</strong> {{ order.cancellation_reason }}</p>
+            {% endif %}
         </div>
         <div class="col-md-6">
             <h4>User Information</h4>
@@ -63,6 +66,7 @@
     <h4>Total Amount</h4>
     <p>₹{{total_price}}</p>
     <br>
+    {% if order.order_status != 'canceled' %}
     <form action="" method="post">
         {% csrf_token %}
         <div class="mb-3">
@@ -78,6 +82,7 @@
             </select>
         </div>
     </form>
+    {% endif %}
     
 </div>
 <br><br><br><br><br>
