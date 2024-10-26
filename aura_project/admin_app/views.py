@@ -7,6 +7,7 @@ from order_app.models import *
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
+from django.db.models import F
 # Create your views here.
 
 @never_cache
@@ -208,7 +209,7 @@ def edit_product(request,id):
             price = request.POST.get('price')
             offer_id = request.POST.get('offer')
             category_id = request.POST.get('category')
-            available_stock = request.POST.get('available_stock')
+            # available_stock = request.POST.get('available_stock')
             image_1 = request.FILES.get('image_1')
             image_2 = request.FILES.get('image_2')
             image_3 = request.FILES.get('image_3')
@@ -233,7 +234,7 @@ def edit_product(request,id):
             category = Category.objects.get(id = category_id)
             product.category = category
             
-            product.available_stock = available_stock
+            # product.available_stock = available_stock
             
             if image_1:
                 product.image_1 = image_1
@@ -268,6 +269,25 @@ def edit_product(request,id):
     else:
         return redirect('user_app:home')
     
+def add_stock(request,product_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        if request.method == 'POST':
+            product = Product.objects.get(id = product_id)
+            new_stock = request.POST.get('new_stock')
+            
+            if new_stock and new_stock.isdigit():
+                new_stock = int(new_stock)
+                
+                product.available_stock = F('available_stock') + new_stock
+                product.save()
+                
+                messages.success(request,f'{product.product_name} added {new_stock} stock ')
+            else:
+                messages.error(request,'Invalid stock value')
+        return redirect('admin_app:admin_product')
+    
+    else:
+        return redirect('user_app:home')
     
 # Offer Details
 

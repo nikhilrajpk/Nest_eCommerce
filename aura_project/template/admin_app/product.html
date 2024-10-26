@@ -97,9 +97,9 @@
                 <td>{{product.product_name}}</td>
                 <td>{{product.category.category_name}}</td>
                 <td>
-                    <div>
+                    <div class="d-flex">
                     {{product.available_stock}}
-                    <button type="button" class="btn btn-sm btn-outline-danger">
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-4" data-bs-toggle="modal" data-bs-target="#AddStockModal{{ product.id }}">
                         Add
                     </button>
                     </div>
@@ -128,6 +128,30 @@
                     </form>
                 </td>
             </tr>
+            <!-- Modal for return confirmation and reason input -->
+            <div class="modal fade" id="AddStockModal{{ product.id }}" tabindex="-1" aria-labelledby="AddStockModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="AddStockModalLabel">Add Stock</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="AddStockForm{{ product.id }}" method="post" action="{% url 'admin_app:add_stock' product.id %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="new_stock{{ product.id }}" class="form-label">Stock</label>
+                                    <input class="form-control" id="new_stock{{ product.id }}" name="new_stock" required />
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger" form="AddStockForm{{ product.id }}">Add Stock</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
         </tbody>
     </table>
