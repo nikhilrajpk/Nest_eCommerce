@@ -263,3 +263,28 @@ def submit_review(request, product_id):
 # {% url 'cancel_order' order.id %}
 # {% url 'submit_review' order.id %}
 
+
+@login_required
+def cancel_order(request, order_id):
+    if request.method == 'POST':
+        order = Order.objects.get(id=order_id)
+        
+        # Get cancellation reason from form
+        cancel_reason = request.POST.get('cancel_reason')
+        
+        if cancel_reason:
+            order.order_status = 'canceled'
+            order.cancellation_reason = cancel_reason 
+            
+            # If order canceled then available stock is recalculated
+            order_items = order.items.all()
+            for item in order_items:
+                item.product.available_stock = F('available_stock') + item.quantity
+                item.product.save()
+            order.save()
+
+            messages.success(request, "Order canceled successfully.")
+        else:
+            messages.error(request, "Cancellation reason is required.")
+    
+    return redirect('order_app:order_details', order_id=order_id)
