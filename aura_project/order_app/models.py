@@ -60,3 +60,14 @@ class Checkout(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     checkout_status = models.CharField(max_length=20, choices=CHECKOUT_STATUS, default='in_progress')
     created_at = models.DateTimeField(auto_now_add=True)
+    
+class CancelOrder(models.Model):
+    reason = models.TextField()
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='cancel_order')
+    canceled_date = models.DateTimeField(auto_now_add=True)
+    
+class ReturnItem(models.Model):
+    reason = models.TextField()
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name='return_item')
+    order_item = models.ForeignKey(OrderItems,on_delete=models.CASCADE,related_name='return_item')
+    return_date = models.DateTimeField(auto_now_add=True)

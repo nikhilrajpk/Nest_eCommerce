@@ -217,7 +217,10 @@ def order_details(request,order_id):
     order_items = order.items.all()
     total_price = 0
     for item in order_items:
-        total_price += item.price
+        if item.product.offer:
+            total_price += item.product.discount_price
+        else:
+            total_price += item.price
         
     context = {
         'order':order,
@@ -248,13 +251,13 @@ def submit_review(request, product_id):
         messages.success(request, "Thank you for your review!")
         return redirect('order_app:order_details', order_id=order_id)
 
-    try:
-        order_item = OrderItems.objects.get(product_id=product_id, order__user=request.user)
-    except OrderItems.DoesNotExist:
+    order_items = OrderItems.objects.filter(product_id=product_id, order__user=request.user)[:1]
+    
+    if not order_items.exists():
         messages.error(request, "Order item does not exist.")
         return redirect('order_app:order_details', order_id=order_id)
     
-    return render(request,'order_app/add_review.html',{'order_item':order_item})
+    return render(request,'order_app/add_review.html',{'order_items':order_items})
 
 # {% url 'return_item' item.id %}
 # {% url 'cancel_order' order.id %}

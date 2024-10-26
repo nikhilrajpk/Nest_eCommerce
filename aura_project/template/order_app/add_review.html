@@ -46,19 +46,24 @@
                 <tr>
                     <th>Image</th>
                     <th>Item Name</th>
-                    <th>Quantity</th>
                     <th>Price</th>
                 </tr>
             </thead>
             <tbody>
+                {% for order_item in order_items %}
                 <tr>
                     <td><a href="{% url 'product_app:single_product' order_item.product.id %}">
                         <img src="{{ order_item.product.image_1.url }}" alt="{{ order_item.product.product_name }}" style="width: 100px;">
                     </a></td>
                     <td><a href="{% url 'product_app:single_product' order_item.product.id %}" style="text-decoration: none; color: black;">{{ order_item.product.product_name }}</a></td>
-                    <td>{{ order_item.quantity }}</td>
-                    <td>₹{{ order_item.price }}</td>
+                    {% if order_item.product.discount_price %}
+                    <td>₹{{ order_item.product.discount_price }}</td>
+                    {% else %}
+                    <td>₹{{ order_item.product.price }}</td>
+                    {% endif %}
+
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
         <form method="post" action="">

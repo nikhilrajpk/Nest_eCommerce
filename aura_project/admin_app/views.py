@@ -3,6 +3,7 @@ from authentication_app.models import CustomUser
 from category_app.models import *
 from product_app.models import *
 from coupen_app.models import *
+from order_app.models import *
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
@@ -585,3 +586,64 @@ def remove_coupon(request,coupon_id):
     
     else:
         return redirect('user_app:home')
+    
+    
+def admin_orders(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        query = request.GET.get('search_query')
+        if query:
+            orders = Order.objects.filter(id__icontains = query)        
+        else:
+            orders = Order.objects.all().order_by('-id')
+        context = {
+            'orders':orders,
+            'query':query,
+        }
+        return render(request,'admin_app/orders.html',context)
+    
+    else:
+        return redirect('user_app:home')
+
+def show_order(request,order_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        order = Order.objects.get(id = order_id)
+        order_items = order.items.all()
+        
+        # Handling the form submission to change order status
+        if request.method == "POST":
+            new_status = request.POST.get('order_status')
+            if new_status in dict(STATUS):  # Ensure the status is valid
+                order.order_status = new_status
+                order.save()
+                messages.success(request, "Order status updated successfully.")
+            else:
+                messages.error(request, "Invalid order status.")
+        
+        
+        # Calculating total price
+        total_price = 0
+        item_total_prices = []
+        
+        for item in order_items:
+            # Check if product has an offer and calculate the item total
+            if item.product.offer:
+                item_total = item.quantity * item.product.discount_price
+            else:
+                item_total = item.quantity * item.product.price
+                
+            # Add item total to total order price
+            total_price += item_total
+            item_total_prices.append(item_total)  # Store each item's total price
+
+        context = {
+            'order': order,
+            'order_items': zip(order_items, item_total_prices),  # Pass both items and their individual total prices
+            'total_price': total_price,
+            'status_choices': STATUS
+        }
+        return render(request,'admin_app/show_order.html',context)
+    
+    else:
+        return redirect('user_app:home')
+    
+    # {% url 'admin_app:edit_order' order.id %}

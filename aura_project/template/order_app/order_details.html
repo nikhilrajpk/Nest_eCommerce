@@ -88,7 +88,11 @@ setTimeout (() => {
                     </a></td>
                     <td><a href="{% url 'product_app:single_product' item.product.id %}" style="text-decoration: none; color: black;">{{ item.product.product_name }}</a></td>
                     <td>{{ item.quantity }}</td>
-                    <td>₹{{ item.price }}</td>
+                    {% if item.product.offer %}
+                        <td>₹{{ item.product.discount_price }}</td>
+                    {% else %}
+                        <td>₹{{ item.price }}</td>
+                    {% endif %}
                     {% if order.order_status == 'delivered' %}
                     <td>
                             <a href="" class="btn btn-sm btn-outline-danger">Return Item</a>
@@ -109,7 +113,7 @@ setTimeout (() => {
         <h5 class="mt-4">Total Amount: ₹{{ total_price }}</h5>
 
         {% if order.order_status != 'delivered' %}
-            <a href="" class="btn btn-danger mt-3">Cancel Order</a>
+            <a href="" class="btn btn-outline-danger mt-3 ms-auto" style="display: inline-block;width: fit-content;">Cancel Order</a>
             
 
         {% else %}

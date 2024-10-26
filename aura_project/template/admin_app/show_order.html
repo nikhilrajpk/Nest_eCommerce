@@ -1,0 +1,84 @@
+{% extends 'admin_app/admin_base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <br><br><br>
+    <h2>Order #{{ order.id }} Details</h2><br><br>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Order Information</h4>
+            <p><strong>Order Date:</strong> {{ order.order_date }}</p>
+            <p><strong>Delivery Date:</strong> {{ order.delivery_date }}</p>
+            <p><strong>Status:</strong> {{ order.order_status|title }}</p>
+        </div>
+        <div class="col-md-6">
+            <h4>User Information</h4>
+            <p><strong>Name:</strong> {{ order.user.first_name }} {{ order.user.last_name }}</p>
+            <p><strong>Email:</strong> {{ order.user.email }}</p>
+            <p><strong>Phone:</strong> {{ order.address.phone }}</p>
+        </div>
+    </div>
+
+    <hr>
+    
+    <h4>Shipping Address</h4>
+    <p>
+        {{ order.address.street_address }} <br>
+        {{ order.address.city }}, {{ order.address.state }} - {{ order.address.postal_code }} <br>
+        Phone: {{ order.address.phone }}
+    </p>
+
+    <hr>
+
+    <h4>Order Items</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Image</th>
+                <th>Quantity</th>
+                <th>Price (₹)</th>
+                <th>Total (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item, item_total in order_items %}
+            <tr>
+                <td>{{ item.product.product_name }}</td>
+                <td><img src="{{item.product.image_1.url}}" alt="{{item.product.product_name}}" width="100"/></td>
+                <td>{{ item.quantity }}</td>
+                {% if item.product.offer %}
+                <td>{{ item.product.discount_price }}</td>
+                {% else %}
+                <td>{{ item.product.price }}</td>
+                {% endif %}
+                <td>{{ item_total }}</td> 
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+    
+    <h4>Total Amount</h4>
+    <p>₹{{total_price}}</p>
+    <br>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="status" class="form-label">Change Order Status</label>
+            <button type="submit" class="btn btn-outline-warning" style="margin-left: 50rem;">Save</button><br><br>
+            <select id="order-status" name="order_status" class="form-select" required>
+                <!-- Looping through STATUS choices -->
+                {% for status_code, status_name in status_choices %}
+                <option value="{{ status_code }}" {% if order.order_status == status_code %}selected{% endif %}>
+                    {{ status_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+    
+</div>
+<br><br><br><br><br>
+{% endblock content %}
