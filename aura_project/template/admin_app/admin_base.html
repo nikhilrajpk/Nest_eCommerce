@@ -102,6 +102,12 @@
                 <span class="hide-menu" style="transform: translateX(-.6rem);">Banner</span>
               </a>
             </li>
+            <li>
+              <form action="{% url 'authentication_app:logout' %}" method="post" class="sidebar-link" aria-expanded="false">
+                {% csrf_token %}
+                <button class="btn btn-outline-primary mx-3 mt-2 d-block" type="submit">Logout</button>
+            </form>
+            </li>
             
           </ul>
           <!-- <div class="unlimited-access hide-menu bg-light-primary position-relative mb-7 mt-5 rounded">
