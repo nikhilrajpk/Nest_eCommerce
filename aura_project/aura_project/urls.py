@@ -26,7 +26,7 @@ urlpatterns = [
     path('',include('authentication_app.urls')),
     path('accounts/',include('allauth.urls')),  # google sign in path
     path('',include('category_app.urls')),
-    path('',include('admin_app.urls')),
+    path('admin-panel/',include('admin_app.urls')),
     path('',include('address_app.urls')),
     path('',include('cart_app.urls')),
     path('',include('coupen_app.urls')),
