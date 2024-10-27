@@ -190,6 +190,7 @@ def order_view(request):
             )
             # Reducing the available stock
             item.product.available_stock = F('available_stock') - item.quantity
+            item.product.sold_count = F('sold_count') + item.quantity
             item.product.save()
             
             # Unlist the product if stock becomes 0
