@@ -24,6 +24,18 @@
         color: #ff6600; /* Customize as needed */
         text-decoration: underline;
     }
+    #search{
+		color: black;
+		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+		font-weight: 500;
+		border-radius: 10px;
+        border: 1px solid #666;
+		padding-left: 13px;
+		width: 12rem;
+		height: 30px;
+        transform: translateY(.1rem);
+        margin-left: 20rem;
+	}
 </style>
     <!-- banner part start-->
     <section class="banner_part">
@@ -62,7 +74,7 @@
         </div>
     </section>
     
-    <!-- banner part start-->
+    <!-- banner part End-->
 
     <!-- Latest product start-->
     <section class="feature_part padding_top">
@@ -136,6 +148,48 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Sorting and search section -->
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="sort_with" value="price">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Price Low To High
+                            <img src="{% static 'img/up_arrow.jpg' %}" alt="up arrow" width="11"> 
+                        </button>
+                    </form>
+                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="sort_with" value="-price">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Price High To Low
+                            <img src="{% static 'img/down_arrow.webp' %}" alt="down arrow" width="15"> 
+                        </button>
+                    </form>
+                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="sort_with" value="product_name">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Name Aa-Zz
+                        </button>
+                    </form>
+                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="sort_with" value="-product_name">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Name Zz-Aa
+                        </button>
+                    </form>
+                    <form action="{% url 'user_app:home' %}#products-section" method="get" style="display: inline-block;">
+                        <input id="search" type="search" name="search_query" placeholder="Search category..." value="{{query}}" >
+                        <button class="btn btn-md btn-outline-danger" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+            <br>
+
             <div class="row">
                 <div class="col-lg-12">
                     <div class="product_list_slider owl-carousel">

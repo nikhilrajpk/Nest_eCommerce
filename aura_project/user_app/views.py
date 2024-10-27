@@ -22,7 +22,24 @@ def home(request):
     page = 1
     if request.GET:
         page = request.GET.get('page',1)
-    products = Product.objects.all()
+    
+    query = request.GET.get('search_query')
+    
+    if query:
+        products = Product.objects.filter(product_name__icontains = query)
+    
+    else:    
+        # Sorting with price or name
+        sort_with = 'product_name'
+        if request.method == 'POST':
+            sort_with = request.POST.get('sort_with')
+            request.session['sort_with'] = sort_with
+            print(sort_with)
+        sort_with = request.session.get('sort_with','product_name')
+        products = Product.objects.all().order_by(sort_with)
+        print(sort_with,'hai')
+        
+    # products = Product.objects.all()
     product_paginator = Paginator(products,8)
     products = product_paginator.get_page(page)
         
@@ -31,6 +48,7 @@ def home(request):
         'latest_products':latest_products,
         'products':products,
         'best_sellers':best_sellers,
+        'query':query,
     }
     return render(request,'user_app/index.html',context)
 
