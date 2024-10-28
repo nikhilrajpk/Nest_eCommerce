@@ -79,6 +79,7 @@
     </script>
 
     {% if coupons %}
+    <div class="table-responsive">
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
@@ -116,6 +117,7 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
     {% else %}
         <p>No coupons available.</p>
     {% endif %}

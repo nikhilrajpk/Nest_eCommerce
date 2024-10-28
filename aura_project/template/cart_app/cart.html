@@ -13,14 +13,7 @@
         background-color: #d4a373;
     }
 </style>
-<!-- alert box  -->
-{% if messages %}
-{% for message in messages %}
-    <div class="alert alert-{{message.tags}}">
-        <strong>{{message}}</strong>
-    </div>
-{% endfor %}
-{% endif %}
+
 
 <script>
 setTimeout (() => {
@@ -30,6 +23,14 @@ setTimeout (() => {
 <!--================Cart Area =================-->
 <section class="cart_area padding_top">
     <div class="container">
+        <!-- alert box  -->
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags}}">
+                <strong>{{message}}</strong>
+            </div>
+        {% endfor %}
+        {% endif %}
       <div class="cart_inner">
         <div class="table-responsive">
           {% if cart_items %}
