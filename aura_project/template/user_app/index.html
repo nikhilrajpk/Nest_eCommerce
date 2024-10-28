@@ -183,7 +183,7 @@
                         </button>
                     </form>
                     <form action="{% url 'user_app:home' %}#products-section" method="get" style="display: inline-block;">
-                        <input id="search" type="search" name="search_query" placeholder="Search category..." value="{{query}}" >
+                        <input id="search" type="search" name="search_query" placeholder="Search category..." {% if query %} value="{{query}}" {% endif %}>
                         <button class="btn btn-md btn-outline-danger" type="submit">Search</button>
                     </form>
                 </div>

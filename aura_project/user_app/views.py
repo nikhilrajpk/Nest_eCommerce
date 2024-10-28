@@ -5,6 +5,7 @@ from address_app.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from authentication_app.validators import Authentication_check
+import re
 
 from django.core.paginator import Paginator
 
@@ -62,6 +63,77 @@ def account(request):
     }
     return render(request,'user_app/account.html',context)
 
+def address_validation(request,address_type,street_address,landmark,state,country,postal_code,phone,alternative_phone,address_input):
+    context = {
+            'address_type' : address_type,
+            'street_address' : street_address,
+            'landmark' : landmark,
+            'state' : state,
+            'country' : country,
+            'postal_code' : postal_code,
+            'phone' : phone,
+            'alternative_phone' : alternative_phone,
+            'address' : address_input
+        }
+        
+    # Basic validations
+    if not all([address_type, street_address, state, country, postal_code, phone]):
+        messages.error(request, 'Please fill in all the required fields.')
+        return render(request, 'user_app/add_address.html',context)
+
+    # Check if postal code is numeric
+    if not postal_code.isdigit():
+        messages.error(request, 'Postal code must be numeric.')
+        return render(request, 'user_app/add_address.html',context)
+
+    # Check if phone number is valid (basic length check)
+    if len(phone) != 10:
+        messages.error(request, 'Phone number must be 10 digits.')
+        return render(request, 'user_app/add_address.html',context)
+    
+    # Check if the fields contain only whitespace using strip()
+    if not street_address.strip():
+        messages.error(request, 'Street address cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+
+    if not state.strip():
+        messages.error(request, 'State cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+    
+    if not country.strip():
+        messages.error(request, 'Country cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+    
+    if not phone.strip():
+        messages.error(request, 'Phone cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+
+    if not address_input.strip():
+        messages.error(request, 'Address cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+    
+    address_pattern = r'^[a-zA-Z0-9\s,.-]+$'
+    phone_pattern = r'^[0-9]+$'
+    
+    if not re.match(address_pattern, street_address):
+        messages.error(request, 'Street address cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+
+    if not re.match(address_pattern, state):
+        messages.error(request, 'State cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+    
+    if not re.match(phone_pattern, phone):
+        messages.error(request, 'Phone cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+
+
+    if not re.match(address_pattern, address_input):
+        messages.error(request, 'Address cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+
+    return None
+
 @login_required
 def add_address(request):
     user = request.user
@@ -75,9 +147,38 @@ def add_address(request):
         postal_code = request.POST.get('postal_code')
         phone = request.POST.get('phone')
         alternative_phone = request.POST.get('alternative_phone')
-        address = request.POST.get('address')
+        address_input = request.POST.get('address')
         
+        context = {
+            'address_type' : address_type,
+            'street_address' : street_address,
+            'landmark' : landmark,
+            'state' : state,
+            'country' : country,
+            'postal_code' : postal_code,
+            'phone' : phone,
+            'alternative_phone' : alternative_phone,
+            'address' : address_input
+        }
         print(user_details.email)
+        
+        # Validating the address details
+        validation_result = address_validation(
+            request=request,
+            address_type=address_type,
+            street_address=street_address,
+            landmark=landmark,
+            state=state,
+            country=country,
+            postal_code=postal_code,
+            phone=phone,
+            alternative_phone=alternative_phone,
+            address_input=address_input
+        )
+
+        # If validation returns error, stop
+        if validation_result:
+            return validation_result
         
         new_address = Address(
             user = user_details,
@@ -89,7 +190,7 @@ def add_address(request):
             postal_code = postal_code,
             phone = phone,
             alternative_phone = alternative_phone,
-            address = address
+            address = address_input
         )
         new_address.save()
         messages.success(request,'New address added.')
@@ -162,6 +263,25 @@ def edit_address(request,address_id):
         phone = request.POST.get('phone')
         alternative_phone = request.POST.get('alternative_phone')
         address_inp = request.POST.get('address')
+        
+        # Validating the address details
+        # Validating the address details
+        validation_result = address_validation(
+            request=request,
+            address_type=address_type,
+            street_address=street_address,
+            landmark=landmark,
+            state=state,
+            country=country,
+            postal_code=postal_code,
+            phone=phone,
+            alternative_phone=alternative_phone,
+            address_input=address_inp
+        )
+
+        # If validation returns error, stop
+        if validation_result:
+            return validation_result
         
         # Updating the address details
         address.address_type = address_type
