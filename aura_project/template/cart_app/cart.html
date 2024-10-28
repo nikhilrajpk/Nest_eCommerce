@@ -75,7 +75,7 @@ setTimeout (() => {
                         <h5>{{item.total_price}} </h5>
                     </td>
                     <td>
-                        <form action="{% url 'cart_app:remove_cart_item' item.id %}" method="post">
+                        <form action="{% url 'cart_app:remove_cart_item' item.id %}" method="post" onsubmit="return confirm('Do you want to remove {{item.product.product_name}} from cart ?');">
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>

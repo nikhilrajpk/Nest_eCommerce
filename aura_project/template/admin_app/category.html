@@ -56,7 +56,7 @@
     <div class="col-sm-5" id="tdiv">
             <h2 class="mb-4">Category</h2>
             <form action="" method="get"">
-                <input id="search" type="search" name="search_query" placeholder="Search category..." value="{{query}}" >
+                <input id="search" type="search" name="search_query" placeholder="Search category..." {% if query %} value="{{query}}" {% endif %} >
                 <button id="search_btn" type="submit">Search</button>
             </form>
             <a href="{% url 'admin_app:add_category' %}" ><button id="search_btn" type="button" style="margin-left: 50rem;transform: translateY(-2rem);">Add</button></a>

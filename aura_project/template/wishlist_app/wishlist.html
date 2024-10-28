@@ -57,7 +57,7 @@
                         <a href="{% url 'cart_app:add_to_cart' item.product.id %}"><button id="block">Add to cart</button></a>
                     </td>
                     <td>
-                        <form action="{% url 'wishlist_app:remove_from_wishlist' item.id %}" method="post">
+                        <form action="{% url 'wishlist_app:remove_from_wishlist' item.id %}" method="post" onsubmit="return confirm('Do you want to remove {{item.product.product_name}} from cart ?')">
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>
