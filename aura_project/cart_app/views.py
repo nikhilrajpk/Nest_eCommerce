@@ -23,6 +23,11 @@ def add_to_cart(request,product_id):
     if not item_created:
         # If the product already exists, increment the quantity
         cart_item.quantity += 1
+    
+    if product.offer:
+        cart_item.total_price = cart_item.quantity * product.discount_price
+    else: 
+        cart_item.total_price = cart_item.quantity * product.price 
 
     cart_item.save()
     print(f"Cart item saved: {cart_item.product.product_name} with quantity {cart_item.quantity}")

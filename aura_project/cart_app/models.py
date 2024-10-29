@@ -14,6 +14,7 @@ class Cart_item(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    total_price = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
 
     def __str__(self) -> str:
         return f'{self.product.product_name}-{self.quantity}'
