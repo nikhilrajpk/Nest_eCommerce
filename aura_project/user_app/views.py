@@ -6,52 +6,126 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from authentication_app.validators import Authentication_check
 import re
+from django.db.models import Q
 
 from django.core.paginator import Paginator
+
+# def home(request):
+#     if request.user.is_authenticated and request.user.is_staff:
+#         return redirect('admin_app:admin_home')
+    
+#     banners = Banner.objects.all()
+    
+#     latest_products = Product.objects.all().order_by('-id')[:4]
+    
+#     best_sellers = Product.objects.all().order_by('-sold_count')[:8]
+    
+#     # Paginator for the products
+#     page = 1
+#     if request.GET:
+#         page = request.GET.get('page',1)
+
+#     query = request.GET.get('search_query','')
+    
+#     if query:
+#         request.session['is_searched'] = True
+#         request.session['query'] = query
+#         products = Product.objects.filter(Q(product_name__icontains = query) | Q(category__category_name__icontains = query))
+    
+#         print(query,request.session['is_searched'],1)
+#     else:    
+#         query = request.session.get('query')
+#         print(query,request.session['is_searched'],2)
+#         # Sorting with price or name
+#         sort_with = 'product_name'
+#         is_searched = request.session.get('is_searched',False)
+#         if request.method == 'POST':
+#             sort_with = request.POST.get('sort_with')
+#             request.session['sort_with'] = sort_with
+#             print(sort_with)
+#         sort_with = request.session.get('sort_with','product_name')
+#         if is_searched and query:
+#             products = Product.objects.all().order_by(sort_with).filter(Q(product_name__icontains = query)|Q(category__category_name__icontains = query))
+#         else:
+#             products = Product.objects.all().order_by(sort_with)
+#         print(sort_with,'hai')
+        
+#     # products = Product.objects.all()
+#     product_paginator = Paginator(products,8)
+#     products = product_paginator.get_page(page)
+        
+#     context = {
+#         'banners':banners,
+#         'latest_products':latest_products,
+#         'products':products,
+#         'best_sellers':best_sellers,
+#         'query':query,
+#     }
+#     return render(request,'user_app/index.html',context)
 
 def home(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
     
     banners = Banner.objects.all()
-    
     latest_products = Product.objects.all().order_by('-id')[:4]
-    
     best_sellers = Product.objects.all().order_by('-sold_count')[:8]
     
-    # Paginator for the products
-    page = 1
-    if request.GET:
-        page = request.GET.get('page',1)
+    # Paginator setup
+    page = request.GET.get('page', 1)
     
-    query = request.GET.get('search_query')
+    # Handle search
+    query = request.GET.get('search_query', '')
     
+    # Clear search if empty query is submitted
+    if 'search_query' in request.GET and not query:
+        if 'is_searched' in request.session:
+            del request.session['is_searched']
+        if 'query' in request.session:
+            del request.session['query']
+    
+    # Process search query
     if query:
-        products = Product.objects.filter(product_name__icontains = query)
-    
-    else:    
-        # Sorting with price or name
+        request.session['is_searched'] = True
+        request.session['query'] = query
+        products = Product.objects.filter(
+            Q(product_name__icontains=query) | 
+            Q(category__category_name__icontains=query)
+        )
+    else:
+        # Handle sorting
         sort_with = 'product_name'
         if request.method == 'POST':
-            sort_with = request.POST.get('sort_with')
+            sort_with = request.POST.get('sort_with', 'product_name')
             request.session['sort_with'] = sort_with
-            print(sort_with)
-        sort_with = request.session.get('sort_with','product_name')
-        products = Product.objects.all().order_by(sort_with)
-        print(sort_with,'hai')
+        else:
+            sort_with = request.session.get('sort_with', 'product_name')
         
-    # products = Product.objects.all()
-    product_paginator = Paginator(products,8)
+        # Check if there's an existing search to maintain
+        is_searched = request.session.get('is_searched', False)
+        session_query = request.session.get('query', '')
+        
+        if is_searched and session_query:
+            products = Product.objects.filter(
+                Q(product_name__icontains=session_query) |
+                Q(category__category_name__icontains=session_query)
+            ).order_by(sort_with)
+        else:
+            products = Product.objects.all().order_by(sort_with)
+    
+    # Pagination
+    product_paginator = Paginator(products, 8)
     products = product_paginator.get_page(page)
-        
+    
     context = {
-        'banners':banners,
-        'latest_products':latest_products,
-        'products':products,
-        'best_sellers':best_sellers,
-        'query':query,
+        'banners': banners,
+        'latest_products': latest_products,
+        'products': products,
+        'best_sellers': best_sellers,
+        'query': query or request.session.get('query', ''),
     }
-    return render(request,'user_app/index.html',context)
+    return render(request, 'user_app/index.html', context)
+
 
 @login_required
 def account(request):
