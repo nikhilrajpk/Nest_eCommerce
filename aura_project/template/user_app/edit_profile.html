@@ -69,7 +69,7 @@
                                 </div>
                                     <div class="card-footer">
                                         <a href="{% url 'user_app:edit_address' address.id %}" class="btn btn-sm btn-warning">Edit Address</a>
-                                        <form action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;" onsubmit="return confirm('Do you want to delete the address ?');">
+                                        <form id="delete_address" action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;" >
                                             {% csrf_token %}
                                             <button class="btn btn-sm btn-danger" type="submit">Delete</button>
                                         </form>
@@ -88,6 +88,35 @@
         </div>
     </div>
 </div>
+<script>
+    document.getElementById("delete_address").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show success alert after deletion confirmation
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Your address has been deleted.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Submit the form after confirmation
+                    event.target.submit();
+                });
+            }
+        });
+    });
+</script>
 
 <script
   src="https://code.jquery.com/jquery-3.7.1.js"

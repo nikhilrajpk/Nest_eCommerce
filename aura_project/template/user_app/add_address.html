@@ -23,7 +23,7 @@ setTimeout (() => {
                     <h4 class="text-center text-white">Add New Address</h4>
                 </div>
                 <div class="card-body">
-                    <form action="" method="POST">
+                    <form id="address_form" action="" method="POST">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="address_type">Address Type</label>
@@ -82,6 +82,24 @@ setTimeout (() => {
         </div>
     </div>
 </div>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <script>
+    document.getElementById("address_form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+        
+        // Show SweetAlert confirmation
+        swal({
+            title: "New Address has been saved",
+            icon: "success",
+            timer: 1500,
+            buttons: false,
+        }).then(() => {
+            this.submit(); // Submit the form after the alert
+        });
+    });
+    </script>
+    
 <script
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="

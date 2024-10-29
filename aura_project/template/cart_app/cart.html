@@ -76,7 +76,7 @@ setTimeout (() => {
                         <h5>{{item.total_price}} </h5>
                     </td>
                     <td>
-                        <form action="{% url 'cart_app:remove_cart_item' item.id %}" method="post" onsubmit="return confirm('Do you want to remove {{item.product.product_name}} from cart ?');">
+                        <form id="remove_item" action="{% url 'cart_app:remove_cart_item' item.id %}" method="post" >
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>
@@ -223,6 +223,36 @@ setTimeout (() => {
       </div>
   </section>
   <!--================End Cart Area =================-->
+  <script>
+    document.getElementById("remove_item").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show success alert after deletion confirmation
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Your address has been deleted.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Submit the form after confirmation
+                    event.target.submit();
+                });
+            }
+        });
+    });
+</script>
+
   <script
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
