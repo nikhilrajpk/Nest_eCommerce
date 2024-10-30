@@ -108,7 +108,7 @@
                         <a href="{% url 'admin_app:edit_coupon' coupon.id %}" ><button id="unblock" type="button" >Edit</button></a>
                     </td>
                     <td>
-                        <form onsubmit="return confirm('Do you want to remove {{coupon.code}}?');" action="{% url 'admin_app:remove_coupon' coupon.id %}" method="post">
+                        <form class="remove_coupon" action="{% url 'admin_app:remove_coupon' coupon.id %}" method="post">
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>
@@ -122,6 +122,37 @@
         <p>No coupons available.</p>
     {% endif %}
 </div>
+<script>
+    document.querySelectorAll(".remove_coupon").forEach(form => {
+        form.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the form from submitting immediately
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show success alert after deletion confirmation
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Your coupon has been deleted.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Submit the form after confirmation
+                        form.submit();
+                    });
+                }
+            });
+        });
+    });
+</script>
 
 <script
   src="https://code.jquery.com/jquery-3.7.1.js"
