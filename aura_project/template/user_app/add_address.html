@@ -6,6 +6,13 @@ setTimeout (() => {
     $(".alert").alert("close")
 },3000)
 </script>
+<!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'user_app:account' %}">Account</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="">Add Address</a></li>
+    </ol>
+  </nav>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">

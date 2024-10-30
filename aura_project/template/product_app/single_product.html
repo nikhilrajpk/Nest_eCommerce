@@ -19,6 +19,14 @@
         background-color: rgb(250, 240, 240);
     }
 </style>
+ <!-- breadcrumbs start-->
+ <nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'category_app:category' %}">Category</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'product_app:products_view' product.category.id %}">{{product.category.category_name}}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{product.product_name}}</li>
+  </ol>
+</nav>
   <!--================Single Product Area =================-->
   <div class="product_image_area section_padding">
     <div class="container">

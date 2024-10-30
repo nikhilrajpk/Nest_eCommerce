@@ -62,7 +62,7 @@
 </style>
     <!--================Home Banner Area =================-->
     <!-- breadcrumb start-->
-    <section class="breadcrumb breadcrumb_bg">
+    <!-- <section class="breadcrumb breadcrumb_bg">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -77,8 +77,15 @@
                 </div>
             </div>
         </div>
-    </section>
-    <!-- breadcrumb start-->
+    </section> -->
+    <!-- breadcrumb start -->
+     <!-- breadcrumbs start-->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'category_app:category' %}">Category</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{category.category_name}}</li>
+        </ol>
+    </nav>
 
     <!--================Category Product Area =================-->
     <section id="product-section" class="cat_product_area section_padding">
@@ -92,7 +99,7 @@
                                     <!-- <p><span>{{total}} </span> Product Found</p> -->
                                 </div>
                                 <div class="single_product_menu d-flex">
-                                    <a href="{% url 'category_app:category' %}"><button class="btn" id="back_btn">Back to category</button></a>
+                                    <!-- <a href="{% url 'category_app:category' %}"><button class="btn" id="back_btn">Back to category</button></a> -->
                                     <form action="" method="get"">
                                         <input id="search" type="search" name="search_query" placeholder="Search product..." value="{{query}}" >
                                         <button id="search_btn" type="submit">Search</button>

@@ -37,7 +37,13 @@
         color: #ffc700;
     }
 </style>
-
+<!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'order_app:order_view' %}">Orders</a></li>
+    <li class="breadcrumb-item"><a href="">Order Details</a></li>
+    </ol>
+  </nav>
 <div class="container">
     <h2 class="text-center mt-5">Order #{{ order.id }} Details</h2>
     <div class="card p-4 mb-4">

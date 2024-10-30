@@ -37,7 +37,14 @@
         color: #ffc700;
     }
 </style>
-
+<!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'order_app:order_view' %}">Orders</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'order_app:order_details' order_id %}">Order Details</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="">Review</a></li>
+    </ol>
+  </nav>
 <div class="container">
     <div class="card p-4">
         <h5>Submit Your Review</h5>
