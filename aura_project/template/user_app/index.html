@@ -152,37 +152,35 @@
             <!-- Sorting and search section -->
             <div class="row justify-content-center">
                 <div class="col-lg-12">
-                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
-                        {% csrf_token %}
-                        <input type="hidden" name="sort_with" value="price">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <a href="{% url 'user_app:home' %}#products-section">
+                        <button type="button" class="btn btn-sm btn-outline-danger">
+                            All
+                        </button>
+                    </a>
+                    <a href="{% url 'user_app:home' %}?sort_with=price{% if query %}&search_query={{query}}{% endif %}#products-section">
+                        <button type="button" class="btn btn-sm btn-outline-danger">
                             Price Low To High
-                            <img src="{% static 'img/up_arrow.jpg' %}" alt="up arrow" width="11"> 
                         </button>
-                    </form>
-                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
-                        {% csrf_token %}
-                        <input type="hidden" name="sort_with" value="-price">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                    </a>
+                    <a href="{% url 'user_app:home' %}?sort_with=-price{% if query %}&search_query={{query}}{% endif %}#products-section">
+                        <button type="button" class="btn btn-sm btn-outline-danger">
                             Price High To Low
-                            <img src="{% static 'img/down_arrow.webp' %}" alt="down arrow" width="15"> 
                         </button>
-                    </form>
-                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
-                        {% csrf_token %}
-                        <input type="hidden" name="sort_with" value="product_name">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                    </a>
+                    <a href="{% url 'user_app:home' %}?sort_with=product_name{% if query %}&search_query={{query}}{% endif %}#products-section">
+                        <button type="button" class="btn btn-sm btn-outline-danger">
                             Name Aa-Zz
                         </button>
-                    </form>
-                    <form action="{% url 'user_app:home' %}#products-section" method="post" style="display: inline-block;">
-                        {% csrf_token %}
-                        <input type="hidden" name="sort_with" value="-product_name">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                    </a>
+                    <a href="{% url 'user_app:home' %}?sort_with=-product_name{% if query %}&search_query={{query}}{% endif %}#products-section">
+                        <button type="button" class="btn btn-sm btn-outline-danger">
                             Name Zz-Aa
                         </button>
-                    </form>
+                    </a>
                     <form action="{% url 'user_app:home' %}#products-section" method="get" style="display: inline-block;">
+                        {% if sort_with %}
+                        <input type="hidden" name="sort_with" value="{{sort_with}}">
+                        {% endif %}
                         <input id="search" type="search" name="search_query" placeholder="Search category..." {% if query %} value="{{query}}" {% endif %}>
                         <button class="btn btn-md btn-outline-danger" type="submit">Search</button>
                     </form>
