@@ -8,6 +8,8 @@ from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.db.models import F
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 # Create your views here.
 
 @never_cache
@@ -29,20 +31,19 @@ def users(request):
     
     else:
         return redirect('user_app:home')
-    
+
+
 @never_cache
-def user_block(request,id):
-    if request.method == 'POST':
-        user = CustomUser.objects.get(id = id)
-        print(user)
-        if user.is_block:
-            print(user.is_block)
-            user.is_block = False
-            user.save()
-        elif not user.is_block:
-            user.is_block = True
-            user.save()
-    return redirect('admin_app:users')
+@require_POST
+def user_block(request, id):
+    user = CustomUser.objects.get(id=id)
+    if user.is_block:
+        user.is_block = False
+    else:
+        user.is_block = True
+    user.save()
+    return JsonResponse({"is_block": user.is_block})
+  
 
 # Category Details
 
@@ -59,17 +60,14 @@ def admin_category(request):
     else:
         return redirect('user_app:home')
     
-def category_listed(request,id):
-    if request.method == 'POST':
-        category = Category.objects.get(id = id)
-        if category.is_listed:
-            print(category.is_listed)
-            category.is_listed = False
-            category.save()
-        elif not category.is_listed:
-            category.is_listed = True
-            category.save()
-    return redirect('admin_app:admin_category')
+
+@require_POST
+def category_listed(request, id):
+    category = Category.objects.get(id=id)
+    category.is_listed = not category.is_listed  # Toggle the listed status
+    category.save()
+    return JsonResponse({"is_listed": category.is_listed})
+
 
 @never_cache
 def add_category(request):
@@ -130,17 +128,12 @@ def admin_product(request):
     else:
         return redirect('user_app:home')
     
-def product_listed(request,id):
-    if request.method == 'POST':
-        product = Product.objects.get(id = id)
-        if product.is_listed:
-            print(product.is_listed)
-            product.is_listed = False
-            product.save()
-        elif not product.is_listed:
-            product.is_listed = True
-            product.save()
-    return redirect('admin_app:admin_product')
+@require_POST
+def product_listed(request, id):
+    product = Product.objects.get(id=id)
+    product.is_listed = not product.is_listed  # Toggle the listed status
+    product.save()
+    return JsonResponse({"is_listed": product.is_listed})
 
 @never_cache
 def add_product(request):
@@ -668,3 +661,112 @@ def show_order(request,order_id):
         return redirect('user_app:home')
     
     # {% url 'admin_app:edit_order' order.id %}
+    
+    
+    
+    
+#     <!-- {% extends 'admin_app/admin_base.html' %}
+# {% load static %}
+# {% block content %}
+# <style>
+#     #unblock{
+#         width: 4rem;
+#         background-color: #d4a373;
+#         border: none;
+#         border-radius: 1rem;
+#         color: white;
+#     }
+#     #unblock:hover{
+#         background-color: #ff7d00;
+#     }
+#     #block{
+#         width: 4rem;
+#         background-color: #ff7d00;
+#         border: none;
+#         border-radius: 1rem;
+#         color: white;
+#     }
+#     #block:hover{
+#         background-color: #d4a373;
+#     }
+#     #search{
+# 		color: black;
+# 		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+# 		font-weight: 500;
+# 		border-radius: 10px;
+#         border: 1px solid #666;
+# 		padding-left: 13px;
+# 		width: 12rem;
+# 		height: 30px;
+		
+# 	}
+# 	#search_btn{
+# 		color: #000;
+# 		background-color: violet;
+# 		height: 30px;
+#         width: 5rem;
+# 		border-radius: 15px;
+# 		border: #666;
+# 		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+# 		font-weight: 500;
+# 	}
+#     #tdiv{
+#         position: sticky;
+#         z-index: 1;
+#         top: 4.2rem;
+#         background-color: white;
+#         width: 100%;
+#     }
+# </style>
+# <div class="container mt-5">
+#     <br><br><br>
+#     <div class="col-sm-5" id="tdiv">
+#             <h2 class="mb-4">User Information</h2>
+#             <form action="" method="get"">
+#                 <input id="search" type="search" name="search_query" placeholder="Search users..." {% if query %} value="{{query}}" {% endif %} >
+#                 <button id="search_btn" type="submit">Search</button>
+#             </form>
+#         </div><br>
+        
+#     <div class="table-responsive">
+#     <table class="table table-striped table-hover">
+#         <thead class="table-dark">
+#             <tr>
+#                 <th scope="col">User</th>
+#                 <th scope="col">Phone</th>
+#                 <th scope="col">Email</th>
+#                 <th scope="col">Date Joined</th>
+#                 <th scope="col">Access</th>
+#             </tr>
+#         </thead>
+#         <tbody>
+#             {% for user in users %}
+#             <tr>
+#                 <td>{{user.first_name}}</td>
+#                 <td>
+#                     {% for i in  user.addresses.all %}
+#                         {{i.phone}}
+#                     {% endfor %}
+#                 </td>
+#                 <td>{{user.email}}</td>
+#                 <td>{{user.date_joined}}</td>
+#                 <td>
+#                     <form action="{% url 'admin_app:user_block' user.id %}" method="post" onsubmit="return confirm('Do you want to {% if user.is_block %} Unblock {{user.first_name}} {% else %} Block {{user.first_name}} {% endif %} ?');">
+#                         {% csrf_token %}
+#                         {% if user.is_block %}
+                           
+#                             <button id = "unblock" type="submit" class="btn_3">Unblock</button>
+#                         {% else %}
+                            
+#                             <button id="block" type="submit" class="btn_3">Block</button>
+#                         {% endif %}
+#                     </form>
+#                 </td>
+#             </tr>
+#             {% endfor %}
+#         </tbody>
+#     </table>
+#     </div>
+# </div>
+
+# {% endblock content %} -->

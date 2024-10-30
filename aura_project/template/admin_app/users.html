@@ -2,24 +2,24 @@
 {% load static %}
 {% block content %}
 <style>
-    #unblock{
+    .unblock-btn{
         width: 4rem;
         background-color: #d4a373;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    #unblock:hover{
+    .unblock-btn:hover{
         background-color: #ff7d00;
     }
-    #block{
+    .block-btn{
         width: 4rem;
         background-color: #ff7d00;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    #block:hover{
+    .block-btn:hover{
         background-color: #d4a373;
     }
     #search{
@@ -51,55 +51,76 @@
         width: 100%;
     }
 </style>
+
 <div class="container mt-5">
     <br><br><br>
     <div class="col-sm-5" id="tdiv">
-            <h2 class="mb-4">User Information</h2>
-            <form action="" method="get"">
-                <input id="search" type="search" name="search_query" placeholder="Search users..." {% if query %} value="{{query}}" {% endif %} >
-                <button id="search_btn" type="submit">Search</button>
-            </form>
-        </div><br>
-        
+        <h2 class="mb-4">User Information</h2>
+        <form action="" method="get">
+            <input id="search" type="search" name="search_query" placeholder="Search users..." {% if query %} value="{{ query }}" {% endif %} >
+            <button id="search_btn" type="submit">Search</button>
+        </form>
+    </div><br>
+
     <div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th scope="col">User</th>
-                <th scope="col">Phone</th>
-                <th scope="col">Email</th>
-                <th scope="col">Date Joined</th>
-                <th scope="col">Access</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{user.first_name}}</td>
-                <td>
-                    {% for i in  user.addresses.all %}
-                        {{i.phone}}
-                    {% endfor %}
-                </td>
-                <td>{{user.email}}</td>
-                <td>{{user.date_joined}}</td>
-                <td>
-                    <form action="{% url 'admin_app:user_block' user.id %}" method="post" onsubmit="return confirm('Do you want to {% if user.is_block %} Unblock {{user.first_name}} {% else %} Block {{user.first_name}} {% endif %} ?');">
-                        {% csrf_token %}
-                        {% if user.is_block %}
-                            <!-- <input type="text" name="block_button" value="unblock" hidden> -->
-                            <button id = "unblock" type="submit" class="btn_3">Unblock</button>
-                        {% else %}
-                            <!-- <input type="text" name="block_button" value="block" hidden> -->
-                            <button id="block" type="submit" class="btn_3">Block</button>
-                        {% endif %}
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Date Joined</th>
+                    <th scope="col">Access</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr id="user-row-{{ user.id }}">
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.date_joined }}</td>
+                    <td>
+                        <button 
+                            id="block-button-{{ user.id }}" 
+                            class="btn_3 {% if user.is_block %}unblock-btn{% else %}block-btn{% endif %}"
+                            data-user-id="{{ user.id }}"
+                            style="width: 4rem; border-radius: 1rem; color: white;"
+                        >
+                            {% if user.is_block %}Unblock{% else %}Block{% endif %}
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".btn_3").on("click", function (e) {
+            e.preventDefault();
+            var button = $(this);
+            var userId = button.data("user-id");
+
+            $.ajax({
+                url: "{% url 'admin_app:user_block' 0 %}".replace("0", userId),
+                type: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                success: function (response) {
+                    if (response.is_block) {
+                        button.removeClass("block-btn").addClass("unblock-btn").text("Unblock").css("background-color", "#d4a373");
+                    } else {
+                        button.removeClass("unblock-btn").addClass("block-btn").text("Block").css("background-color", "#ff7d00");
+                    }
+                },
+                error: function () {
+                    alert("There was an error processing your request.");
+                },
+            });
+        });
+    });
+</script>
 {% endblock content %}

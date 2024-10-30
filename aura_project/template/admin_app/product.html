@@ -2,24 +2,24 @@
 {% load static %}
 {% block content %}
 <style>
-    #unblock{
+    .unlist-btn{
         width: 4rem;
         background-color: #d4a373;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    #unblock:hover{
+    .unlist-btn:hover{
         background-color: #ff7d00;
     }
-    #block{
+    .list-btn{
         width: 4rem;
         background-color: #ff7d00;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    #block:hover{
+    .list-btn:hover{
         background-color: #d4a373;
     }
     #search{
@@ -51,17 +51,20 @@
         width: 100%;
     }
 </style>
+
 <div class="container mt-5">
-    <br><br><br>
-        <div class="col-sm-5" id="tdiv">
-            <h2 class="mb-4">Product</h2>
-            <form action="" method="get"">
-                <input id="search" type="search" name="search_query" placeholder="Search product..." {% if query %} value="{{query}}" {% endif %} >
-                <button id="search_btn" type="submit">Search</button>
-            </form>
-            
-            <a href="{% url 'admin_app:add_product' %}" ><button id="search_btn" type="button" style="margin-left: 50rem;transform: translateY(-2rem);">Add</button></a>
-        </div><br>
+    <div class="col-sm-5" id="tdiv">
+        <h2 class="mb-4">Product</h2>
+        <form action="" method="get">
+            <input id="search" type="search" name="search_query" placeholder="Search product..." {% if query %} value="{{ query }}" {% endif %} >
+            <button id="search_btn" type="submit">Search</button>
+        </form>
+        
+        <a href="{% url 'admin_app:add_product' %}">
+            <button id="search_btn" type="button" style="margin-left: 50rem; transform: translateY(-2rem);">Add</button>
+        </a>
+    </div><br>
+    
     <!-- alert box  -->
     {% if messages %}
         {% for message in messages %}
@@ -72,93 +75,122 @@
     {% endif %}
 
     <script>
-        setTimeout (() => {
+        setTimeout(() => {
             $(".alert").alert("close")
-        },3000)
+        }, 3000)
     </script>
+
     <div class="table-responsive">
-    <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
-        <thead class="table-dark">
-            <tr>
-                <th scope="col">Product</th>
-                <th scope="col">Category</th>
-                <th scope="col">Quantity</th>
-                <th scope="col">Price</th>
-                <th scope="col">Offer</th>
-                <th scope="col">Deal price</th>
-                <th scope="col">Image</th>
-                <th scope="col">Action</th>
-                <th scope="col">Available</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{product.product_name}}</td>
-                <td>{{product.category.category_name}}</td>
-                <td>
-                    <div class="d-flex">
-                    {{product.available_stock}}
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-4" data-bs-toggle="modal" data-bs-target="#AddStockModal{{ product.id }}">
-                        Add
-                    </button>
-                    </div>
-                </td>
-                <td>{{product.price}} Rs</td>
-                <td>
-                    {% if product.offer %}
-                        {{product.offer.offer_title}}
-                    {% else %}
-                        No offer
-                    {% endif %}
-                </td>
-                <td>{{product.discount_price}} Rs</td>
-                <td><img src="{{product.image_1.url}}" alt="{{product.product_name}}" width="50" height="50"></td>
-                <td>
-                    <a href="{% url 'admin_app:edit_product' product.id %}" ><button id="unblock" type="button" >Edit</button></a>
-                </td>
-                <td>
-                    <form onsubmit="return confirm('Do you want to {% if product.is_listed %} Unlist {{product.product_name}} {% else %} List {{product.product_name}} {% endif %} ?');" action="{% url 'admin_app:product_listed' product.id %}" method="post">
-                        {% csrf_token %}
-                        {% if product.is_listed %}
-                            <button id = "unblock" type="submit" class="btn_3">Unlist</button>
+        <table class="table table-striped table-hover" style="transform: translateY(1rem);">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Product</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Offer</th>
+                    <th scope="col">Deal price</th>
+                    <th scope="col">Image</th>
+                    <th scope="col">Action</th>
+                    <th scope="col">Available</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr id="product-row-{{ product.id }}">
+                    <td>{{ product.product_name }}</td>
+                    <td>{{ product.category.category_name }}</td>
+                    <td>
+                        <div class="d-flex">
+                            {{ product.available_stock }}
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-4" data-bs-toggle="modal" data-bs-target="#AddStockModal{{ product.id }}">
+                                Add
+                            </button>
+                        </div>
+                    </td>
+                    <td>{{ product.price }} Rs</td>
+                    <td>
+                        {% if product.offer %}
+                            {{ product.offer.offer_title }}
                         {% else %}
-                            <button id="block" type="submit" class="btn_3">List</button>
+                            No offer
                         {% endif %}
-                    </form>
-                </td>
-            </tr>
-            <!-- Modal for return confirmation and reason input -->
-            <div class="modal fade" id="AddStockModal{{ product.id }}" tabindex="-1" aria-labelledby="AddStockModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="AddStockModalLabel">Add Stock</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="AddStockForm{{ product.id }}" method="post" action="{% url 'admin_app:add_stock' product.id %}">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    <label for="new_stock{{ product.id }}" class="form-label">Stock</label>
-                                    <input class="form-control" id="new_stock{{ product.id }}" name="new_stock" required />
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-danger" form="AddStockForm{{ product.id }}">Add Stock</button>
+                    </td>
+                    <td>{{ product.discount_price }} Rs</td>
+                    <td><img src="{{ product.image_1.url }}" alt="{{ product.product_name }}" width="50" height="50"></td>
+                    <td>
+                        <a href="{% url 'admin_app:edit_product' product.id %}">
+                            <button class="list-btn" type="button">Edit</button>
+                        </a>
+                    </td>
+                    <td>
+                        <button 
+                            class="btn_3 {% if product.is_listed %}unlist-btn{% else %}list-btn{% endif %}" 
+                            data-product-id="{{ product.id }}" 
+                            style="width: 4rem; border-radius: 1rem; color: white; background-color: {% if product.is_listed %}#d4a373{% else %}#ff7d00{% endif %};"
+                        >
+                            {% if product.is_listed %}Unlist{% else %}List{% endif %}
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Modal for adding stock -->
+                <div class="modal fade" id="AddStockModal{{ product.id }}" tabindex="-1" aria-labelledby="AddStockModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="AddStockModalLabel">Add Stock</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="AddStockForm{{ product.id }}" method="post" action="{% url 'admin_app:add_stock' product.id %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="new_stock{{ product.id }}" class="form-label">Stock</label>
+                                        <input class="form-control" id="new_stock{{ product.id }}" name="new_stock" required />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger" form="AddStockForm{{ product.id }}">Add Stock</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-<script
-  src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous"></script>
+<br>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $(".btn_3").on("click", function (e) {
+            e.preventDefault();
+            var button = $(this);
+            var productId = button.data("product-id");
+
+            $.ajax({
+                url: "{% url 'admin_app:product_listed' 0 %}".replace("0", productId),
+                type: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                success: function (response) {
+                    if (response.is_listed) {
+                        button.removeClass("list-btn").addClass("unlist-btn").text("Unlist").css("background-color", "#d4a373");
+                    } else {
+                        button.removeClass("unlist-btn").addClass("list-btn").text("List").css("background-color", "#ff7d00");
+                    }
+                },
+                error: function () {
+                    alert("There was an error processing your request.");
+                },
+            });
+        });
+    });
+</script>
 {% endblock content %}

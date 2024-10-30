@@ -2,24 +2,24 @@
 {% load static %}
 {% block content %}
 <style>
-    #unblock{
+    .unlist-btn{
         width: 4rem;
         background-color: #d4a373;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    #unblock:hover{
+    .unlist-btn:hover{
         background-color: #ff7d00;
     }
-    #block{
+    .list-btn{
         width: 4rem;
         background-color: #ff7d00;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    #block:hover{
+    .list-btn:hover{
         background-color: #d4a373;
     }
     #search{
@@ -51,17 +51,20 @@
         width: 100%;
     }
 </style>
+
 <div class="container mt-5">
     <br><br><br>
     <div class="col-sm-5" id="tdiv">
-            <h2 class="mb-4">Category</h2>
-            <form action="" method="get"">
-                <input id="search" type="search" name="search_query" placeholder="Search category..." {% if query %} value="{{query}}" {% endif %} >
-                <button id="search_btn" type="submit">Search</button>
-            </form>
-            <a href="{% url 'admin_app:add_category' %}" ><button id="search_btn" type="button" style="margin-left: 50rem;transform: translateY(-2rem);">Add</button></a>
-        </div><br>
-        
+        <h2 class="mb-4">Category</h2>
+        <form action="" method="get">
+            <input id="search" type="search" name="search_query" placeholder="Search category..." {% if query %} value="{{ query }}" {% endif %} >
+            <button id="search_btn" type="submit">Search</button>
+        </form>
+        <a href="{% url 'admin_app:add_category' %}">
+            <button id="search_btn" type="button" style="margin-left: 50rem; transform: translateY(-2rem);">Add</button>
+        </a>
+    </div><br>
+
     <!-- alert box  -->
     {% if messages %}
         {% for message in messages %}
@@ -72,10 +75,11 @@
     {% endif %}
 
     <script>
-        setTimeout (() => {
+        setTimeout(() => {
             $(".alert").alert("close")
-        },3000)
+        }, 3000)
     </script>
+
     <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
         <thead class="table-dark">
             <tr>
@@ -87,29 +91,56 @@
         </thead>
         <tbody>
             {% for cat in category %}
-            <tr>
-                <td>{{cat.category_name}}</td>
-                <td><img src="{{cat.cat_image.url}}" alt="{{cat.category_name}}" width="50" height="50"></td>
+            <tr id="category-row-{{ cat.id }}">
+                <td>{{ cat.category_name }}</td>
+                <td><img src="{{ cat.cat_image.url }}" alt="{{ cat.category_name }}" width="50" height="50"></td>
                 <td>
-                    <a href="{% url 'admin_app:edit_category' cat.id %}" ><button id="unblock" type="button" >Edit</button></a>
+                    <a href="{% url 'admin_app:edit_category' cat.id %}">
+                        <button class="unlist-btn" type="button">Edit</button>
+                    </a>
                 </td>
                 <td>
-                    <form action="{% url 'admin_app:category_listed' cat.id %}" method="post" onsubmit="return confirm('Do you want to {% if cat.is_listed %} Unlist {{cat.category_name}} {% else %} List {{cat.category_name}} {% endif %} ?');">
-                        {% csrf_token %}
-                        {% if cat.is_listed %}
-                            <button id = "unblock" type="submit" class="btn_3">Unlist</button>
-                        {% else %}
-                            <button id="block" type="submit" class="btn_3">List</button>
-                        {% endif %}
-                    </form>
+                    <button 
+                        class="btn_3 {% if cat.is_listed %}unlist-btn{% else %}list-btn{% endif %}" 
+                        data-category-id="{{ cat.id }}" 
+                        style="width: 4rem; border-radius: 1rem; color: white; background-color: {% if cat.is_listed %}#d4a373{% else %}#ff7d00{% endif %};"
+                    >
+                        {% if cat.is_listed %}Unlist{% else %}List{% endif %}
+                    </button>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-<script
-  src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous"></script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $(".btn_3").on("click", function (e) {
+            e.preventDefault();
+            var button = $(this);
+            var categoryId = button.data("category-id");
+
+            $.ajax({
+                url: "{% url 'admin_app:category_listed' 0 %}".replace("0", categoryId),
+                type: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                success: function (response) {
+                    if (response.is_listed) {
+                        button.removeClass("list-btn").addClass("unlist-btn").text("Unlist").css("background-color", "#d4a373");
+                    } else {
+                        button.removeClass("unlist-btn").addClass("list-btn").text("List").css("background-color", "#ff7d00");
+                    }
+                },
+                error: function () {
+                    alert("There was an error processing your request.");
+                },
+            });
+        });
+    });
+</script>
+
 {% endblock content %}
