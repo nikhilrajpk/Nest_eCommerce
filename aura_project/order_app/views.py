@@ -155,6 +155,7 @@ def confirm_order(request):
         checkout_exist.save()
 
     context = {
+        'cart_id':cart.id,
         'cart_items': cart_items,
         'address': address,
         'cart_total': float(cart_total),
