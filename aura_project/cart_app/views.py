@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .models import *
 from product_app.models import *
 from coupen_app.models import *
+from wallet_app.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from decimal import Decimal
@@ -147,13 +148,19 @@ def checkout(request,cart_id):
     request.session['cart_total'] = float(cart_total_with_discount)
 
     coupon_code = request.session.get('coupon_code', '')
-
+    
+     # Wallet payment
+    wallet,created = Wallet.objects.get_or_create(user = user)
+    wallet_balance = wallet.balance
+        
+    
     context = {
         'user':user,
         'cart_items':cart_items,
         'cart_total':cart_total,
         'cart_total_with_discount':cart_total_with_discount,
         'coupon_code':coupon_code,
+        'wallet_balance':wallet_balance,
     }
     return render(request,'cart_app/checkout.html',context)
 
