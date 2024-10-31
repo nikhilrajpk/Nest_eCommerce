@@ -257,9 +257,9 @@ def order_details(request,order_id):
     total_price = 0
     for item in order_items:
         if item.product.offer:
-            total_price += item.product.discount_price
+            total_price += item.product.discount_price * item.quantity
         else:
-            total_price += item.price
+            total_price += item.price * item.quantity
         
     context = {
         'order':order,
@@ -318,10 +318,25 @@ def cancel_order(request, order_id):
             
             # If order canceled then available stock is recalculated
             order_items = order.items.all()
+            total_price = 0
             for item in order_items:
                 item.product.available_stock = F('available_stock') + item.quantity
                 item.product.save()
+                total_price += item.price * item.quantity
             order.save()
+            
+            # Adding money to wallet when cancelling the order.
+            
+            wallet = Wallet.objects.get(user=request.user)
+            wallet.balance = F('balance') + total_price
+            wallet.save()
+            print(wallet.balance)
+            
+            wallet_transaction = WalletTransation.objects.create(
+                wallet = wallet,
+                transaction_type = 'cancellation',
+                amount = total_price,
+            )
 
             messages.success(request, "Order canceled successfully.")
         else:
