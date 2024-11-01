@@ -201,11 +201,19 @@ def order_view(request):
         
         # Creating order items for the items from cart.
         for item in cart_item:
+            # product price if it has offer or not.
+            item_price = 0
+            if item.product.offer:
+                item_price = item.product.discount_price
+            else:
+                item_price = item.product.price
+                
+                
             OrderItems.objects.create(
                 order = order,
                 product = item.product,
                 quantity = item.quantity,
-                price = item.quantity * Decimal(item.product.price)
+                price = item.quantity * Decimal(item_price)
             )
             # Reducing the available stock
             item.product.available_stock = F('available_stock') - item.quantity
@@ -357,6 +365,21 @@ def return_item(request, item_id):
             order_item.return_reason = return_reason
             order_item.return_date = timezone.now()
             order_item.save()
+            
+            # Adding money to wallet when returning the item.
+            total_price = order_item.price * order_item.quantity
+            print(order_item.price,order_item.quantity)
+            print(total_price)
+            wallet = Wallet.objects.get(user=request.user)
+            wallet.balance = F('balance') + total_price
+            wallet.save()
+            print(wallet.balance)
+            
+            wallet_transaction = WalletTransation.objects.create(
+                wallet = wallet,
+                transaction_type = 'refund',
+                amount = total_price,
+            )
 
             messages.success(request, "Order item returned successfully.")
         else:
