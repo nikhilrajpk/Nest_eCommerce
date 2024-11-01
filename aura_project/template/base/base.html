@@ -80,7 +80,7 @@
                                         <a class="dropdown-item" href="{% url 'order_app:order_view' %}">Orders</a>
                                         <a class="dropdown-item" href="{% url 'cart_app:cart' %}">shopping cart</a>
                                         <a class="dropdown-item" href="{% url 'wishlist_app:wishlist' %}">Wishlist</a>
-                                        <a class="dropdown-item" href="elements.html">elements</a>
+                                        <a class="dropdown-item" href="{% url 'wallet_app:wallet' %}">Wallet</a>
                                         <!-- {% if request.user.is_authenticated %}
                                             <form class="dropdown-item" action="{% url 'authentication_app:logout' %}" method="post">
                                                 {% csrf_token %}
