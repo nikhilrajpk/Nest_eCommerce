@@ -18,6 +18,14 @@
 </style>
 
 <!--================Order Confirmation Area =================-->
+<!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'cart_app:cart' %}">Cart</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'cart_app:checkout' cart_id %}">Checkout</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="">Order confirmation</a></li>
+    </ol>
+  </nav>
 <section class="order_confirmation_area section_padding">
     <div class="container">
         <div class="row">

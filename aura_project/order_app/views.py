@@ -155,6 +155,7 @@ def confirm_order(request):
         checkout_exist.save()
 
     context = {
+        'cart_id':cart.id,
         'cart_items': cart_items,
         'address': address,
         'cart_total': float(cart_total),
@@ -200,11 +201,19 @@ def order_view(request):
         
         # Creating order items for the items from cart.
         for item in cart_item:
+            # product price if it has offer or not.
+            item_price = 0
+            if item.product.offer:
+                item_price = item.product.discount_price
+            else:
+                item_price = item.product.price
+                
+                
             OrderItems.objects.create(
                 order = order,
                 product = item.product,
                 quantity = item.quantity,
-                price = item.quantity * Decimal(item.product.price)
+                price = item.quantity * Decimal(item_price)
             )
             # Reducing the available stock
             item.product.available_stock = F('available_stock') - item.quantity
@@ -257,9 +266,9 @@ def order_details(request,order_id):
     total_price = 0
     for item in order_items:
         if item.product.offer:
-            total_price += item.product.discount_price
+            total_price += item.product.discount_price * item.quantity
         else:
-            total_price += item.price
+            total_price += item.price * item.quantity
         
     context = {
         'order':order,
@@ -318,10 +327,25 @@ def cancel_order(request, order_id):
             
             # If order canceled then available stock is recalculated
             order_items = order.items.all()
+            total_price = 0
             for item in order_items:
                 item.product.available_stock = F('available_stock') + item.quantity
                 item.product.save()
+                total_price += item.price * item.quantity
             order.save()
+            
+            # Adding money to wallet when cancelling the order.
+            
+            wallet = Wallet.objects.get(user=request.user)
+            wallet.balance = F('balance') + total_price
+            wallet.save()
+            print(wallet.balance)
+            
+            wallet_transaction = WalletTransation.objects.create(
+                wallet = wallet,
+                transaction_type = 'cancellation',
+                amount = total_price,
+            )
 
             messages.success(request, "Order canceled successfully.")
         else:
@@ -341,6 +365,21 @@ def return_item(request, item_id):
             order_item.return_reason = return_reason
             order_item.return_date = timezone.now()
             order_item.save()
+            
+            # Adding money to wallet when returning the item.
+            total_price = order_item.price * order_item.quantity
+            print(order_item.price,order_item.quantity)
+            print(total_price)
+            wallet = Wallet.objects.get(user=request.user)
+            wallet.balance = F('balance') + total_price
+            wallet.save()
+            print(wallet.balance)
+            
+            wallet_transaction = WalletTransation.objects.create(
+                wallet = wallet,
+                transaction_type = 'refund',
+                amount = total_price,
+            )
 
             messages.success(request, "Order item returned successfully.")
         else:

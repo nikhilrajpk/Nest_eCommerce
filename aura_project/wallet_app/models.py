@@ -16,7 +16,7 @@ class WalletTransation(models.Model):
         
     ]
 
-    wallet = models.ForeignKey(Wallet,on_delete=models.CASCADE)
+    wallet = models.ForeignKey(Wallet,on_delete=models.CASCADE,related_name='transactions')
     transaction_type = models.CharField(max_length=20,choices=TRANSACTION_TYPE_CHOICES)
     amount = models.DecimalField(max_digits=10,decimal_places=2)
     created_at =  models.DateField(auto_now_add=True)
