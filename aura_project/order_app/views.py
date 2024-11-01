@@ -5,6 +5,7 @@ from address_app.models import *
 from authentication_app.models import *
 from order_app.models import *
 from product_app.models import *
+from wallet_app.models import *
 from decimal import Decimal
 from django.contrib import messages
 from datetime import timedelta
@@ -91,13 +92,15 @@ def confirm_order(request):
     cart = Cart.objects.get(user=user)
     cart_items = cart.items.all()
 
-    # Getting the address from the checkout page
-    address_id = request.POST.get('address_id')
-    request.session['address_id'] = address_id
-    address = get_object_or_404(Address, id=address_id, user=user)
+    if request.method == 'POST':
+        # Getting the address from the checkout page
+        address_id = request.POST.get('address_id')
+        request.session['address_id'] = address_id
+        address = get_object_or_404(Address, id=address_id, user=user)
 
-    payment_method = request.POST.get('payment_method')
-
+        payment_method = request.POST.get('payment_method')
+        request.session['payment_method'] = payment_method
+    
     cart_items_with_prices = []
     # Calculate the total price for each item
     for item in cart_items:
@@ -111,8 +114,11 @@ def confirm_order(request):
     # Get cart totals
     cart_total = sum(item.total_price for item in cart_items)
     discount = Decimal(request.session.get('discount_amount', 0))
-    cart_total_with_discount = cart_total - discount
-
+    cart_total_with_discount = float(cart_total) - float(discount)
+    request.session['cart_total_with_discount'] = cart_total_with_discount
+    
+    print(request.session['cart_total_with_discount'])
+    
     # Get the coupon code from the request
     coupon_code = request.session.get('coupon_code', '')
     print(coupon_code)
@@ -151,10 +157,22 @@ def confirm_order(request):
     context = {
         'cart_items': cart_items,
         'address': address,
-        'cart_total': cart_total,
+        'cart_total': float(cart_total),
         'cart_total_with_discount': cart_total_with_discount,
         'payment_method': payment_method,
-    }
+    }    
+    
+    # Wallet payment
+    wallet,created = Wallet.objects.get_or_create(user=user)
+    wallet_balance = float(wallet.balance)
+    
+    if payment_method == 'wallet':
+        
+        if cart_total_with_discount > wallet_balance:
+            messages.error(request,'Insufficient balance in wallet!')
+            return redirect('cart_app:checkout',cart_id=cart.id)
+        
+         
 
     return render(request, 'order_app/order_confirmation.html', context)
 
@@ -199,6 +217,24 @@ def order_view(request):
                 item.product.save()
             
         cart_item.delete()
+        
+        # Wallet balance and walletTransaction details
+        wallet = get_object_or_404(Wallet,user=user)
+        
+        cart_total_with_discount = request.session.get('cart_total_with_discount')
+        wallet.balance = float(wallet.balance) - cart_total_with_discount
+        wallet.save()
+        
+        print(cart_total_with_discount)
+        print(wallet.balance)
+        
+        wallet_transaction = WalletTransation.objects.create(
+            wallet = wallet,
+            transaction_type = 'debited',
+            amount = cart_total_with_discount,
+        )
+        
+        
         return redirect('order_app:order_view')
             
             
@@ -214,6 +250,8 @@ def order_view(request):
 @login_required
 def order_details(request,order_id):
     order = Order.objects.get(id = order_id)
+    payment_method = request.session.get('payment_method')
+    print(payment_method)
     request.session['order_id'] = order_id
     order_items = order.items.all()
     total_price = 0
@@ -226,6 +264,7 @@ def order_details(request,order_id):
     context = {
         'order':order,
         'total_price':total_price,
+        'payment_method':payment_method,
     }
     
     return render(request,'order_app/order_details.html',context)

@@ -80,6 +80,7 @@ setTimeout (() => {
                     <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Price</th>
+                    <th>Payment method</th>
                     <th>Actions</th>
                     {% if order.order_status == 'delivered' %}
                         <th>Add Review</th>
@@ -99,6 +100,7 @@ setTimeout (() => {
                     {% else %}
                         <td>₹{{ item.price }}</td>
                     {% endif %}
+                    <td>{{payment_method}}</td>
                     {% if order.order_status == 'delivered' %}
                     <td>
                             <!-- <a href="" class="btn btn-sm btn-outline-danger">Return Item</a> -->

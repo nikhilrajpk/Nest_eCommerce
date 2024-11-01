@@ -16,9 +16,18 @@
         width: 9rem;
     }
 </style>
-<!-- alert box  -->
+
+<!--================Checkout Area =================-->
+<section class="checkout_area section_padding">
+    <div class="container">
+        <div class="billing_details">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3>Billing Details</h3>
+                    <!-- alert box  -->
 {% if messages %}
 {% for message in messages %}
+<br>
     <div class="alert alert-{{message.tags}}">
         <strong>{{message}}</strong>
     </div>
@@ -30,13 +39,6 @@ setTimeout (() => {
     $(".alert").alert("close")
 },3000)
 </script>
-<!--================Checkout Area =================-->
-<section class="checkout_area section_padding">
-    <div class="container">
-        <div class="billing_details">
-            <div class="row">
-                <div class="col-lg-8">
-                    <h3>Billing Details</h3>
                     <form action="{% url 'order_app:confirm_order' %}" method="post">
                         {% csrf_token %}
                         <!-- Address Selection -->
@@ -99,6 +101,7 @@ setTimeout (() => {
                                     <input type="radio" id="payment-wallet" name="payment_method" value="wallet" required>
                                     Wallet
                                 </label>
+                                <p id="wallet-balance" style="display: none;">Wallet Balance :  ₹{{wallet_balance|default:0}}</p>
                             </div>
                             <div class="payment-option">
                                 <label for="payment-razorpay">
@@ -159,6 +162,23 @@ setTimeout (() => {
     </div>
 </section>
 <!--================End Checkout Area =================-->
+
+<!-- To show the wallet balance if it is clicked -->
+<script>
+    let payment_options = document.querySelectorAll('input[name="payment_method"]');
+    let wallet_balance_para = document.querySelector('#wallet-balance');
+
+    payment_options.forEach(option => {
+        option.addEventListener('change', () => {
+            if (document.querySelector('input[name="payment_method"]:checked').value === 'wallet') {
+                wallet_balance_para.style.display = 'block';
+            } else {
+                wallet_balance_para.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 <script
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
