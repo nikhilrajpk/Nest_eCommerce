@@ -186,7 +186,9 @@ def check_coupon(request):
         if not coupon_applied:
             if coupon_code:
                 coupon = get_object_or_404(Coupons, code=coupon_code)
-                if coupon.used_limit > 0:
+                if coupon.used_limit < 0:
+                    coupon.update(used_limit=0)
+                if coupon.used_limit > 0 and coupon.expiry_date > timezone.now():
                     discount = Decimal(coupon.discount_amount)
                     cart_total_discount = cart_total - discount
 

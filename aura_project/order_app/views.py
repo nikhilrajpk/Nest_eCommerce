@@ -121,40 +121,41 @@ def confirm_order(request):
     
     print(request.session['cart_total_with_discount'])
     
-    # Get the coupon code from the request
-    coupon_code = request.session.get('coupon_code', '')
-    print(coupon_code)
-    coupon = None
-    if coupon_code:
-        try:
-            coupon = Coupons.objects.get(code=coupon_code)
-            coupon.used_limit = F('used_limit') - 1
-            coupon.save()
-        except Coupons.DoesNotExist:
-            coupon = None
-            messages.error(request, "Coupon not found or expired.")
+    # # Get the coupon code from the request
+    # coupon_code = request.session.get('coupon_code', '')
+    # print(coupon_code)
+    # coupon = None
+    # if coupon_code:
+    #     try:
+    #         coupon = Coupons.objects.get(code=coupon_code)
+    #         coupon.used_limit = F('used_limit') - 1
+    #         cart_total_with_discount -= float(coupon.discount_amount)
+    #         coupon.save()
+    #     except Coupons.DoesNotExist:
+    #         coupon = None
+    #         messages.error(request, "Coupon not found or expired.")
     
-    # Check if a Checkout already exists
-    checkout_exist = Checkout.objects.filter(cart=cart).first()
+    # # Check if a Checkout already exists
+    # checkout_exist = Checkout.objects.filter(cart=cart).first()
     
-    if not checkout_exist:
-        # Adding data to checkout if it doesn't exist
-        checkout = Checkout(
-            cart=cart,
-            total_amount=cart_total_with_discount,
-            coupons=coupon,  # Assign the coupon object
-            address=address,
-            checkout_status='completed',
-        )
-        checkout.save()
-    else:
-        # Update the existing checkout
-        checkout_exist.cart = cart
-        checkout_exist.total_amount = cart_total_with_discount
-        checkout_exist.coupons = coupon  # Assign the coupon object
-        checkout_exist.address = address
-        checkout_exist.checkout_status = 'completed'
-        checkout_exist.save()
+    # if not checkout_exist:
+    #     # Adding data to checkout if it doesn't exist
+    #     checkout = Checkout(
+    #         cart=cart,
+    #         total_amount=cart_total_with_discount,
+    #         coupons=coupon,  # Assign the coupon object
+    #         address=address,
+    #         checkout_status='completed',
+    #     )
+    #     checkout.save()
+    # else:
+    #     # Update the existing checkout
+    #     checkout_exist.cart = cart
+    #     checkout_exist.total_amount = cart_total_with_discount
+    #     checkout_exist.coupons = coupon  # Assign the coupon object
+    #     checkout_exist.address = address
+    #     checkout_exist.checkout_status = 'completed'
+    #     checkout_exist.save()
 
     context = {
         'cart_id':cart.id,
@@ -187,6 +188,8 @@ def confirm_order(request):
         print(payment)
         #****************
         context['payment'] = payment
+    else:
+        pass
         
     return render(request, 'order_app/order_confirmation.html', context)
 
@@ -265,10 +268,45 @@ def order_view(request):
                 razor_pay_order_id = payment_id['id'],
                 
             )
+            
+        # Get the coupon code from the request
+        coupon_code = request.session.get('coupon_code', '')
+        print(coupon_code)
+        coupon = None
+        if coupon_code:
+            try:
+                coupon = Coupons.objects.get(code=coupon_code)
+                coupon.used_limit = F('used_limit') - 1
+                cart_total_with_discount -= float(coupon.discount_amount)
+                coupon.save()
+            except Coupons.DoesNotExist:
+                coupon = None
+                messages.error(request, "Coupon not found or expired.")
         
+        # Check if a Checkout already exists
+        checkout_exist = Checkout.objects.filter(cart=cart).first()
+        
+        if not checkout_exist:
+            # Adding data to checkout if it doesn't exist
+            checkout = Checkout(
+                cart=cart,
+                total_amount=cart_total_with_discount,
+                coupons=coupon,  # Assign the coupon object
+                address=address,
+                checkout_status='completed',
+            )
+            checkout.save()
+        else:
+            # Update the existing checkout
+            checkout_exist.cart = cart
+            checkout_exist.total_amount = cart_total_with_discount
+            checkout_exist.coupons = coupon  # Assign the coupon object
+            checkout_exist.address = address
+            checkout_exist.checkout_status = 'completed'
+            checkout_exist.save()
         
         return redirect('order_app:order_view')
-    
+
     
     orders = request.user.orders.all().order_by('-id')
     context = {
@@ -299,6 +337,20 @@ def order_details(request,order_id):
             total_price += item.product.discount_price * item.quantity
         else:
             total_price += item.price * item.quantity
+    
+    
+    # Get the coupon code from the request
+    coupon_code = request.session.get('coupon_code', '')
+    print(coupon_code)
+    coupon = None
+    if coupon_code:
+        try:
+            coupon = Coupons.objects.get(code=coupon_code)
+            total_price = float(total_price) - float(coupon.discount_amount)
+        except Coupons.DoesNotExist:
+            coupon = None
+            messages.error(request, "Coupon not found or expired.")
+        
         
     context = {
         'order':order,

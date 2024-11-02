@@ -83,11 +83,11 @@
             <p>
             </p>
             <div class="card_area d-flex justify-content-between align-items-center">
-              <div class="product_count">
+              <!-- <div class="product_count">
                 <span class="inumber-decrement"> <i class="ti-minus"></i></span>
                 <input class="input-number" type="text" value="1" min="0" max="{{product.available_stock}}">
                 <span class="number-increment"> <i class="ti-plus"></i></span>
-              </div>
+              </div> -->
               <a href="{% url 'cart_app:add_to_cart' product.id %}" class="btn_3">add to cart</a>
               <a href="{% url 'wishlist_app:add_to_wishlist' product.id %}" class="like_us"> <i class="ti-heart"></i> </a>
             </div>

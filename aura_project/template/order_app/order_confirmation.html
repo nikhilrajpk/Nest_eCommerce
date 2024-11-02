@@ -86,11 +86,20 @@
                 <br>
 
                 <!-- Confirm Order Button -->
-                <form id="paymentForm" action="{% url 'order_app:order_view' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="payment_method" value="{{payment_method}}">
-                    <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
-                </form>
+                 {% if payment_method != 'razorpay' %}
+                <form action="{% url 'order_app:order_view' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="payment_method" value="{{payment_method}}">
+                        <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
+                    </form>
+                {% else %}
+                    <!-- Confirm order button for razorpay -->
+                    <form id="paymentForm" action="{% url 'order_app:order_view' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="payment_method" value="{{payment_method}}">
+                        <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
+                    </form>
+                {% endif %}
             </div>
         </div>
     </div>
