@@ -11,6 +11,11 @@ from decimal import Decimal
 
 @login_required
 def add_to_cart(request,product_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     # Getting the user and the product
     user = request.user
     product = get_object_or_404(Product, id = product_id)
@@ -44,6 +49,9 @@ def add_to_cart(request,product_id):
 def cart_view(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     
     # Get the user's cart
     cart, created = Cart.objects.get_or_create(user=request.user)
@@ -88,6 +96,11 @@ def cart_view(request):
 
 @login_required
 def update_cart_item_quantity(request, product_id, action):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     user = request.user
     product = get_object_or_404(Product, id=product_id)
     
@@ -116,6 +129,11 @@ def update_cart_item_quantity(request, product_id, action):
 
 
 def remove_cart_item(request,cart_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     cart_item = Cart_item.objects.get(id = cart_id)
     cart_item.delete()
     
@@ -123,6 +141,11 @@ def remove_cart_item(request,cart_id):
 
 
 def checkout(request,cart_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     user_email = request.user.email
     user = CustomUser.objects.get(email = user_email)
     cart = Cart.objects.get(id = cart_id)
@@ -167,6 +190,11 @@ def checkout(request,cart_id):
 # {% url 'checkout_app:process_order' %}
 
 def check_coupon(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     cart_total = Decimal(request.session.get('cart_total', 0))
 
     if request.method == 'POST':

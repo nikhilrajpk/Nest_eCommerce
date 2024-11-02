@@ -90,6 +90,11 @@ from django.conf import settings
 
 @login_required
 def confirm_order(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     user = request.user
     cart = Cart.objects.get(user=user)
     cart_items = cart.items.all()
@@ -195,6 +200,11 @@ def confirm_order(request):
 
 @login_required
 def order_view(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     if request.method == 'POST':
         user_id = request.user.id
         user = CustomUser.objects.get(id = user_id)
@@ -326,6 +336,11 @@ def order_view(request):
 
 @login_required
 def order_details(request,order_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     order = Order.objects.get(id = order_id)
     payment_method = request.session.get('payment_method')
     print(payment_method)
@@ -362,6 +377,11 @@ def order_details(request,order_id):
 
 @login_required
 def submit_review(request, product_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     order_id = request.session.get('order_id')
     if request.method == 'POST':
         rating = int(request.POST.get('rating'))
@@ -397,6 +417,11 @@ def submit_review(request, product_id):
 
 @login_required
 def cancel_order(request, order_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     if request.method == 'POST':
         order = Order.objects.get(id=order_id)
         
@@ -438,6 +463,11 @@ def cancel_order(request, order_id):
 
 @login_required
 def return_item(request, item_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     if request.method == 'POST':
         order_item = OrderItems.objects.get(id=item_id)
         

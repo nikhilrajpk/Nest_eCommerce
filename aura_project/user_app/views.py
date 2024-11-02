@@ -66,6 +66,8 @@ from django.core.paginator import Paginator
 def home(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
     
     banners = Banner.objects.all()
     latest_products = Product.objects.all().order_by('-id')[:4]
@@ -116,6 +118,11 @@ def home(request):
 
 @login_required
 def account(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     user_logged = request.user
     user = CustomUser.objects.get(email = user_logged.email)
     
@@ -197,6 +204,11 @@ def address_validation(request,address_type,street_address,landmark,state,countr
 
 @login_required
 def add_address(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     user = request.user
     user_details = CustomUser.objects.get(email = user.email)
     if request.method == 'POST':
@@ -263,6 +275,11 @@ def add_address(request):
 
 @login_required
 def edit_profile(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     logged_user = request.user
     user = CustomUser.objects.get(email = logged_user.email)
     
@@ -312,6 +329,11 @@ def edit_profile(request):
 
 @login_required
 def edit_address(request,address_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     address = Address.objects.get(id=address_id)
     
     if request.method == 'POST':
@@ -374,6 +396,11 @@ def edit_address(request,address_id):
 
 @login_required
 def delete_address(request,address_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     if request.method == 'POST':
         address = Address.objects.get(id = address_id)
         address.delete()

@@ -285,8 +285,8 @@ def login_view(request):
         return render(request,'authentication_app/login.html')
 
 def logout_view(request):
-    if request.method == 'POST':
-        logout(request)
+    # if request.method == 'POST':
+    logout(request)
         # del request.session['name']
     return redirect('user_app:home')
 

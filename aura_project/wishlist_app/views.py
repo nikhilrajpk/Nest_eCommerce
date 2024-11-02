@@ -6,6 +6,11 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def add_to_wishlist(request, product_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     user = request.user
     product = get_object_or_404(Product, id=product_id)
     
@@ -23,6 +28,11 @@ def add_to_wishlist(request, product_id):
 
 @login_required
 def wishlist_view(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     user = request.user
     wishlist, created = Wishlist.objects.get_or_create(user=user)
     wishlist_items = wishlist.wishlist_items_set.all()  # Access the related Wishlist_items
@@ -34,6 +44,11 @@ def wishlist_view(request):
 
 @login_required
 def remove_from_wishlist(request, wishlist_id):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
     wishlist_item = Wishlist_items.objects.get(id = wishlist_id)
     wishlist_item.delete()
     

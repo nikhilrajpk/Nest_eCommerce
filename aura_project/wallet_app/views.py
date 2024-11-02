@@ -5,6 +5,8 @@ from wallet_app.models import *
 def wallet(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
     
     wallet = Wallet.objects.get(user = request.user)
     wallet_transactions = wallet.transactions.all().order_by('-id')

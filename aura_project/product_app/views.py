@@ -8,6 +8,8 @@ from django.db.models import Count,Sum
 def display_products(request,id):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
     
     category = Category.objects.get(id = id)
     
@@ -34,6 +36,8 @@ def display_products(request,id):
 def single_product_view(request,id):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
     
     product = Product.objects.get(id = id)
     

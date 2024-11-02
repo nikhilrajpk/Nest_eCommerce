@@ -9,6 +9,8 @@ def category_view(request):
     # If admin then return to the admin page
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
     
     query = request.GET.get('search_query','')
     page = request.GET.get('page',1)
