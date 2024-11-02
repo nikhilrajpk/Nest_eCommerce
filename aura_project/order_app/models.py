@@ -52,9 +52,11 @@ class Payment(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")
     total_price = models.DecimalField(max_digits=12, decimal_places=2)
     payment_method = models.CharField(max_length=50)
-    transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    razor_pay_order_id = models.CharField(max_length=100, null=True, blank=True)
+    razor_pay_payment_id = models.CharField(max_length=100, null=True, blank=True)
+    razor_pay_payment_signature = models.CharField(max_length=100, null=True, blank=True)
     payment_date = models.DateTimeField(auto_now_add=True)
-    payment_status = models.CharField(max_length=50)
+    # payment_status = models.CharField(max_length=50)
 
 class Checkout(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)

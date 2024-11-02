@@ -11,6 +11,8 @@ from django.contrib import messages
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import F
+import razorpay
+from django.conf import settings
 
 # Create your views here.
 
@@ -172,9 +174,20 @@ def confirm_order(request):
         if cart_total_with_discount > wallet_balance:
             messages.error(request,'Insufficient balance in wallet!')
             return redirect('cart_app:checkout',cart_id=cart.id)
-        
-         
+    
+    # Razor pay ******************************
+    elif payment_method == 'razorpay':
+    
+        client = razorpay.Client(auth=(settings.KEY, settings.SECRET))
 
+        data = { "amount": cart_total_with_discount * 100, "currency": "INR", "payment_capture": 1, "receipt": "order_rcptid_11" }
+        payment = client.order.create(data=data)        
+        request.session['razor_payment'] = payment
+        # ***************
+        print(payment)
+        #****************
+        context['payment'] = payment
+        
     return render(request, 'order_app/order_confirmation.html', context)
 
 @login_required
@@ -184,7 +197,7 @@ def order_view(request):
         user = CustomUser.objects.get(id = user_id)
         cart = Cart.objects.get(user = user) # Getting the cart for the user
         cart_item = cart.items.all()    # Getting all cart items for the cart
-        
+           
         delivery_date = timezone.now() + timedelta(days=7)
         
         address_id = request.session.get('address_id')
@@ -226,34 +239,51 @@ def order_view(request):
                 item.product.save()
             
         cart_item.delete()
-        
         # Wallet balance and walletTransaction details
-        wallet = get_object_or_404(Wallet,user=user)
-        
         cart_total_with_discount = request.session.get('cart_total_with_discount')
-        wallet.balance = float(wallet.balance) - cart_total_with_discount
-        wallet.save()
-        
-        print(cart_total_with_discount)
-        print(wallet.balance)
-        
-        wallet_transaction = WalletTransation.objects.create(
-            wallet = wallet,
-            transaction_type = 'debited',
-            amount = cart_total_with_discount,
-        )
+        payment_method = request.POST.get('payment_method')
+        if payment_method == 'wallet':
+            wallet = get_object_or_404(Wallet,user=user)
+            
+            wallet.balance = float(wallet.balance) - cart_total_with_discount
+            wallet.save()
+            
+            print(cart_total_with_discount)
+            print(wallet.balance)
+            
+            wallet_transaction = WalletTransation.objects.create(
+                wallet = wallet,
+                transaction_type = 'debited',
+                amount = cart_total_with_discount,
+            )
+        elif payment_method == 'razorpay':
+            payment_id = request.session.get('razor_payment')
+            payment_obj = Payment.objects.create(
+                order = order,
+                total_price = cart_total_with_discount,
+                payment_method = 'razorpay',
+                razor_pay_order_id = payment_id['id'],
+                
+            )
         
         
         return redirect('order_app:order_view')
-            
-            
+    
+    
     orders = request.user.orders.all().order_by('-id')
     context = {
         'orders':orders,
     }
     return render(request,'order_app/orders.html',context)
 
-# {% url 'order_details' order.id %}
+# Razor pay method
+# import razorpay
+# from django.conf import settings
+# def razor_pay(request,amount):
+#     client = razorpay.Client(auth=(settings.razor_pay_key, settings.razor_pay_secret))
+
+#     data = { "amount": amount, "currency": "INR", "receipt": "order_rcptid_11" }
+#     payment = client.order.create(data=data)
 
 
 @login_required

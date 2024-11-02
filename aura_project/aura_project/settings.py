@@ -238,3 +238,8 @@ SOCIALACCOUNT_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+
+
+
+KEY = 'rzp_test_C3XukPdiQMUknh'
+SECRET = 'DgE2H69r8zKIkcRroOC4wUdt'

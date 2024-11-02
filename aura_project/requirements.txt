@@ -15,6 +15,7 @@ PyJWT==2.9.0
 pyotp==2.9.0
 pyparsing==3.1.4
 python-dotenv==1.0.1
+razorpay==1.4.2
 requests==2.32.3
 shortuuid==1.0.13
 six==1.16.0

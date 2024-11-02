@@ -86,8 +86,9 @@
                 <br>
 
                 <!-- Confirm Order Button -->
-                <form action="{% url 'order_app:order_view' %}" method="post">
+                <form id="paymentForm" action="{% url 'order_app:order_view' %}" method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="{{payment_method}}">
                     <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
                 </form>
             </div>
@@ -95,4 +96,49 @@
     </div>
 </section>
 <!--================End Order Confirmation Area =================-->
+<!-- <button id="rzp-button1">Pay with Razorpay</button> -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "rzp_test_C3XukPdiQMUknh", // Enter your Razorpay Key ID
+        "amount": "{{ payment.amount }}", // Convert to smallest currency unit (paise)
+        "currency": "INR",
+        "name": "Nest Interior",
+        "description": "Make your home look good",
+        "image": "{% static 'img/nest_interior.png' %}",
+        "order_id": "{{ payment.id }}", // Pass the Razorpay order ID from your view
+        "handler": function (response) {
+            // Add Razorpay response data as hidden inputs in the form
+            const form = document.getElementById("paymentForm");
+            form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_payment_id" value="${response.razorpay_payment_id}">`);
+            form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_order_id" value="${response.razorpay_order_id}">`);
+            form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_signature" value="${response.razorpay_signature}">`);
+            
+            // Submit the form after payment success
+            form.submit();
+        },
+        "prefill": {
+            "name": "Gaurav Kumar",
+            "email": "gaurav.kumar@example.com",
+            "contact": "9000090000"
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response) {
+        alert("Payment failed: " + response.error.description);
+    });
+
+    // Intercept form submission to open Razorpay
+    document.getElementById("paymentForm").onsubmit = function (e) {
+        e.preventDefault(); // Prevent default form submission
+        rzp1.open(); // Open Razorpay checkout
+    };
+</script>
 {% endblock content %}
