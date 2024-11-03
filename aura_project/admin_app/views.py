@@ -10,12 +10,85 @@ from django.contrib import messages
 from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+
+#For dashboard chart
+import calendar
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth,ExtractDay,ExtractYear,ExtractWeekDay
+
 # Create your views here.
 
 @never_cache
 def admin_home(request):
     if request.user.is_authenticated and request.user.is_staff: 
-        return render(request,'admin_app/admin_home.html')
+        # Getting the orders
+        orders = Order.objects.exclude(order_status='canceled')
+        
+        # Initializing count array (0=Monday to 6=Sunday as per Python's weekday())
+        days_count = [0] * 7
+        
+        # Count orders by weekday using Python's date.weekday()
+        for order in orders:
+            # Convert UTC to local time
+            local_date = timezone.localtime(order.order_date)
+            weekday = local_date.weekday()  # Monday = 0, Sunday = 6
+            days_count[weekday] += 1
+        
+        # Create day names starting with Monday
+        day_names = [calendar.day_name[i] for i in range(7)]  # Monday to Sunday
+
+        # Debug information
+        print("Raw order counts by day:", days_count)
+        print("Day names:", day_names)
+        print("Total orders:", sum(days_count))
+        
+        # Process monthly data
+        orders_monthly = Order.objects.annotate(
+            month=ExtractMonth('order_date', tzinfo=timezone.get_current_timezone())
+        ).values('month').annotate(
+            count_month=Count('id')
+        ).values('month', 'count_month').exclude(
+            order_status='canceled'
+        )
+        
+        # Process yearly data
+        orders_yearly = Order.objects.annotate(
+            year=ExtractYear('order_date', tzinfo=timezone.get_current_timezone())
+        ).values('year').annotate(
+            count_year=Count('id')
+        ).values('year', 'count_year').exclude(
+            order_status='canceled'
+        )
+
+        # Process monthly and yearly data
+        month = []
+        year = []
+        total_order_month = []
+        total_order_year = []
+        
+        for i in orders_monthly:
+            month.append(calendar.month_name[i['month']])
+            total_order_month.append(i['count_month'])
+            
+        for i in orders_yearly:
+            year.append(str(i['year']))
+            total_order_year.append(i['count_year'])
+
+        # Let's also print a detailed breakdown
+        weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        print("\nDetailed daily breakdown:")
+        for i, count in enumerate(days_count):
+            print(f"{weekday_names[i]}: {count} orders")
+
+        context = {
+            'total_order_day': days_count,
+            'day': day_names,
+            'total_order_month': total_order_month,
+            'month': month,
+            'total_order_year': total_order_year,
+            'year': year,
+        }
+        return render(request,'admin_app/admin_home.html',context)
     else:
         return redirect('user_app:home')
 

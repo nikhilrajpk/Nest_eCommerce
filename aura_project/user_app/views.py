@@ -208,7 +208,6 @@ def add_address(request):
         return redirect('admin_app:admin_home')
     if request.user.is_authenticated and request.user.is_block:
         return redirect('authentication_app:logout')
-    
     user = request.user
     user_details = CustomUser.objects.get(email = user.email)
     if request.method == 'POST':
