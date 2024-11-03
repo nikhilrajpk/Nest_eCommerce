@@ -8,7 +8,8 @@ def wallet(request):
     if request.user.is_authenticated and request.user.is_block:
         return redirect('authentication_app:logout')
     
-    wallet = Wallet.objects.get(user = request.user)
+    wallet,created = Wallet.objects.get_or_create(user=request.user)
+    # wallet = Wallet.objects.get(user = request.user)
     wallet_transactions = wallet.transactions.all().order_by('-id')
     
     context = {
