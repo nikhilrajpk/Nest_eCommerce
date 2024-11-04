@@ -737,109 +737,435 @@ def show_order(request,order_id):
     
     
     
-    
-#     <!-- {% extends 'admin_app/admin_base.html' %}
-# {% load static %}
-# {% block content %}
-# <style>
-#     #unblock{
-#         width: 4rem;
-#         background-color: #d4a373;
-#         border: none;
-#         border-radius: 1rem;
-#         color: white;
-#     }
-#     #unblock:hover{
-#         background-color: #ff7d00;
-#     }
-#     #block{
-#         width: 4rem;
-#         background-color: #ff7d00;
-#         border: none;
-#         border-radius: 1rem;
-#         color: white;
-#     }
-#     #block:hover{
-#         background-color: #d4a373;
-#     }
-#     #search{
-# 		color: black;
-# 		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-# 		font-weight: 500;
-# 		border-radius: 10px;
-#         border: 1px solid #666;
-# 		padding-left: 13px;
-# 		width: 12rem;
-# 		height: 30px;
-		
-# 	}
-# 	#search_btn{
-# 		color: #000;
-# 		background-color: violet;
-# 		height: 30px;
-#         width: 5rem;
-# 		border-radius: 15px;
-# 		border: #666;
-# 		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-# 		font-weight: 500;
-# 	}
-#     #tdiv{
-#         position: sticky;
-#         z-index: 1;
-#         top: 4.2rem;
-#         background-color: white;
-#         width: 100%;
-#     }
-# </style>
-# <div class="container mt-5">
-#     <br><br><br>
-#     <div class="col-sm-5" id="tdiv">
-#             <h2 class="mb-4">User Information</h2>
-#             <form action="" method="get"">
-#                 <input id="search" type="search" name="search_query" placeholder="Search users..." {% if query %} value="{{query}}" {% endif %} >
-#                 <button id="search_btn" type="submit">Search</button>
-#             </form>
-#         </div><br>
-        
-#     <div class="table-responsive">
-#     <table class="table table-striped table-hover">
-#         <thead class="table-dark">
-#             <tr>
-#                 <th scope="col">User</th>
-#                 <th scope="col">Phone</th>
-#                 <th scope="col">Email</th>
-#                 <th scope="col">Date Joined</th>
-#                 <th scope="col">Access</th>
-#             </tr>
-#         </thead>
-#         <tbody>
-#             {% for user in users %}
-#             <tr>
-#                 <td>{{user.first_name}}</td>
-#                 <td>
-#                     {% for i in  user.addresses.all %}
-#                         {{i.phone}}
-#                     {% endfor %}
-#                 </td>
-#                 <td>{{user.email}}</td>
-#                 <td>{{user.date_joined}}</td>
-#                 <td>
-#                     <form action="{% url 'admin_app:user_block' user.id %}" method="post" onsubmit="return confirm('Do you want to {% if user.is_block %} Unblock {{user.first_name}} {% else %} Block {{user.first_name}} {% endif %} ?');">
-#                         {% csrf_token %}
-#                         {% if user.is_block %}
-                           
-#                             <button id = "unblock" type="submit" class="btn_3">Unblock</button>
-#                         {% else %}
-                            
-#                             <button id="block" type="submit" class="btn_3">Block</button>
-#                         {% endif %}
-#                     </form>
-#                 </td>
-#             </tr>
-#             {% endfor %}
-#         </tbody>
-#     </table>
-#     </div>
-# </div>
+from django.views.generic import TemplateView
+from django.http import HttpResponse
+from django.db.models import Sum, Count, F
+from django.db.models.functions import TruncDate, TruncWeek, TruncMonth, TruncYear
+from django.utils import timezone
+from datetime import datetime, timedelta
+from decimal import Decimal
+from django.db.models.functions import Coalesce
+from django.db.models import DecimalField
+import pandas as pd
+from io import BytesIO
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+import logging
+import pytz
 
-# {% endblock content %} -->
+logger = logging.getLogger(__name__)
+class SalesReportView(TemplateView):
+    template_name = 'admin_app/sales_report.html'
+    timezone = pytz.timezone('Asia/Kolkata')
+    # def get_trunc_function(self):
+    #     report_type = self.request.GET.get('report_type', 'daily')
+    #     trunc_functions = {
+    #         'daily': TruncDate,
+    #         'weekly': TruncWeek,
+    #         'monthly': TruncMonth,
+    #         'yearly': TruncYear
+    #     }
+    #     return trunc_functions.get(report_type, TruncDate)
+
+    def get(self, request, *args, **kwargs):
+        download_format = request.GET.get('download_format')
+        if download_format:
+            start_date, end_date = self.get_date_range()
+            sales_data = self.get_sales_data(start_date, end_date)
+            
+            if download_format == 'excel':
+                return self.download_excel(sales_data)
+            elif download_format == 'pdf':
+                return self.download_pdf(sales_data)
+        
+        return super().get(request, *args, **kwargs)
+    def download_excel(self, sales_data):
+        df = pd.DataFrame(sales_data)
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        
+        output.seek(0)
+        response = HttpResponse(
+            output.read(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=sales_report.xlsx'
+        return response
+
+    def download_pdf(self, sales_data):
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        elements = []
+        
+        # Add title
+        styles = getSampleStyleSheet()
+        elements.append(Paragraph("Sales Report", styles['Heading1']))
+        elements.append(Spacer(1, 20))
+        
+        # Convert data to table format
+        table_data = [['Period', 'Orders', 'Total Amount', 'Discount', 'Net Amount']]
+        for item in sales_data:
+            table_data.append([
+                item['period'].strftime('%Y-%m-%d'),
+                str(item['orders']),
+                f"₹{item['total_amount']}",
+                f"₹{item['discount']}",
+                f"₹{item['net_amount']}"
+            ])
+        
+        # Create table
+        table = Table(table_data)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        elements.append(table)
+        
+        doc.build(elements)
+        pdf = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=sales_report.pdf'
+        response.write(pdf)
+        return response
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Log initial request details
+        logger.info(f"Request Method: {request.method}")
+        logger.info(f"GET Parameters: {request.GET}")
+        return super().dispatch(request, *args, **kwargs)
+
+    # def get_date_range(self):
+    #     report_type = self.request.GET.get('report_type', 'daily')
+    #     today = timezone.localtime().date()
+        
+    #     logger.info(f"Getting date range for report type: {report_type}")
+        
+    #     try:
+    #         if report_type == 'custom':
+    #             start_date = self.request.GET.get('start_date')
+    #             end_date = self.request.GET.get('end_date')
+    #             if start_date and end_date:
+    #                 start = datetime.strptime(start_date, '%Y-%m-%d').date()
+    #                 end = datetime.strptime(end_date, '%Y-%m-%d').date() + timedelta(days=1)
+    #                 logger.info(f"Custom date range: {start} to {end}")
+    #                 return start, end
+    #             else:
+    #                 logger.warning("Custom date range selected but dates not provided")
+            
+    #         # Calculate date range based on report type
+    #         date_ranges = {
+    #             'daily': (today, today + timedelta(days=1)),
+    #             'weekly': (today - timedelta(days=today.weekday()), today + timedelta(days=1)),
+    #             'monthly': (today.replace(day=1), today + timedelta(days=1)),
+    #             'yearly': (today.replace(month=1, day=1), today + timedelta(days=1))
+    #         }
+            
+    #         date_range = date_ranges.get(report_type, (today, today + timedelta(days=1)))
+    #         logger.info(f"Calculated date range for {report_type}: {date_range[0]} to {date_range[1]}")
+    #         return date_range
+
+    #     except Exception as e:
+    #         logger.error(f"Error in get_date_range: {str(e)}")
+    #         return today, today + timedelta(days=1)
+
+    def validate_order_data(self):
+        """Check if OrderItems table has data and correct structure"""
+        try:
+            # Check if OrderItems model exists and has data
+            sample_order = OrderItems.objects.first()
+            if sample_order is None:
+                logger.error("OrderItems table is empty")
+                return False
+            
+            # Validate required fields exist
+            required_fields = ['order', 'price', 'quantity']
+            for field in required_fields:
+                if not hasattr(sample_order, field):
+                    logger.error(f"Missing required field in OrderItems: {field}")
+                    return False
+            
+            logger.info("OrderItems data structure validated successfully")
+            return True
+        except Exception as e:
+            logger.error(f"Error validating OrderItems data: {str(e)}")
+            return False
+
+    def get_date_range(self):
+        report_type = self.request.GET.get('report_type', 'daily')
+        
+        # Get current time in Asia/Kolkata
+        current_time = timezone.localtime(timezone.now(), self.timezone)
+        today = current_time.date()
+        
+        logger.info(f"Current time in IST: {current_time}")
+        logger.info(f"Getting date range for report type: {report_type}")
+        
+        try:
+            if report_type == 'custom':
+                start_date = self.request.GET.get('start_date')
+                end_date = self.request.GET.get('end_date')
+                if start_date and end_date:
+                    start = datetime.strptime(start_date, '%Y-%m-%d').date()
+                    end = datetime.strptime(end_date, '%Y-%m-%d').date() + timedelta(days=1)
+                    return start, end
+            
+            # Calculate date range based on report type
+            date_ranges = {
+                'daily': (today - timedelta(days=1), today + timedelta(days=1)),
+                'weekly': (today - timedelta(days=7), today + timedelta(days=1)),
+                'monthly': (today.replace(day=1), (today + timedelta(days=1))),
+                'yearly': (today.replace(month=1, day=1), today + timedelta(days=1))
+            }
+            
+            date_range = date_ranges.get(report_type, (today, today + timedelta(days=1)))
+            logger.info(f"Calculated date range: {date_range[0]} to {date_range[1]}")
+            return date_range
+
+        except Exception as e:
+            logger.error(f"Error in get_date_range: {str(e)}")
+            return today, today + timedelta(days=1)
+
+    def get_sales_data(self, start_date, end_date):
+        
+        # Debug queries
+        test_order = OrderItems.objects.first()
+        if test_order:
+            logger.info(f"Sample order date: {test_order.order.order_date}")
+            logger.info(f"Sample order status: {test_order.order.order_status}")
+        
+        all_statuses = OrderItems.objects.values_list(
+            'order__order_status', flat=True).distinct()
+        logger.info(f"All order statuses in DB: {list(all_statuses)}")
+        
+        logger.info(f"Fetching sales data from {start_date} to {end_date}")
+        
+        try:
+            # Convert dates to timezone-aware datetimes in IST
+            start_datetime = timezone.make_aware(
+                datetime.combine(start_date, datetime.min.time()),
+                self.timezone
+            )
+            end_datetime = timezone.make_aware(
+                datetime.combine(end_date, datetime.min.time()),
+                self.timezone
+            )
+            
+            logger.info(f"Query parameters - Start: {start_datetime}, End: {end_datetime}")
+            
+            # Base queryset with proper timezone handling
+            base_queryset = OrderItems.objects.filter(
+                order__order_date__gte=start_datetime,
+                order__order_date__lt=end_datetime,
+                order__order_status='delivered' 
+            )
+            
+            # Get the appropriate truncation function
+            trunc_func = self.get_trunc_function()
+            
+            # Aggregate sales data
+            sales_data = base_queryset.annotate(
+                period=trunc_func('order__order_date', tzinfo=self.timezone)
+            ).values('period').annotate(
+                orders=Count('order', distinct=True),
+                total_amount=Coalesce(
+                    Sum(F('price') * F('quantity')),
+                    Decimal('0.00'),
+                    output_field=DecimalField(max_digits=10, decimal_places=2)
+                ),
+            ).order_by('period')
+            
+            # Get discount data
+            discount_data = Checkout.objects.filter(
+                created_at__gte=start_datetime,
+                created_at__lt=end_datetime,
+                checkout_status='completed'
+            ).annotate(
+                period=trunc_func('created_at', tzinfo=self.timezone)
+            ).values('period').annotate(
+                total_discount=Coalesce(
+                    Sum(F('coupons__discount_amount')),
+                    Decimal('0.00'),
+                    output_field=DecimalField(max_digits=10, decimal_places=2)
+                )
+            ).order_by('period')
+            
+            # Combine sales and discount data
+            discount_dict = {item['period']: item['total_discount'] for item in discount_data}
+            processed_data = []
+            
+            for item in sales_data:
+                period = item['period']
+                period_discount = discount_dict.get(period, Decimal('0.00'))
+                
+                processed_item = {
+                    'period': period,
+                    'orders': item['orders'],
+                    'total_amount': item['total_amount'],
+                    'discount': period_discount,
+                    'net_amount': item['total_amount'] - period_discount
+                }
+                processed_data.append(processed_item)
+                
+                logger.debug(f"Processed record for {period}: {processed_item}")
+            
+            return processed_data
+
+        except Exception as e:
+            logger.error(f"Error in get_sales_data: {str(e)}", exc_info=True)
+            return []
+
+    def get_trunc_function(self):
+        report_type = self.request.GET.get('report_type', 'daily')
+        trunc_functions = {
+            'daily': TruncDate,
+            'weekly': TruncWeek,
+            'monthly': TruncMonth,
+            'yearly': TruncYear
+        }
+        return trunc_functions.get(report_type, TruncDate)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            start_date, end_date = self.get_date_range()
+            sales_data = self.get_sales_data(start_date, end_date)
+            
+            context.update({
+                'sales_data': sales_data,
+                'report_type': self.request.GET.get('report_type', 'daily'),
+                'start_date': start_date,
+                'end_date': end_date - timedelta(days=1),
+                'overall_stats': {
+                    'total_orders': sum(item['orders'] for item in sales_data) if sales_data else 0,
+                    'total_amount': sum(item['total_amount'] for item in sales_data) if sales_data else Decimal('0.00'),
+                    'total_discount': sum(item['discount'] for item in sales_data) if sales_data else Decimal('0.00'),
+                    'net_amount': sum(item['net_amount'] for item in sales_data) if sales_data else Decimal('0.00')
+                }
+            })
+            
+            return context
+            
+        except Exception as e:
+            logger.error(f"Error in get_context_data: {str(e)}", exc_info=True)
+            context.update({
+                'error_message': 'An error occurred while generating the report.',
+                'sales_data': [],
+                'overall_stats': {
+                    'total_orders': 0,
+                    'total_amount': Decimal('0.00'),
+                    'total_discount': Decimal('0.00'),
+                    'net_amount': Decimal('0.00')
+                }
+            })
+            return context
+
+    # def download_excel(self, sales_data, overall_stats):
+    #     df = pd.DataFrame(list(sales_data))
+        
+    #     response = HttpResponse(content_type='application/vnd.ms-excel')
+    #     response['Content-Disposition'] = 'attachment; filename="sales_report.xlsx"'
+        
+    #     with pd.ExcelWriter(response, engine='openpyxl') as writer:
+    #         df.to_excel(writer, sheet_name='Sales Data', index=False)
+    #         stats_df = pd.DataFrame([overall_stats])
+    #         stats_df.to_excel(writer, sheet_name='Overall Stats', index=False)
+        
+    #     return response
+
+    # def download_pdf(self, sales_data, overall_stats):
+    #     buffer = BytesIO()
+    #     doc = SimpleDocTemplate(
+    #         buffer,
+    #         pagesize=A4,
+    #         rightMargin=72,
+    #         leftMargin=72,
+    #         topMargin=72,
+    #         bottomMargin=72
+    #     )
+
+    #     story = []
+    #     styles = getSampleStyleSheet()
+        
+    #     title = Paragraph(
+    #         f"Sales Report ({self.request.GET.get('report_type', 'daily').title()})",
+    #         styles['Heading1']
+    #     )
+    #     story.append(title)
+    #     story.append(Spacer(1, 20))
+
+    #     stats_data = [
+    #         ['Total Orders', 'Total Amount', 'Total Discount', 'Net Amount'],
+    #         [
+    #             str(overall_stats['total_orders']),
+    #             f"₹{overall_stats['total_amount']}",
+    #             f"₹{overall_stats['total_discount']}",
+    #             f"₹{overall_stats['net_amount']}"
+    #         ]
+    #     ]
+        
+    #     stats_table = Table(stats_data, colWidths=[doc.width/4.0]*4)
+    #     stats_table.setStyle(TableStyle([
+    #         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+    #         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+    #         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+    #         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+    #         ('FONTSIZE', (0, 0), (-1, 0), 14),
+    #         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+    #         ('BACKGROUND', (0, 1), (-1, 1), colors.beige),
+    #         ('TEXTCOLOR', (0, 1), (-1, 1), colors.black),
+    #         ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
+    #         ('FONTSIZE', (0, 1), (-1, 1), 12),
+    #         ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    #     ]))
+    #     story.append(stats_table)
+    #     story.append(Spacer(1, 20))
+
+    #     table_data = [['Period', 'Orders', 'Total Amount', 'Discount', 'Net Amount']]
+    #     for item in sales_data:
+    #         table_data.append([
+    #             item['period'].strftime('%Y-%m-%d'),
+    #             str(item['orders']),
+    #             f"₹{item['total_amount']}",
+    #             f"₹{item['discount']}",
+    #             f"₹{item['net_amount']}"
+    #         ])
+
+    #     sales_table = Table(table_data, colWidths=[doc.width/5.0]*5)
+    #     sales_table.setStyle(TableStyle([
+    #         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+    #         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+    #         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+    #         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+    #         ('FONTSIZE', (0, 0), (-1, 0), 12),
+    #         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+    #         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+    #         ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+    #         ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+    #         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+    #         ('FONTSIZE', (0, 1), (-1, -1), 10),
+    #         ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    #         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey])
+    #     ]))
+    #     story.append(sales_table)
+
+    #     doc.build(story)
+    #     pdf = buffer.getvalue()
+    #     buffer.close()
+        
+    #     response = HttpResponse(pdf, content_type='application/pdf')
+    #     response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+    #     return response

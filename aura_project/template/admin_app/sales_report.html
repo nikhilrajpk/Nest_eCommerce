@@ -1,0 +1,217 @@
+{% extends 'admin_app/admin_base.html' %}
+{% load static %}
+{% block content %}
+<br>
+<div class="container">
+    <style>
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        select, input {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .stat-card p {
+            margin: 10px 0 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .download-buttons {
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+    <!-- <div style="background: #f5f5f5; padding: 10px; margin: 10px 0;">
+        <p>Debug Info:</p>
+        <pre>
+        Report Type: {{ report_type }}
+        Start Date: {{ start_date }}
+        End Date: {{ end_date }}
+        Sales Data Count: {{ sales_data|length }}
+        Has Overall Stats: {{ overall_stats|yesno:"Yes,No" }}
+        </pre>
+    </div> -->
+    <!-- Report Type Selection Form -->
+    <form method="GET" class="form-group">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="report_type">Report Type</label>
+                <select name="report_type" id="report_type">
+                    <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>Daily</option>
+                    <option value="weekly" {% if report_type == 'weekly' %}selected{% endif %}>Weekly</option>
+                    <option value="monthly" {% if report_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                    <option value="yearly" {% if report_type == 'yearly' %}selected{% endif %}>Yearly</option>
+                    <option value="custom" {% if report_type == 'custom' %}selected{% endif %}>Custom</option>
+                </select>
+            </div>
+            
+            <div class="custom-dates {% if report_type != 'custom' %}hidden{% endif %}">
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                    
+                    <label for="end_date">End Date</label>
+                    <input type="date" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+        </div>
+    </form>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <h3>Total Orders</h3>
+            <p>{{ overall_stats.total_orders }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Amount</h3>
+            <p>₹{{ overall_stats.total_amount }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total Discount</h3>
+            <p>₹{{ overall_stats.total_discount }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Net Amount</h3>
+            <p>₹{{ overall_stats.net_amount }}</p>
+        </div>
+    </div>
+
+    <!-- Download Buttons -->
+    <div class="download-buttons">
+        <a href="?{{ request.GET.urlencode }}&download_format=excel" class="btn btn-success">Download Excel</a>
+        <a href="?{{ request.GET.urlencode }}&download_format=pdf" class="btn btn-danger">Download PDF</a>
+    </div>
+
+    <!-- Sales Data Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Orders</th>
+                    <th>Total Amount</th>
+                    <th>Discount</th>
+                    <th>Net Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sales_data %}
+                <tr>
+                    <td>{{ item.period|date:"Y-m-d" }}</td>
+                    <td>{{ item.orders }}</td>
+                    <td>₹{{ item.total_amount }}</td>
+                    <td>₹{{ item.discount }}</td>
+                    <td>₹{{ item.net_amount }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center;">No sales data available for the selected period.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.getElementById('report_type').addEventListener('change', function() {
+    const customDates = document.querySelector('.custom-dates');
+    if (this.value === 'custom') {
+        customDates.classList.remove('hidden');
+    } else {
+        customDates.classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}

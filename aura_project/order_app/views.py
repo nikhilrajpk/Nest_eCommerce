@@ -297,6 +297,7 @@ def order_view(request):
         checkout_exist = Checkout.objects.filter(cart=cart).first()
         
         if not checkout_exist:
+            print(checkout_exist.id,checkout_exist.cart_id)
             # Adding data to checkout if it doesn't exist
             checkout = Checkout(
                 cart=cart,
@@ -314,6 +315,7 @@ def order_view(request):
             checkout_exist.address = address
             checkout_exist.checkout_status = 'completed'
             checkout_exist.save()
+            print("Existing checkout updated with new values.")
         
         return redirect('order_app:order_view')
 

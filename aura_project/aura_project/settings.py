@@ -243,3 +243,21 @@ SOCIALACCOUNT_PIPELINE = (
 
 KEY = 'rzp_test_C3XukPdiQMUknh'
 SECRET = 'DgE2H69r8zKIkcRroOC4wUdt'
+
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
