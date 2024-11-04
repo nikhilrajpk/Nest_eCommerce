@@ -759,15 +759,6 @@ logger = logging.getLogger(__name__)
 class SalesReportView(TemplateView):
     template_name = 'admin_app/sales_report.html'
     timezone = pytz.timezone('Asia/Kolkata')
-    # def get_trunc_function(self):
-    #     report_type = self.request.GET.get('report_type', 'daily')
-    #     trunc_functions = {
-    #         'daily': TruncDate,
-    #         'weekly': TruncWeek,
-    #         'monthly': TruncMonth,
-    #         'yearly': TruncYear
-    #     }
-    #     return trunc_functions.get(report_type, TruncDate)
 
     def get(self, request, *args, **kwargs):
         download_format = request.GET.get('download_format')
@@ -782,18 +773,64 @@ class SalesReportView(TemplateView):
         
         return super().get(request, *args, **kwargs)
     def download_excel(self, sales_data):
-        df = pd.DataFrame(sales_data)
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False)
-        
-        output.seek(0)
-        response = HttpResponse(
-            output.read(),
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        response['Content-Disposition'] = 'attachment; filename=sales_report.xlsx'
-        return response
+        try:
+            # Prepare data for Excel
+            excel_data = self.prepare_data_for_excel(sales_data)
+            
+            # Create DataFrame
+            df = pd.DataFrame(excel_data)
+            
+            # Rename columns to be more readable
+            column_mapping = {
+                'period': 'Date',
+                'orders': 'Total Orders',
+                'total_amount': 'Total Amount',
+                'discount': 'Discount',
+                'net_amount': 'Net Amount',
+                'orders_delivered': 'Delivered Orders',
+                'orders_confirmed': 'Confirmed Orders',
+                'orders_canceled': 'Canceled Orders'
+            }
+            df = df.rename(columns=column_mapping)
+            
+            # Reorder columns
+            column_order = [
+                'Date', 'Total Orders', 'Delivered Orders', 'Confirmed Orders', 
+                'Canceled Orders', 'Total Amount', 'Discount', 'Net Amount'
+            ]
+            df = df.reindex(columns=[col for col in column_order if col in df.columns])
+            
+            # Create Excel file in memory
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Sales Report')
+                
+                # Auto-adjust columns' width
+                worksheet = writer.sheets['Sales Report']
+                for idx, col in enumerate(df.columns):
+                    max_length = max(
+                        df[col].astype(str).apply(len).max(),
+                        len(str(col))
+                    ) + 2
+                    worksheet.column_dimensions[chr(65 + idx)].width = min(max_length, 50)
+            
+            # Prepare response
+            output.seek(0)
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = 'attachment; filename="sales_report.xlsx"'
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"Error generating Excel file: {str(e)}", exc_info=True)
+            return HttpResponse(
+                "Error generating Excel file",
+                content_type='text/plain',
+                status=500
+            )
 
     def download_pdf(self, sales_data):
         buffer = BytesIO()
@@ -843,10 +880,46 @@ class SalesReportView(TemplateView):
         return response
     
     def dispatch(self, request, *args, **kwargs):
-        # Log initial request details
         logger.info(f"Request Method: {request.method}")
         logger.info(f"GET Parameters: {request.GET}")
+        
+        # Handle download requests
+        download_format = request.GET.get('download')
+        if download_format:
+            start_date, end_date = self.get_date_range()
+            sales_data = self.get_sales_data(start_date, end_date)
+            
+            if download_format == 'excel':
+                return self.download_excel(sales_data)
+        
         return super().dispatch(request, *args, **kwargs)
+    def prepare_data_for_excel(self, sales_data):
+        """Prepare sales data for Excel export by converting timezone-aware dates."""
+        excel_data = []
+        
+        for item in sales_data:
+            # Create a new dict for each row
+            row = item.copy()
+            
+            # Convert period to timezone-naive datetime
+            if isinstance(row['period'], datetime):
+                # If it's a timezone-aware datetime, convert to naive
+                row['period'] = row['period'].astimezone(self.timezone).replace(tzinfo=None)
+            
+            # Convert orders_by_status dict to separate columns
+            if 'orders_by_status' in row:
+                for status, count in row['orders_by_status'].items():
+                    row[f'orders_{status}'] = count
+                del row['orders_by_status']
+            
+            # Ensure all decimal values are converted to float
+            for key in ['total_amount', 'discount', 'net_amount']:
+                if key in row and isinstance(row[key], Decimal):
+                    row[key] = float(row[key])
+            
+            excel_data.append(row)
+        
+        return excel_data
 
     def validate_order_data(self):
         """Check if OrderItems table has data and correct structure"""
@@ -1042,100 +1115,3 @@ class SalesReportView(TemplateView):
                 }
             })
             return context
-
-    # def download_excel(self, sales_data, overall_stats):
-    #     df = pd.DataFrame(list(sales_data))
-        
-    #     response = HttpResponse(content_type='application/vnd.ms-excel')
-    #     response['Content-Disposition'] = 'attachment; filename="sales_report.xlsx"'
-        
-    #     with pd.ExcelWriter(response, engine='openpyxl') as writer:
-    #         df.to_excel(writer, sheet_name='Sales Data', index=False)
-    #         stats_df = pd.DataFrame([overall_stats])
-    #         stats_df.to_excel(writer, sheet_name='Overall Stats', index=False)
-        
-    #     return response
-
-    # def download_pdf(self, sales_data, overall_stats):
-    #     buffer = BytesIO()
-    #     doc = SimpleDocTemplate(
-    #         buffer,
-    #         pagesize=A4,
-    #         rightMargin=72,
-    #         leftMargin=72,
-    #         topMargin=72,
-    #         bottomMargin=72
-    #     )
-
-    #     story = []
-    #     styles = getSampleStyleSheet()
-        
-    #     title = Paragraph(
-    #         f"Sales Report ({self.request.GET.get('report_type', 'daily').title()})",
-    #         styles['Heading1']
-    #     )
-    #     story.append(title)
-    #     story.append(Spacer(1, 20))
-
-    #     stats_data = [
-    #         ['Total Orders', 'Total Amount', 'Total Discount', 'Net Amount'],
-    #         [
-    #             str(overall_stats['total_orders']),
-    #             f"₹{overall_stats['total_amount']}",
-    #             f"₹{overall_stats['total_discount']}",
-    #             f"₹{overall_stats['net_amount']}"
-    #         ]
-    #     ]
-        
-    #     stats_table = Table(stats_data, colWidths=[doc.width/4.0]*4)
-    #     stats_table.setStyle(TableStyle([
-    #         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-    #         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-    #         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-    #         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-    #         ('FONTSIZE', (0, 0), (-1, 0), 14),
-    #         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-    #         ('BACKGROUND', (0, 1), (-1, 1), colors.beige),
-    #         ('TEXTCOLOR', (0, 1), (-1, 1), colors.black),
-    #         ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
-    #         ('FONTSIZE', (0, 1), (-1, 1), 12),
-    #         ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    #     ]))
-    #     story.append(stats_table)
-    #     story.append(Spacer(1, 20))
-
-    #     table_data = [['Period', 'Orders', 'Total Amount', 'Discount', 'Net Amount']]
-    #     for item in sales_data:
-    #         table_data.append([
-    #             item['period'].strftime('%Y-%m-%d'),
-    #             str(item['orders']),
-    #             f"₹{item['total_amount']}",
-    #             f"₹{item['discount']}",
-    #             f"₹{item['net_amount']}"
-    #         ])
-
-    #     sales_table = Table(table_data, colWidths=[doc.width/5.0]*5)
-    #     sales_table.setStyle(TableStyle([
-    #         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-    #         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-    #         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-    #         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-    #         ('FONTSIZE', (0, 0), (-1, 0), 12),
-    #         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-    #         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-    #         ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-    #         ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
-    #         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-    #         ('FONTSIZE', (0, 1), (-1, -1), 10),
-    #         ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    #         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey])
-    #     ]))
-    #     story.append(sales_table)
-
-    #     doc.build(story)
-    #     pdf = buffer.getvalue()
-    #     buffer.close()
-        
-    #     response = HttpResponse(pdf, content_type='application/pdf')
-    #     response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
-    #     return response

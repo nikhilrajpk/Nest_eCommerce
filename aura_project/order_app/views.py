@@ -329,14 +329,6 @@ def order_view(request):
     }
     return render(request,'order_app/orders.html',context)
 
-# Razor pay method
-# import razorpay
-# from django.conf import settings
-# def razor_pay(request,amount):
-#     client = razorpay.Client(auth=(settings.razor_pay_key, settings.razor_pay_secret))
-
-#     data = { "amount": amount, "currency": "INR", "receipt": "order_rcptid_11" }
-#     payment = client.order.create(data=data)
 
 
 @login_required
