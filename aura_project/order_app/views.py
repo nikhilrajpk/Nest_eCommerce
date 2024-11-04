@@ -294,28 +294,31 @@ def order_view(request):
                 messages.error(request, "Coupon not found or expired.")
         
         # Check if a Checkout already exists
-        checkout_exist = Checkout.objects.filter(cart=cart).first()
+        # checkout_exist = Checkout.objects.filter(cart=cart).first()
         
-        if not checkout_exist:
-            print(checkout_exist.id,checkout_exist.cart_id)
-            # Adding data to checkout if it doesn't exist
-            checkout = Checkout(
-                cart=cart,
-                total_amount=cart_total_with_discount,
-                coupons=coupon,  # Assign the coupon object
-                address=address,
-                checkout_status='completed',
-            )
-            checkout.save()
-        else:
-            # Update the existing checkout
-            checkout_exist.cart = cart
-            checkout_exist.total_amount = cart_total_with_discount
-            checkout_exist.coupons = coupon  # Assign the coupon object
-            checkout_exist.address = address
-            checkout_exist.checkout_status = 'completed'
-            checkout_exist.save()
-            print("Existing checkout updated with new values.")
+        # if not checkout_exist:
+        #     print(checkout_exist.id,checkout_exist.cart_id)
+        
+        
+        # Adding data to checkout
+        checkout = Checkout(
+            cart=cart,
+            total_amount=cart_total_with_discount,
+            coupons=coupon,  # Assign the coupon object
+            address=address,
+            checkout_status='completed',
+        )
+        checkout.save()
+        
+        # else:
+        #     # Update the existing checkout
+        #     checkout_exist.cart = cart
+        #     checkout_exist.total_amount = cart_total_with_discount
+        #     checkout_exist.coupons = coupon  # Assign the coupon object
+        #     checkout_exist.address = address
+        #     checkout_exist.checkout_status = 'completed'
+        #     checkout_exist.save()
+        #     print("Existing checkout updated with new values.")
             
         return redirect('order_app:order_view')
 
