@@ -848,40 +848,6 @@ class SalesReportView(TemplateView):
         logger.info(f"GET Parameters: {request.GET}")
         return super().dispatch(request, *args, **kwargs)
 
-    # def get_date_range(self):
-    #     report_type = self.request.GET.get('report_type', 'daily')
-    #     today = timezone.localtime().date()
-        
-    #     logger.info(f"Getting date range for report type: {report_type}")
-        
-    #     try:
-    #         if report_type == 'custom':
-    #             start_date = self.request.GET.get('start_date')
-    #             end_date = self.request.GET.get('end_date')
-    #             if start_date and end_date:
-    #                 start = datetime.strptime(start_date, '%Y-%m-%d').date()
-    #                 end = datetime.strptime(end_date, '%Y-%m-%d').date() + timedelta(days=1)
-    #                 logger.info(f"Custom date range: {start} to {end}")
-    #                 return start, end
-    #             else:
-    #                 logger.warning("Custom date range selected but dates not provided")
-            
-    #         # Calculate date range based on report type
-    #         date_ranges = {
-    #             'daily': (today, today + timedelta(days=1)),
-    #             'weekly': (today - timedelta(days=today.weekday()), today + timedelta(days=1)),
-    #             'monthly': (today.replace(day=1), today + timedelta(days=1)),
-    #             'yearly': (today.replace(month=1, day=1), today + timedelta(days=1))
-    #         }
-            
-    #         date_range = date_ranges.get(report_type, (today, today + timedelta(days=1)))
-    #         logger.info(f"Calculated date range for {report_type}: {date_range[0]} to {date_range[1]}")
-    #         return date_range
-
-    #     except Exception as e:
-    #         logger.error(f"Error in get_date_range: {str(e)}")
-    #         return today, today + timedelta(days=1)
-
     def validate_order_data(self):
         """Check if OrderItems table has data and correct structure"""
         try:
@@ -990,11 +956,11 @@ class SalesReportView(TemplateView):
             
             # Get discount data
             discount_data = Checkout.objects.filter(
-                created_at__gte=start_datetime,
-                created_at__lt=end_datetime,
+                updated_at__gte=start_datetime,
+                updated_at__lt=end_datetime,
                 checkout_status='completed'
             ).annotate(
-                period=trunc_func('created_at', tzinfo=self.timezone)
+                period=trunc_func('updated_at', tzinfo=self.timezone)
             ).values('period').annotate(
                 total_discount=Coalesce(
                     Sum(F('coupons__discount_amount')),
@@ -1002,7 +968,11 @@ class SalesReportView(TemplateView):
                     output_field=DecimalField(max_digits=10, decimal_places=2)
                 )
             ).order_by('period')
-            
+            #printing discount amount
+            for i in discount_data:
+                print('############')
+                print(i['total_discount'])
+                print('############')
             # Combine sales and discount data
             discount_dict = {item['period']: item['total_discount'] for item in discount_data}
             processed_data = []
@@ -1010,7 +980,7 @@ class SalesReportView(TemplateView):
             for item in sales_data:
                 period = item['period']
                 period_discount = discount_dict.get(period, Decimal('0.00'))
-                
+                print(f' discount is = {period_discount}')
                 processed_item = {
                     'period': period,
                     'orders': item['orders'],

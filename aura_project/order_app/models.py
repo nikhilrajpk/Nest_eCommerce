@@ -65,6 +65,7 @@ class Checkout(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     checkout_status = models.CharField(max_length=20, choices=CHECKOUT_STATUS, default='in_progress')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
 # class CancelOrder(models.Model):
 #     reason = models.TextField()

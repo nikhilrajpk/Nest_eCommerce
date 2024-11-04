@@ -316,7 +316,7 @@ def order_view(request):
             checkout_exist.checkout_status = 'completed'
             checkout_exist.save()
             print("Existing checkout updated with new values.")
-        
+            
         return redirect('order_app:order_view')
 
     
