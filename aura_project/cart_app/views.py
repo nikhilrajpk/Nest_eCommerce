@@ -3,6 +3,7 @@ from .models import *
 from product_app.models import *
 from coupen_app.models import *
 from wallet_app.models import *
+from order_app.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from decimal import Decimal
@@ -201,7 +202,9 @@ def check_coupon(request):
         coupon_code = request.POST.get('coupon_code')
         coupon_applied = request.session.get('coupon_applied', False)
         cart_id = request.session.get('cart_id')
-
+        cart = Cart.objects.get(id=cart_id)
+        checkout = Checkout.objects.filter(cart=cart)
+        
         #  coupon removal
         if coupon_code == 'remove':
             request.session['coupon_applied'] = False
@@ -214,6 +217,12 @@ def check_coupon(request):
         if not coupon_applied:
             if coupon_code:
                 coupon = get_object_or_404(Coupons, code=coupon_code)
+                
+                for c in checkout:
+                    if coupon == c.coupons:
+                        messages.error(request,'You already applied this coupon ones. Cannot use again!')
+                        return redirect('cart_app:checkout', cart_id=cart_id)
+                
                 if coupon.used_limit < 0:
                     coupon.update(used_limit=0)
                 if coupon.used_limit > 0 and coupon.expiry_date > timezone.now():

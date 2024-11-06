@@ -286,7 +286,9 @@ def order_view(request):
         if coupon_code:
             try:
                 coupon = Coupons.objects.get(code=coupon_code)
+                print(coupon.used_limit)
                 coupon.used_limit = F('used_limit') - 1
+                print('after',coupon.used_limit)
                 cart_total_with_discount -= float(coupon.discount_amount)
                 coupon.save()
             except Coupons.DoesNotExist:
@@ -309,6 +311,10 @@ def order_view(request):
             checkout_status='completed',
         )
         checkout.save()
+        
+        # Removing coupon from checkout page 
+        request.session['coupon_applied'] = False
+        
         
         # else:
         #     # Update the existing checkout
@@ -355,10 +361,14 @@ def order_details(request,order_id):
     coupon_code = request.session.get('coupon_code', '')
     print(coupon_code)
     coupon = None
+    coupon_discount = 0
     if coupon_code:
         try:
             coupon = Coupons.objects.get(code=coupon_code)
             total_price = float(total_price) - float(coupon.discount_amount)
+            coupon_discount = coupon.discount_amount
+            request.session['discount_amount'] = 0
+            request.session['coupon_code'] = ''
         except Coupons.DoesNotExist:
             coupon = None
             messages.error(request, "Coupon not found or expired.")
@@ -368,6 +378,7 @@ def order_details(request,order_id):
         'order':order,
         'total_price':total_price,
         'payment_method':payment_method,
+        'coupon_discount':coupon_discount,
     }
     
     return render(request,'order_app/order_details.html',context)
