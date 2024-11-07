@@ -269,6 +269,11 @@ def order_view(request):
                 transaction_type = 'debited',
                 amount = cart_total_with_discount,
             )
+            payment_obj = Payment.objects.create(
+                order = order,
+                total_price = cart_total_with_discount,
+                payment_method = 'wallet',        
+            )
         elif payment_method == 'razorpay':
             payment_id = request.session.get('razor_payment')
             payment_obj = Payment.objects.create(
@@ -277,6 +282,12 @@ def order_view(request):
                 payment_method = 'razorpay',
                 razor_pay_order_id = payment_id['id'],
                 
+            )
+        else:
+            payment_obj = Payment.objects.create(
+                order = order,
+                total_price = cart_total_with_discount,
+                payment_method = 'cod',        
             )
             
         # Get the coupon code from the request
@@ -345,8 +356,14 @@ def order_details(request,order_id):
         return redirect('authentication_app:logout')
     
     order = Order.objects.get(id = order_id)
-    payment_method = request.session.get('payment_method')
-    print(payment_method)
+    try:
+        payment = Payment.objects.get(order = order)
+        if payment:
+            payment_method = payment.payment_method
+            print(payment_method)
+    except Exception as e:
+            payment_method = 'COD'
+            
     request.session['order_id'] = order_id
     order_items = order.items.all()
     total_price = 0
@@ -433,6 +450,13 @@ def cancel_order(request, order_id):
     if request.method == 'POST':
         order = Order.objects.get(id=order_id)
         
+        # If order is done by COD then in cancel order money should not be credited to the wallet.
+        try:
+            payment = Payment.objects.get(order = order)
+            payment_method = payment.payment_method
+        except Exception as e:
+            payment_method = 'COD'
+        
         # Get cancellation reason from form
         cancel_reason = request.POST.get('cancel_reason')
         
@@ -450,17 +474,17 @@ def cancel_order(request, order_id):
             order.save()
             
             # Adding money to wallet when cancelling the order.
-            
-            wallet = Wallet.objects.get(user=request.user)
-            wallet.balance = F('balance') + total_price
-            wallet.save()
-            print(wallet.balance)
-            
-            wallet_transaction = WalletTransation.objects.create(
-                wallet = wallet,
-                transaction_type = 'cancellation',
-                amount = total_price,
-            )
+            if not payment_method=='cod':
+                wallet = Wallet.objects.get(user=request.user)
+                wallet.balance = F('balance') + total_price
+                wallet.save()
+                print(wallet.balance)
+                
+                wallet_transaction = WalletTransation.objects.create(
+                    wallet = wallet,
+                    transaction_type = 'cancellation',
+                    amount = total_price,
+                )
 
             messages.success(request, "Order canceled successfully.")
         else:
