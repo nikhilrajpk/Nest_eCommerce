@@ -57,8 +57,13 @@
                 <th>Price (₹)</th>
                 <th>Total (₹)</th>
                 {% for item in items %}
-                    {% if item.return_reason %}
+                    {% if item.return_reason and item.return_status == 'pending' %}
+                        <th>Return Request</th>
+                    {% endif %}
+                    {% if item.return_reason and item.return_status == 'returned' %}
                         <th></th>
+                    {% endif %}
+                    {% if item.return_reason %}
                         <th>Reason</th>
                     {% endif %}
                 {% endfor %}
@@ -75,15 +80,27 @@
                 {% else %}
                 <td>{{ item.product.price }}</td>
                 {% endif %}
-                <td>{{ item_total }}</td> 
-                {% if item.return_reason %}
+                <td>{{ item_total }}</td>
+                {% if item.return_reason and item.return_status == 'pending' %}
+                        <td>
+                            <form class="confirm_return" action="{% url 'order_app:return_confirm' item.id order.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Confirm
+                                </button>
+                            </form>
+                        </td>
+                {% endif %} 
+                {% if item.return_reason and item.return_status == 'returned' %}
                         <td>
                             <button type="button" class="btn btn-sm btn-outline-danger" disabled>
                                 Item Returned!
                             </button>
                         </td>
-                        <td>{{item.return_reason}}</td>
                 {% endif %}
+                {% if item.return_reason %}
+                    <td>{{item.return_reason}}</td>
+                {% endif %} 
             </tr>
             {% endfor %}
         </tbody>
@@ -114,6 +131,38 @@
     
 </div>
 <br><br><br><br><br>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.querySelectorAll(".confirm_return").forEach(form => {
+      form.addEventListener("submit", function(event) {
+          event.preventDefault(); 
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Return the item!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show success alert after deletion confirmation
+                Swal.fire({
+                    title: "Item returned!",
+                    text: "Return request has been confirmed.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Submit the form after confirmation
+                    event.target.submit();
+                });
+            }
+        });
+    });
+    });
+</script>
 <script
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="

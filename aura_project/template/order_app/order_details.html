@@ -114,9 +114,14 @@ setTimeout (() => {
                             <!-- <form action="{% url 'order_app:cancel_order' order.id %}" method="post">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Return Item</button>
                             </form> -->
-                        {% if item.return_reason %}
+                        {% if item.return_reason and item.return_status == 'returned' %}
                         <button type="button" class="btn btn-sm btn-outline-danger" disabled>
                             Item Returned!
+                        </button>
+
+                        {% elif item.return_reason and item.return_status == 'pending' %}
+                        <button type="button" class="btn btn-sm btn-outline-danger" disabled>
+                            Request sent!
                         </button>
 
                         {% else %}
@@ -136,7 +141,7 @@ setTimeout (() => {
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form id="returnItemForm{{ item.id }}" method="post" action="{% url 'order_app:return_item' item.id %}">
+                                        <form class="return_item" id="returnItemForm{{ item.id }}" method="post" action="{% url 'order_app:return_item' item.id %}">
                                             {% csrf_token %}
                                             <div class="mb-3">
                                                 <label for="return_reason" class="form-label">Reason for Return</label>
@@ -248,6 +253,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<!-- swal cdn  -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.querySelectorAll(".return_item").forEach(form => {
+            form.addEventListener("submit", function(event) {
+                event.preventDefault(); 
+        // Show SweetAlert confirmation
+        swal.fire({
+            title: "Return request has been sent",
+            icon: "success",
+            timer: 1500,
+            buttons: false,
+        }).then(() => {
+            this.submit(); // Submit the form after the alert
+        });
+    });
+});
+    </script>
 <script
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="

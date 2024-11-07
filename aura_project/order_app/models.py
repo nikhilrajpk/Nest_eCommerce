@@ -43,6 +43,7 @@ class OrderItems(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     return_reason = models.TextField(null=True, blank=True)
     return_date = models.DateTimeField(auto_now_add=True,null=True)
+    return_status = models.CharField(max_length=10,default='pending',null=True,blank=True)
 
     def __str__(self) -> str:
         return f'{self.product.product_name}-{self.quantity}'

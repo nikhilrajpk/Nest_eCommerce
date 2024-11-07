@@ -510,23 +510,59 @@ def return_item(request, item_id):
             order_item.return_date = timezone.now()
             order_item.save()
             
-            # Adding money to wallet when returning the item.
-            total_price = order_item.price * order_item.quantity
-            print(order_item.price,order_item.quantity)
-            print(total_price)
-            wallet = Wallet.objects.get(user=request.user)
-            wallet.balance = F('balance') + total_price
-            wallet.save()
-            print(wallet.balance)
+            # # Adding money to wallet when returning the item.
+            # total_price = order_item.price * order_item.quantity
+            # print(order_item.price,order_item.quantity)
+            # print(total_price)
+            # wallet = Wallet.objects.get(user=request.user)
+            # wallet.balance = F('balance') + total_price
+            # wallet.save()
+            # print(wallet.balance)
             
-            wallet_transaction = WalletTransation.objects.create(
-                wallet = wallet,
-                transaction_type = 'refund',
-                amount = total_price,
-            )
+            # wallet_transaction = WalletTransation.objects.create(
+            #     wallet = wallet,
+            #     transaction_type = 'refund',
+            #     amount = total_price,
+            # )
 
-            messages.success(request, "Order item returned successfully.")
+            messages.success(request, "Return request sent.")
         else:
             messages.error(request, "Return reason is required.")
     
     return redirect('order_app:order_details', order_id=order_item.order.id)
+
+def return_confirm(request,item_id,order_id):
+    # if request.user.is_authenticated and request.user.is_staff:
+    #     return redirect('admin_app:admin_home')
+    if request.user.is_authenticated and request.user.is_block:
+        return redirect('authentication_app:logout')
+    
+    if request.method == 'POST':
+        order_item = OrderItems.objects.get(id=item_id)
+        
+        # Adding money to wallet when returning the item.
+        total_price = order_item.price * order_item.quantity
+        print(order_item.price,order_item.quantity)
+        print(total_price)
+        
+        # getting the user of the order.
+        order = Order.objects.get(id = order_id)
+        user_id = order.user.id
+        user = CustomUser.objects.get(id=user_id)
+        wallet,created = Wallet.objects.get_or_create(user=user)
+        wallet.balance = F('balance') + total_price
+        wallet.save()
+        print(wallet.balance)
+        
+        wallet_transaction = WalletTransation.objects.create(
+            wallet = wallet,
+            transaction_type = 'refund',
+            amount = total_price,
+        )
+        
+        order_item.return_status = 'returned'
+        order_item.save()
+        
+        return redirect('admin_app:show_order',order_id=order_id)
+    else:
+        return redirect('admin_app:show_order',order_id=order_id)
