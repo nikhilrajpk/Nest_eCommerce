@@ -58,7 +58,7 @@
                         <a href="#" class="add-to-cart btn_3" data-product-id="{{ item.product.id }}">Add to cart</a>
                     </td>
                     <td>
-                        <form id="remove_item" action="{% url 'wishlist_app:remove_from_wishlist' item.id %}" method="post" >
+                        <form class="remove_item" action="{% url 'wishlist_app:remove_from_wishlist' item.id %}" method="post" >
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>
@@ -78,9 +78,9 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-    document.getElementById("remove_item").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent the form from submitting immediately
-
+    document.querySelectorAll(".remove_item").forEach(form => {
+        form.addEventListener("submit", function(event) {
+            event.preventDefault(); 
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -105,6 +105,7 @@
             }
         });
     });
+});
 </script>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>

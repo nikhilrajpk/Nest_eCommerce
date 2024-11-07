@@ -76,7 +76,7 @@ setTimeout (() => {
                         <h5>{{item.total_price}} </h5>
                     </td>
                     <td>
-                        <form id="remove_item" action="{% url 'cart_app:remove_cart_item' item.id %}" method="post" >
+                        <form class="remove_item" action="{% url 'cart_app:remove_cart_item' item.id %}" method="post" >
                             {% csrf_token %}
                             <button id="block" type="submit" >Remove</button>
                         </form>
@@ -227,9 +227,9 @@ setTimeout (() => {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-    document.getElementById("remove_item").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent the form from submitting immediately
-
+    document.querySelectorAll(".remove_item").forEach(form => {
+      form.addEventListener("submit", function(event) {
+          event.preventDefault(); 
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -253,6 +253,7 @@ setTimeout (() => {
                 });
             }
         });
+    });
     });
 </script>
 
