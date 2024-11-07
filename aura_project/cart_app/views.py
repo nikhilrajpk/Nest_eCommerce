@@ -9,40 +9,31 @@ from django.contrib import messages
 from decimal import Decimal
 
 # Create your views here.
+from django.http import JsonResponse
 
 @login_required
-def add_to_cart(request,product_id):
+def add_to_cart(request, product_id):
     if request.user.is_authenticated and request.user.is_staff:
-        return redirect('admin_app:admin_home')
+        return JsonResponse({'redirect_url': 'admin_app:admin_home'})
     if request.user.is_authenticated and request.user.is_block:
-        return redirect('authentication_app:logout')
-    
-    # Getting the user and the product
-    user = request.user
-    product = get_object_or_404(Product, id = product_id)
-    
-    # Check the user has already a cart or create new cart
-    cart, created = Cart.objects.get_or_create(user = user)
-    
-    # Check the products is already in the cart
-    cart_item, item_created = Cart_item.objects.get_or_create(cart = cart, product = product, defaults={'quantity': 1})
-    
-    if not item_created:
-        # If the product already exists, increment the quantity
-        cart_item.quantity += 1
-    
-    if product.offer:
-        cart_item.total_price = cart_item.quantity * product.discount_price
-    else: 
-        cart_item.total_price = cart_item.quantity * product.price 
+        return JsonResponse({'redirect_url': 'authentication_app:logout'})
 
+    user = request.user
+    product = get_object_or_404(Product, id=product_id)
+    cart, created = Cart.objects.get_or_create(user=user)
+    cart_item, item_created = Cart_item.objects.get_or_create(cart=cart, product=product, defaults={'quantity': 1})
+
+    if not item_created:
+        cart_item.quantity += 1
+    cart_item.total_price = cart_item.quantity * (product.discount_price if product.offer else product.price)
     cart_item.save()
-    print(f"Cart item saved: {cart_item.product.product_name} with quantity {cart_item.quantity}")
-        
-    # request.session['coupon_applied'] = False  # Reset coupon status to recalculate discount
-    # request.session['discount_amount'] = 0 
     
-    return redirect('cart_app:cart')
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Product added to cart',
+        'quantity': cart_item.quantity
+    })
+
     
 
 

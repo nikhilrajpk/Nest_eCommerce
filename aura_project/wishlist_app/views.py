@@ -3,13 +3,13 @@ from .models import *
 from product_app.models import *
 from django.contrib.auth.decorators import login_required
 # Create your views here.
-
+from django.http import JsonResponse
 @login_required
 def add_to_wishlist(request, product_id):
     if request.user.is_authenticated and request.user.is_staff:
-        return redirect('admin_app:admin_home')
+        return JsonResponse({'redirect_url': 'admin_app:admin_home'})
     if request.user.is_authenticated and request.user.is_block:
-        return redirect('authentication_app:logout')
+        return JsonResponse({'redirect_url': 'authentication_app:logout'})
     
     user = request.user
     product = get_object_or_404(Product, id=product_id)
@@ -24,7 +24,10 @@ def add_to_wishlist(request, product_id):
         # If the product already exists
         pass
     
-    return redirect('wishlist_app:wishlist')
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Product added to wishlist'
+    })
 
 @login_required
 def wishlist_view(request):

@@ -134,8 +134,10 @@
                                             {% endif %}
                                             <div class="single_product_text">
                                                 <div id="wishlistLogoProduct">
-                                                    <a href="{% url 'cart_app:add_to_cart' product.id %}" class="add_cart" style="margin-left: -6rem;">+ add to cart</a>
-                                                    <a href="{% url 'wishlist_app:add_to_wishlist' product.id %}" class="add_cart" ><i class="ti-heart"></i></a>
+                                                    <a href="#" class="add-to-cart" data-product-id="{{ product.id }}" style="margin-left: -6rem;">+ Add to cart</a>
+                                                    <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}">
+                                                        <i class="ti-heart"></i> 
+                                                    </a>
                                                 </div>
                                             </div>
                                         </a>
@@ -173,6 +175,75 @@
         </div>
     </section>
     <!--================End Product Area =================-->
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
+    <script>
+    $(document).ready(function() {
+        // CSRF token setup
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+    
+        // AJAX for adding to cart
+        $('.add-to-cart').on('click', function(event) {
+            event.preventDefault();
+            let productId = $(this).data('product-id');
+            
+            $.ajax({
+                url: `{% url 'cart_app:add_to_cart' 0 %}`.replace('0', productId),
+                type: 'POST',
+                dataType: 'json',
+                headers: { 'X-CSRFToken': csrftoken },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        $('#cart-quantity').text(response.quantity);  // Update cart quantity display if needed
+                    } else if (response.redirect_url) {
+                        window.location.href = response.redirect_url;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    
+        // AJAX for adding to wishlist
+        $('.add-to-wishlist').on('click', function(event) {
+            event.preventDefault();
+            let productId = $(this).data('product-id');
+            
+            $.ajax({
+                url: `{% url 'wishlist_app:add_to_wishlist' 0 %}`.replace('0', productId),
+                type: 'POST',
+                dataType: 'json',
+                headers: { 'X-CSRFToken': csrftoken },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                    } else if (response.redirect_url) {
+                        window.location.href = response.redirect_url;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+    </script>
+        
 
 {% endblock content %}

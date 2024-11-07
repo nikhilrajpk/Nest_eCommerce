@@ -3,7 +3,8 @@
 {% block content %}
 <style>
     #block{
-        width: 4.3rem;
+        width: 5rem;
+        height: 2rem;
         background-color: #ff7d00;
         border: none;
         border-radius: 1rem;
@@ -54,7 +55,7 @@
                         <h5>{{item.total_price}} </h5>
                     </td>
                     <td>
-                        <a href="{% url 'cart_app:add_to_cart' item.product.id %}"><button id="block">Add to cart</button></a>
+                        <a href="#" class="add-to-cart btn_3" data-product-id="{{ item.product.id }}">Add to cart</a>
                     </td>
                     <td>
                         <form id="remove_item" action="{% url 'wishlist_app:remove_from_wishlist' item.id %}" method="post" >
@@ -104,6 +105,53 @@
             }
         });
     });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+<script>
+$(document).ready(function() {
+    // CSRF token setup
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // AJAX for adding to cart
+    $('.add-to-cart').on('click', function(event) {
+        event.preventDefault();
+        let productId = $(this).data('product-id');
+        
+        $.ajax({
+            url: `{% url 'cart_app:add_to_cart' 0 %}`.replace('0', productId),
+            type: 'POST',
+            dataType: 'json',
+            headers: { 'X-CSRFToken': csrftoken },
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    $('#cart-quantity').text(response.quantity);  // Update cart quantity display if needed
+                } else if (response.redirect_url) {
+                    window.location.href = response.redirect_url;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+});
 </script>
 
   {% endblock content %}
