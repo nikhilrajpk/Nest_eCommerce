@@ -98,10 +98,14 @@ setTimeout (() => {
                         <!-- Payment Methods -->
                         <div class="payment_box payment-method">
                             <div class="payment-option">
-                                <label for="payment-cod">
-                                    <input type="radio" id="payment-cod" name="payment_method" value="COD" required>
-                                    Cash on Delivery
-                                </label>
+                                {% if cart_total_with_discount <= 5000 %}
+                                    <label for="payment-cod">
+                                        <input type="radio" id="payment-cod" name="payment_method" value="COD" required>
+                                        Cash on Delivery
+                                    </label>
+                                {% else %}
+                                    <button disabled class="btn btn-outline-danger">Order above 5000 does not have Cash on Delivery!</button>
+                                {% endif %}
                             </div>
                             <div class="payment-option">
                                 <label for="payment-wallet">
