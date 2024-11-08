@@ -3,9 +3,7 @@
 {% block content %}
 
 <style>
-    #l_img{
-        transform: translateY(-10rem);
-    }
+    
     #images_product{
       margin-top: 3rem;
         display: flex;
@@ -17,7 +15,38 @@
     }
     .small_image{
         background-color: rgb(250, 240, 240);
+        overflow: hidden;
     }
+    .small_image img{
+      object-fit: contain;
+    }
+    .zoom-container {
+      aspect-ratio: 3/2;
+      position: relative;
+      overflow: hidden;
+      width: 500px; /* Set to the width of your main image */
+      height: 300px; /* Set to the height of your main image */
+      border: 1px solid #ddd;
+  }
+
+  #l_img {
+      object-fit: contain;
+      width: 100%;
+      height: 100%;
+  }
+
+  /* Styles for the zoomed image */
+  #zoomed_image {
+      position: absolute;
+      top: 0;
+      left: 530px; /* Adjust this to control distance from the main image */
+      width: 450px;
+      height: 300px;
+      background-repeat: no-repeat;
+      background-size: 200%; /* Double the size for zoom */
+      display: none; /* Hide by default */
+      border: 1px solid #ddd;
+  }
 </style>
  <!-- breadcrumbs start-->
  <nav aria-label="breadcrumb">
@@ -34,19 +63,19 @@
         <div class="col-lg-7 col-xl-7">
           <div class="product_slider_img">
             <div id="vertical">
-              <div id="large_image">
+              <div id="large_image" class="zoom-container">
                 <img id="l_img" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
               </div>
-
+              <div id="zoomed_image"></div>
                 <div id="images_product">
-                    <div class="m-2 small_image">
-                        <img height="300" width="450rem" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
+                    <div class="m-2 small_image" onclick="changeImage('{{product.image_1.url}}')">
+                        <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
                     </div>
-                    <div class="m-2 small_image">
-                        <img height="300" width="450rem" src="{{product.image_2.url}}" alt="{{product.product_name}}" />
+                    <div class="m-2 small_image" onclick="changeImage('{{product.image_2.url}}')">
+                        <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_2.url}}" alt="{{product.product_name}}" />
                     </div>
-                    <div class="m-2 small_image">
-                        <img height="300" width="450rem" src="{{product.image_3.url}}" alt="{{product.product_name}}" />
+                    <div class="m-2 small_image" onclick="changeImage('{{product.image_3.url}}')">
+                        <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_3.url}}" alt="{{product.product_name}}" />
                     </div>
                 </div>
 
@@ -324,7 +353,84 @@
     </div>
   </section>
   <!--================End Product Description Area =================-->
+  <section id="products-section" class="product_list section_padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="section_tittle text-center">
+                    <h2>Related <span>Products</span></h2>
+                </div>
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="product_list_slider owl-carousel">
+                    <div class="single_product_list_slider">
+                        <div class="row align-items-center justify-content-between">
+                            {% for product in related_products %}
+                            {% if not product.is_listed or not product.category.is_listed or product.available_stock == 0 %}
+                                    <div class="col-lg-3 col-sm-6">
+                                    <div class="single_product_item" style="height: 30rem;">
+                                        <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                        <div class="single_product_text">
+                                            <h4>{{product.product_name}}</h4>
+                                            {% if product.offer %}
+                                                <h3><del>{{product.price}} Rs</del></h3>
+                                                <h3>{{product.discount_price}} Rs</h3>
+                                            {% else %}
+                                                <h3>{{product.price}} Rs</h3>
+                                            {% endif %}
+                                            <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <a href="{% url 'product_app:single_product' product.id %}">
+                                <div class="col-lg-3 col-sm-6">
+                                        <div class="single_product_item" style="height: 30rem;">
+                                            <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                            <div class="single_product_text">
+                                                <h4>{{product.product_name}}</h4>
+                                                {% if product.offer %}
+                                                    <h3><del>{{product.price}} Rs</del></h3>
+                                                    <h3>{{product.discount_price}} Rs</h3>
+                                                {% else %}
+                                                    <h3>{{product.price}} Rs</h3>
+                                                {% endif %}
+                                                <div id="wishlistLogoProduct">
+                                                    <a href="#" class="add-to-cart" data-product-id="{{ product.id }}">+ Add to cart</a>
+                                                <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}">
+                                                    <i class="ti-heart"></i> 
+                                                </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <!-- <div class="page-btn">
+                            {% if products.has_previous %}
+                                <a href="?page={{products.previous_page_number}}#products-section"><span style="margin-right: 10px;">&lt;&lt;</span></a>
+                            {% endif %}
+
+                            {% for i in products.paginator.page_range %}
+                                <a href="?page={{i}}#products-section" {% if i == products.number %}class="active-page"{% endif %}>
+                                    <span style="margin: 10px;"> {{i}} </span></a>
+                            {% endfor %}
+
+                            {% if products.has_next %}
+                                <a href="?page={{products.next_page_number}}#products-section"><span style="margin-left: 10px;">&gt;&gt;</span></a>
+                            {% endif %}
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
   <!-- product_list part start-->
   <!-- <section class="product_list best_seller">
     <div class="container">
@@ -353,6 +459,7 @@
   <!-- product_list part end-->
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
+<!-- Script to add to cart and add to wishlist -->
 <script>
 $(document).ready(function() {
     // CSRF token setup
@@ -420,5 +527,40 @@ $(document).ready(function() {
     });
 });
 </script>
-    
+<!-- Script to change images -->
+<script>
+function changeImage(imageUrl){
+  document.getElementById('l_img').src = imageUrl;
+}
+</script>
+<!-- Script for zoom effect -->
+ <script>
+  const largeImage = document.getElementById("large_image");
+    const lImg = document.getElementById("l_img");
+    const zoomedImage = document.getElementById("zoomed_image");
+
+    largeImage.addEventListener("mousemove", function (e) {
+        // Show the zoomed image
+        zoomedImage.style.display = "block";
+        
+        // Get position of the mouse inside the main image container
+        const rect = largeImage.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Calculate background position of zoomed image
+        const bgX = (x / largeImage.offsetWidth) * 100;
+        const bgY = (y / largeImage.offsetHeight) * 100;
+
+        // Update the background of the zoomed image
+        zoomedImage.style.backgroundImage = `url(${lImg.src})`;
+        zoomedImage.style.backgroundPosition = `${bgX}% ${bgY}%`;
+    });
+
+    largeImage.addEventListener("mouseleave", function () {
+        // Hide the zoomed image when mouse leaves the main image container
+        zoomedImage.style.display = "none";
+    });
+
+ </script>
 {% endblock content %}

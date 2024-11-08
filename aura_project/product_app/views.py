@@ -40,7 +40,10 @@ def single_product_view(request,id):
         return redirect('authentication_app:logout')
     
     product = Product.objects.get(id = id)
-    
+    category_id = product.category.id
+    category = Category.objects.get(id=category_id)
+    related_products = category.product.all()
+    related_products = related_products.exclude(id=id)
     # getting the review data
     review_data = Product.objects.filter(id=id).aggregate(
         total_reviews=Count('productreview'),
@@ -63,6 +66,7 @@ def single_product_view(request,id):
         'product':product,
         'total_review':total_reviews,
         'average_rating':average_rating,
+        'related_products':related_products,
     }
     
     return render(request,'product_app/single_product.html',context)
