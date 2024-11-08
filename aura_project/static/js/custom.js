@@ -166,7 +166,9 @@
 
   // niceSelect js code
   $(document).ready(function () {
+    console.log("Initializing niceSelect...");
     $('select').niceSelect();
+    // $('#address_type').niceSelect();
   });
 
   // menu fixed js code
