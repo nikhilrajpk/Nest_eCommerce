@@ -122,6 +122,7 @@ def confirm_order(request):
     cart_total = sum(item.total_price for item in cart_items)
     discount = Decimal(request.session.get('discount_amount', 0))
     cart_total_with_discount = float(cart_total) - float(discount)
+    cart_total_with_discount += 50
     request.session['cart_total_with_discount'] = cart_total_with_discount
     
     print(request.session['cart_total_with_discount'])
@@ -373,7 +374,7 @@ def order_details(request,order_id):
         else:
             total_price += item.price * item.quantity
     
-    
+    total_price += 50
     # Get the coupon code from the request
     coupon_code = request.session.get('coupon_code', '')
     print(coupon_code)
