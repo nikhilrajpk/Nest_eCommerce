@@ -64,7 +64,7 @@
             <button id="search_btn" type="button" style="margin-left: 50rem; transform: translateY(-2rem);">Add</button>
         </a>
     </div><br>
-    
+    <a href="{% url 'admin_app:top_selling_products' %}" style="text-decoration: none;"><button class="btn btn-outline-danger">Top selling products</button></a><br>
     <!-- alert box  -->
     {% if messages %}
         {% for message in messages %}

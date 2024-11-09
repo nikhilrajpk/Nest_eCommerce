@@ -63,7 +63,8 @@
         <a href="{% url 'admin_app:add_category' %}">
             <button id="search_btn" type="button" style="margin-left: 50rem; transform: translateY(-2rem);">Add</button>
         </a>
-    </div><br>
+    </div>
+    <a href="{% url 'admin_app:top_selling_category' %}" style="text-decoration: none;"><button class="btn btn-outline-danger">Top selling category</button></a><br>
 
     <!-- alert box  -->
     {% if messages %}
@@ -79,7 +80,7 @@
             $(".alert").alert("close")
         }, 3000)
     </script>
-
+<br><br>
     <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
         <thead class="table-dark">
             <tr>

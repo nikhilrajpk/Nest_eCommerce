@@ -133,6 +133,10 @@ def admin_category(request):
     else:
         return redirect('user_app:home')
     
+@never_cache
+def top_selling_category(request):
+    categories = Category.objects.all().annotate(total_sold = Sum('product__sold_count')).order_by('-total_sold')[:10]
+    return render(request,'admin_app/top_selling_category.html',{'categories':categories})
 
 @require_POST
 def category_listed(request, id):
@@ -200,7 +204,12 @@ def admin_product(request):
     
     else:
         return redirect('user_app:home')
-    
+
+@never_cache
+def top_selling_products(request):
+    products = Product.objects.all().order_by('-sold_count')[:10]
+    return render(request,'admin_app/top_selling_product.html',{'products':products})
+
 @require_POST
 def product_listed(request, id):
     product = Product.objects.get(id=id)
