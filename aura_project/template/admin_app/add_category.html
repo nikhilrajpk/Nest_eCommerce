@@ -1,6 +1,7 @@
 {% extends 'admin_app/admin_base.html' %}
 {% load static %}
 {% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 <br><br>
     <div class="container mt-5">
         <h2 class="mb-4">Add New Category</h2>
@@ -15,9 +16,29 @@
 
             <div class="mb-3">
                 <label for="category-image" class="form-label">Category Image:</label>
-                <input type="file" class="form-control" id="category-image" name="category_image" accept="image/*" required>
+                <input type="file" class="form-control image-input" id="category-image" name="category_image" accept="image/*" required>
             </div>
 
+            <!-- Modal for cropping -->
+            <div id="cropperModal" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Crop Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                    <img id="cropperImage" src="" alt="Crop Image Preview" style="max-width: 100%;">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+                </div>
+            </div>
 
             <div class="mb-3">
                 <label for="available" class="form-label">Available:</label>
@@ -31,5 +52,47 @@
             <button type="submit" class="btn btn-primary">Add Category</button>
         </form>
     </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+    let activeInput;
+    
+    document.querySelectorAll('.image-input').forEach(input => {
+      input.addEventListener('change', function() {
+        const file = this.files[0];
+        activeInput = this;  // Store reference to the active input
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            document.getElementById('cropperImage').src = e.target.result;
+            $('#cropperModal').modal('show');
+    
+            if (cropper) {
+              cropper.destroy();
+            }
+    
+            cropper = new Cropper(document.getElementById('cropperImage'), {
+              aspectRatio: 1,
+              viewMode: 1,
+            });
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+    
+    function cropImage() {
+      if (cropper && activeInput) {
+        const canvas = cropper.getCroppedCanvas();
+        canvas.toBlob((blob) => {
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(new File([blob], 'cropped_image.png', { type: 'image/png' }));
+          activeInput.files = dataTransfer.files;
+    
+          $('#cropperModal').modal('hide');
+        });
+      }
+    }
+    
+    </script>
 {% endblock content %}
