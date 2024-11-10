@@ -122,7 +122,7 @@ def confirm_order(request):
     cart_total = sum(item.total_price for item in cart_items)
     discount = Decimal(request.session.get('discount_amount', 0))
     cart_total_with_discount = float(cart_total) - float(discount)
-    cart_total_with_discount += 50
+    cart_total_with_discount += float(50)
     request.session['cart_total_with_discount'] = cart_total_with_discount
     
     print(request.session['cart_total_with_discount'])
@@ -186,8 +186,8 @@ def confirm_order(request):
     elif payment_method == 'razorpay':
     
         client = razorpay.Client(auth=(settings.KEY, settings.SECRET))
-
-        data = { "amount": cart_total_with_discount * 100, "currency": "INR", "payment_capture": 1, "receipt": "order_rcptid_11" }
+        amount_in_paise = int(cart_total_with_discount * 100)
+        data = { "amount": amount_in_paise, "currency": "INR", "payment_capture": 1, "receipt": "order_rcptid_11" }
         payment = client.order.create(data=data)        
         request.session['razor_payment'] = payment
         # ***************
@@ -273,22 +273,27 @@ def order_view(request):
             payment_obj = Payment.objects.create(
                 order = order,
                 total_price = cart_total_with_discount,
-                payment_method = 'wallet',        
+                payment_method = 'wallet',  
+                payment_status = 'success',     
             )
         elif payment_method == 'razorpay':
             payment_id = request.session.get('razor_payment')
+            payment_status = request.POST.get('payment_status','success')
+            if payment_status == 'failed':
+                messages.error(request,'Payment is failed! You can continue the payment from here :)')
             payment_obj = Payment.objects.create(
                 order = order,
                 total_price = cart_total_with_discount,
                 payment_method = 'razorpay',
                 razor_pay_order_id = payment_id['id'],
-                
+                payment_status = payment_status,
             )
         else:
             payment_obj = Payment.objects.create(
                 order = order,
                 total_price = cart_total_with_discount,
-                payment_method = 'cod',        
+                payment_method = 'cod', 
+                payment_status = 'success',       
             )
             
         # Get the coupon code from the request

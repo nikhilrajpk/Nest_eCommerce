@@ -19,6 +19,23 @@
     </style>
 
 <div class="container">
+    
+    <script>
+    setTimeout (() => {
+        $(".alert").alert("close")
+    },3000)
+    </script>
+    
+    <!-- alert box  -->
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+            <strong>{{message}}</strong>
+        </div>
+    {% endfor %}
+    {% endif %}
+
+
     <h2 class="text-center mt-5">YOUR ORDERS</h2>
     <div class="table-responsive order-table">
         <table class="table table-bordered">
@@ -29,23 +46,35 @@
                     <th>Order Date</th>
                     <th>Delivering Date</th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders %}
-                <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.order_status|title }}</td>
-                    <td>{{ order.order_date }}</td>
-                    <td>{{ order.delivery_date }}</td>
-                    <td>
-                        <a href="{% url 'order_app:order_details' order.id %}" class="btn btn-custom">view details</a>
-                    </td>
-                </tr>
+                    {% for payment in order.payments.all %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.order_status|title }}</td>
+                        <td>{{ order.order_date }}</td>
+                        <td>{{ order.delivery_date }}</td>
+                        <td>
+                            <a href="{% url 'order_app:order_details' order.id %}" class="btn btn-custom">view details</a>
+                        </td>
+                        {% if payment.payment_status == 'failed' %}
+                            <td>
+                                <a href=""><button class="btn btn-outline-danger">Continue Payment</button></a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous">
+</script>
 {% endblock content %}

@@ -140,8 +140,17 @@
     };
 
     var rzp1 = new Razorpay(options);
+    // Payment failure handler
     rzp1.on('payment.failed', function (response) {
-        alert("Payment failed: " + response.error.description);
+        // Add a hidden input for payment_status as 'failed'
+        const form = document.getElementById("paymentForm");
+        form.insertAdjacentHTML('beforeend', `<input type="hidden" name="payment_status" value="failed">`);
+        
+        // Optionally, add error details for debugging/logging purposes
+        form.insertAdjacentHTML('beforeend', `<input type="hidden" name="error_description" value="${response.error.description}">`);
+        
+        // Submit the form to log the failed payment and continue to the order page
+        form.submit();
     });
 
     // Intercept form submission to open Razorpay

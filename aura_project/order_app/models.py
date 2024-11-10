@@ -57,7 +57,7 @@ class Payment(models.Model):
     razor_pay_payment_id = models.CharField(max_length=100, null=True, blank=True)
     razor_pay_payment_signature = models.CharField(max_length=100, null=True, blank=True)
     payment_date = models.DateTimeField(auto_now_add=True)
-    # payment_status = models.CharField(max_length=50)
+    payment_status = models.CharField(max_length=50,null=True,blank=True,default='pending')
 
 class Checkout(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
