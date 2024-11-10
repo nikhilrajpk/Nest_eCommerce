@@ -107,6 +107,8 @@ def confirm_order(request):
 
         payment_method = request.POST.get('payment_method')
         request.session['payment_method'] = payment_method
+        
+        order_id = request.POST.get('order_id')
     
     cart_items_with_prices = []
     # Calculate the total price for each item
@@ -123,8 +125,13 @@ def confirm_order(request):
     discount = Decimal(request.session.get('discount_amount', 0))
     cart_total_with_discount = float(cart_total) - float(discount)
     cart_total_with_discount += float(50)
-    request.session['cart_total_with_discount'] = cart_total_with_discount
     
+    if cart_total_with_discount == 50:
+        total_amount = request.POST.get('total_amount')
+        cart_total_with_discount = total_amount
+        print(cart_total_with_discount,'this is when retrying payment***********')
+        
+    request.session['cart_total_with_discount'] = cart_total_with_discount
     print(request.session['cart_total_with_discount'])
     
     # # Get the coupon code from the request
@@ -170,6 +177,7 @@ def confirm_order(request):
         'cart_total': float(cart_total),
         'cart_total_with_discount': cart_total_with_discount,
         'payment_method': payment_method,
+        'order_id':order_id,
     }    
     
     # Wallet payment
@@ -184,9 +192,8 @@ def confirm_order(request):
     
     # Razor pay ******************************
     elif payment_method == 'razorpay':
-    
         client = razorpay.Client(auth=(settings.KEY, settings.SECRET))
-        amount_in_paise = int(cart_total_with_discount * 100)
+        amount_in_paise = int(float(cart_total_with_discount) * 100)
         data = { "amount": amount_in_paise, "currency": "INR", "payment_capture": 1, "receipt": "order_rcptid_11" }
         payment = client.order.create(data=data)        
         request.session['razor_payment'] = payment
@@ -194,6 +201,8 @@ def confirm_order(request):
         print(payment)
         #****************
         context['payment'] = payment
+        context['payment_retry'] = request.POST.get('payment_retry')
+        print('first continue payment value',context['payment_retry'])
     else:
         pass
         
@@ -205,7 +214,10 @@ def order_view(request):
         return redirect('admin_app:admin_home')
     if request.user.is_authenticated and request.user.is_block:
         return redirect('authentication_app:logout')
-    
+    orders = request.user.orders.all().order_by('-id')
+    context = {
+        'orders':orders,
+    }
     if request.method == 'POST':
         user_id = request.user.id
         user = CustomUser.objects.get(id = user_id)
@@ -217,14 +229,19 @@ def order_view(request):
         address_id = request.session.get('address_id')
         address = Address.objects.get(id = address_id)
         # Creating and saving the order
-        order = Order(
-            user = user,
-            order_status = 'confirmed',
-            delivery_date = delivery_date,
-            address = address
-        )
-        
-        order.save()
+        order_obj = None
+        if request.POST.get('payment_retry') == '1':
+                order_id = request.POST.get('order_id')
+                order_obj = Order.objects.get(id = order_id)
+        if not order_obj:
+            order = Order(
+                user = user,
+                order_status = 'confirmed',
+                delivery_date = delivery_date,
+                address = address
+            )
+            
+            order.save()
         
         # Creating order items for the items from cart.
         for item in cart_item:
@@ -279,15 +296,37 @@ def order_view(request):
         elif payment_method == 'razorpay':
             payment_id = request.session.get('razor_payment')
             payment_status = request.POST.get('payment_status','success')
-            if payment_status == 'failed':
+            print('payment status is :',payment_status)
+            print(request.POST.get('payment_retry'))
+            
+            if payment_status == 'failed' and request.POST.get('payment_retry') != '1':
+                order.order_status = 'pending'
+                order.save()
+                
                 messages.error(request,'Payment is failed! You can continue the payment from here :)')
-            payment_obj = Payment.objects.create(
-                order = order,
-                total_price = cart_total_with_discount,
-                payment_method = 'razorpay',
-                razor_pay_order_id = payment_id['id'],
-                payment_status = payment_status,
-            )
+            elif request.POST.get('payment_retry') == '1' and payment_status == 'failed':
+                print('payment failed 2nd time of order:',order_id,request.POST.get('payment_failed'),)    
+                messages.error(request,'Your order is canceled because payment failure!')
+                order_obj.delete()
+            
+            # When retrying payment    
+            if request.POST.get('payment_retry') == '1' and payment_status == 'success':
+                # order_id = request.POST.get('order_id')
+                # order_obj = Order.objects.get(id = order_id)
+                payment_obj = Payment.objects.get(order = order_obj)
+                payment_obj.payment_status = 'success'
+                payment_obj.razor_pay_order_id = payment_id['id']
+                payment_obj.save()
+                order_obj.order_status = 'confirmed'
+                order_obj.save()
+            elif request.POST.get('payment_retry') != '1':
+                payment_obj = Payment.objects.create(
+                    order = order,
+                    total_price = cart_total_with_discount,
+                    payment_method = 'razorpay',
+                    razor_pay_order_id = payment_id['id'],
+                    payment_status = payment_status,
+                )
         else:
             payment_obj = Payment.objects.create(
                 order = order,
@@ -333,6 +372,9 @@ def order_view(request):
         request.session['coupon_applied'] = False
         
         
+        # total_amount = request.POST.get('total_amount')
+        # context['total_amount'] = total_amount
+        # print('total amount in order:',total_amount)
         # else:
         #     # Update the existing checkout
         #     checkout_exist.cart = cart
@@ -346,12 +388,23 @@ def order_view(request):
         return redirect('order_app:order_view')
 
     
-    orders = request.user.orders.all().order_by('-id')
-    context = {
-        'orders':orders,
-    }
+    
     return render(request,'order_app/orders.html',context)
 
+# @login_required
+# def continue_payment(request,payment_id):
+#     if request.user.is_authenticated and request.user.is_staff:
+#         return redirect('admin_app:admin_home')
+#     if request.user.is_authenticated and request.user.is_block:
+#         return redirect('authentication_app:logout')
+#     if request.method == 'POST':
+#         payment = Payment.objects.get(id = payment_id)
+#         amount = int(payment.total_price * 100)
+#         context = {
+#             'payment':payment,
+#             'amount':amount,
+#         }
+#need to update order id. payment_stauts
 
 
 @login_required

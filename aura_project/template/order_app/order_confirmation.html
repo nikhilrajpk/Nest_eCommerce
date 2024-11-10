@@ -97,6 +97,9 @@
                     <form id="paymentForm" action="{% url 'order_app:order_view' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="payment_method" value="{{payment_method}}">
+                        <input type="hidden" name="payment_retry" value="{{payment_retry|default:0}}">
+                        <input type="hidden" name="total_amount" value="{{cart_total_with_discount}}">
+                        <input type="hidden" name="order_id" value="{{order_id}}">
                         <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
                     </form>
                 {% endif %}
@@ -106,6 +109,10 @@
 </section>
 <!--================End Order Confirmation Area =================-->
 <!-- <button id="rzp-button1">Pay with Razorpay</button> -->
+<!-- <script>
+    var paymentRetry = {% if payment_retry == 1 %} 2 {% else %} 0 {% endif %};
+    console.log(paymentRetry)
+</script> -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     var options = {
@@ -122,6 +129,7 @@
             form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_payment_id" value="${response.razorpay_payment_id}">`);
             form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_order_id" value="${response.razorpay_order_id}">`);
             form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_signature" value="${response.razorpay_signature}">`);
+            form.insertAdjacentHTML('beforeend', `<input type="hidden" name="payment_status" value="success">`);
             
             // Submit the form after payment success
             form.submit();
@@ -145,6 +153,8 @@
         // Add a hidden input for payment_status as 'failed'
         const form = document.getElementById("paymentForm");
         form.insertAdjacentHTML('beforeend', `<input type="hidden" name="payment_status" value="failed">`);
+        // Use the paymentRetry variable set by Django
+        //form.insertAdjacentHTML('beforeend', `<input type="hidden" name="payment_failed" value="${paymentRetry}">`);
         
         // Optionally, add error details for debugging/logging purposes
         form.insertAdjacentHTML('beforeend', `<input type="hidden" name="error_description" value="${response.error.description}">`);
