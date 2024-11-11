@@ -86,7 +86,6 @@
                 <th scope="col">Delivering Date</th>
                 <th scope="col">Status</th>
                 <th scope="col">Show</th>
-                <th scope="col">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -108,12 +107,6 @@
                 <td>{{order.order_status}}</td>
                 <td>
                     <a href="{% url 'admin_app:show_order' order.id %}" ><button id="unblock" type="button" >Show</button></a>
-                </td>
-                <td>
-                    <form action="" method="post">
-                        {% csrf_token %}
-                        <button id="block" type="submit" class="btn_3">Edit</button>
-                    </form>
                 </td>
             </tr>
             {% endfor %}

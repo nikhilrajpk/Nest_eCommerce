@@ -471,3 +471,68 @@ def return_confirm(request,item_id,order_id):
         return redirect('admin_app:show_order',order_id=order_id)
     else:
         return redirect('admin_app:show_order',order_id=order_id)
+    
+    
+    
+    
+import weasyprint
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.conf import settings
+import os
+
+@login_required
+def download_invoice_pdf(request, order_id):
+    # Get order details
+    order = Order.objects.get(id=order_id, user=request.user)
+    order_items = order.items.all()
+
+    try:
+        payment = Payment.objects.get(order = order)
+        if payment:
+            payment_method = payment.payment_method
+            print(payment_method)
+    except Exception as e:
+            payment_method = 'COD'
+            
+    # Calculate total price as in your order_details view
+    total_price = 0
+    for item in order_items:
+        if item.product.offer:
+            item_price = item.product.discount_price * item.quantity
+        else:
+            item_price = item.price * item.quantity
+        total_price += item_price
+    total_price += 50
+
+    # Get coupon and discount amount if any
+    coupon_code = request.session.get('coupon_code', '')
+    coupon_discount = 0
+    if coupon_code:
+        try:
+            coupon = Coupons.objects.get(code=coupon_code)
+            total_price -= float(coupon.discount_amount)
+            coupon_discount = coupon.discount_amount
+        except Coupons.DoesNotExist:
+            pass
+
+    # Context for rendering the PDF template
+    sub_total = total_price-50
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'total_price': total_price,
+        'coupon_discount': coupon_discount,
+        'payment_method':payment_method,
+        'sub_total':sub_total,
+    }
+
+    # Render the template to HTML
+    html = render_to_string('order_app/invoice_template.html', context)
+
+    # Convert HTML to PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order_id}.pdf"'
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(response)
+
+    return response

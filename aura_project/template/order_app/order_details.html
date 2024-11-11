@@ -210,6 +210,7 @@ setTimeout (() => {
             
 
         {% else %}
+            <a href="{% url 'order_app:download_invoice_pdf' order.id %}"><button style="width: 66.2rem;" class="btn btn-outline-danger mt-3">Download Invoice as PDF</button></a>
             <button class="btn btn-outline-success mt-3" disabled>Delivered</button>
         {% endif %}
     </div>

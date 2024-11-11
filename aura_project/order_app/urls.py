@@ -11,4 +11,5 @@ urlpatterns = [
     path('cancel_order/<int:order_id>/',views.cancel_order,name='cancel_order'),
     path('return_item/<int:item_id>/',views.return_item,name='return_item'),
     path('return_confirm/<int:item_id>/<int:order_id>/',views.return_confirm,name='return_confirm'),
+    path('order/<int:order_id>/download-invoice/', views.download_invoice_pdf, name='download_invoice_pdf'),
 ]
