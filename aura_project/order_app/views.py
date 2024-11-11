@@ -17,77 +17,6 @@ from django.conf import settings
 # Create your views here.
 
 
-# @login_required
-# def confirm_order(request):
-    
-#     user = request.user
-#     cart = Cart.objects.get(user=user)
-#     cart_items = cart.items.all()
-
-#     # Getting the address from the checkout page
-#     address_id = request.POST.get('address_id')
-#     print(address_id)
-#     address = user.addresses.get(id = address_id)
-#     print(address)
-    
-#     payment_method = request.POST.get('payment_method')
-    
-    
-#     cart_items_with_prices = []
-#     # Calculate the total price for each item
-#     for item in cart_items:
-#         if item.product.offer:
-#             item.total_price = item.product.discount_price * item.quantity
-#         else:
-#             item.total_price = item.product.price * item.quantity
-    
-#         cart_items_with_prices.append(item)
-
-#     # Get cart totals
-#     cart_total = sum(item.total_price for item in cart_items)
-#     discount = Decimal(request.session.get('discount_amount', 0))
-#     cart_total_with_discount = cart_total - discount
-
-#     coupon_code = request.POST.get('coupon_code', None)
-#     print(coupon_code)
-#     coupon = None
-#     if coupon_code:
-#         coupon = get_object_or_404(Coupons, code=coupon_code)
-
-#     # Checking if the checkout already exist
-#     checkout_exist = Checkout.objects.get(cart = cart)
-    
-#     if checkout_exist is None:
-#         # Adding data of checkout to checkout database
-#         checkout = Checkout(
-#             cart = cart,
-#             total_amount = cart_total_with_discount,
-#             coupons = coupon,
-#             address = address,
-#             checkout_status = 'completed',
-#         )
-#         checkout.save()
-#     else:
-#         checkout_exist.cart = cart
-#         checkout_exist.total_amount = cart_total_with_discount
-#         checkout_exist.coupons = coupon
-#         checkout_exist.address = address
-        
-#         checkout_exist.save()
-    
-#     context = {
-#         'cart_items': cart_items,
-#         'address': address,
-#         'cart_total': cart_total,
-#         'cart_total_with_discount': cart_total_with_discount,
-#         'payment_method': payment_method,
-#     }
-
-#     return render(request, 'order_app/order_confirmation.html', context)
-
-# {% url 'order_app:place_order' %}
-
-
 @login_required
 def confirm_order(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -134,42 +63,6 @@ def confirm_order(request):
     request.session['cart_total_with_discount'] = cart_total_with_discount
     print(request.session['cart_total_with_discount'])
     
-    # # Get the coupon code from the request
-    # coupon_code = request.session.get('coupon_code', '')
-    # print(coupon_code)
-    # coupon = None
-    # if coupon_code:
-    #     try:
-    #         coupon = Coupons.objects.get(code=coupon_code)
-    #         coupon.used_limit = F('used_limit') - 1
-    #         cart_total_with_discount -= float(coupon.discount_amount)
-    #         coupon.save()
-    #     except Coupons.DoesNotExist:
-    #         coupon = None
-    #         messages.error(request, "Coupon not found or expired.")
-    
-    # # Check if a Checkout already exists
-    # checkout_exist = Checkout.objects.filter(cart=cart).first()
-    
-    # if not checkout_exist:
-    #     # Adding data to checkout if it doesn't exist
-    #     checkout = Checkout(
-    #         cart=cart,
-    #         total_amount=cart_total_with_discount,
-    #         coupons=coupon,  # Assign the coupon object
-    #         address=address,
-    #         checkout_status='completed',
-    #     )
-    #     checkout.save()
-    # else:
-    #     # Update the existing checkout
-    #     checkout_exist.cart = cart
-    #     checkout_exist.total_amount = cart_total_with_discount
-    #     checkout_exist.coupons = coupon  # Assign the coupon object
-    #     checkout_exist.address = address
-    #     checkout_exist.checkout_status = 'completed'
-    #     checkout_exist.save()
-
     context = {
         'cart_id':cart.id,
         'cart_items': cart_items,
@@ -351,13 +244,7 @@ def order_view(request):
                 coupon = None
                 messages.error(request, "Coupon not found or expired.")
         
-        # Check if a Checkout already exists
-        # checkout_exist = Checkout.objects.filter(cart=cart).first()
-        
-        # if not checkout_exist:
-        #     print(checkout_exist.id,checkout_exist.cart_id)
-        
-        
+       
         # Adding data to checkout
         checkout = Checkout(
             cart=cart,
@@ -372,18 +259,7 @@ def order_view(request):
         request.session['coupon_applied'] = False
         
         
-        # total_amount = request.POST.get('total_amount')
-        # context['total_amount'] = total_amount
-        # print('total amount in order:',total_amount)
-        # else:
-        #     # Update the existing checkout
-        #     checkout_exist.cart = cart
-        #     checkout_exist.total_amount = cart_total_with_discount
-        #     checkout_exist.coupons = coupon  # Assign the coupon object
-        #     checkout_exist.address = address
-        #     checkout_exist.checkout_status = 'completed'
-        #     checkout_exist.save()
-        #     print("Existing checkout updated with new values.")
+        
             
         return redirect('order_app:order_view')
 
@@ -391,20 +267,6 @@ def order_view(request):
     
     return render(request,'order_app/orders.html',context)
 
-# @login_required
-# def continue_payment(request,payment_id):
-#     if request.user.is_authenticated and request.user.is_staff:
-#         return redirect('admin_app:admin_home')
-#     if request.user.is_authenticated and request.user.is_block:
-#         return redirect('authentication_app:logout')
-#     if request.method == 'POST':
-#         payment = Payment.objects.get(id = payment_id)
-#         amount = int(payment.total_price * 100)
-#         context = {
-#             'payment':payment,
-#             'amount':amount,
-#         }
-#need to update order id. payment_stauts
 
 
 @login_required
@@ -494,9 +356,7 @@ def submit_review(request, product_id):
     
     return render(request,'order_app/add_review.html',{'order_items':order_items,'order_id':order_id})
 
-# {% url 'return_item' item.id %}
-# {% url 'cancel_order' order.id %}
-# {% url 'submit_review' order.id %}
+
 
 
 @login_required
@@ -569,20 +429,6 @@ def return_item(request, item_id):
             order_item.return_date = timezone.now()
             order_item.save()
             
-            # # Adding money to wallet when returning the item.
-            # total_price = order_item.price * order_item.quantity
-            # print(order_item.price,order_item.quantity)
-            # print(total_price)
-            # wallet = Wallet.objects.get(user=request.user)
-            # wallet.balance = F('balance') + total_price
-            # wallet.save()
-            # print(wallet.balance)
-            
-            # wallet_transaction = WalletTransation.objects.create(
-            #     wallet = wallet,
-            #     transaction_type = 'refund',
-            #     amount = total_price,
-            # )
 
             messages.success(request, "Return request sent.")
         else:
