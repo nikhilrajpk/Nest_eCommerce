@@ -52,10 +52,18 @@
     }
 </style>
 
+
 <div class="container mt-5">
     <br><br><br>
     <div class="col-sm-5" id="tdiv">
         <h2 class="mb-4">Top Selling Categories</h2>
+        <!-- breadcrumbs start-->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_category' %}">Category</a></li>
+            <li class="breadcrumb-item"><a href="">Top selling category</a></li>
+            </ol>
+        </nav><br>
     </div><br>
 
     <table class="table table-striped table-hover" style="transform: translateY(-2rem);">

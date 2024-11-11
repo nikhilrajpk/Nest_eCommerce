@@ -3,6 +3,13 @@
 {% block content %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 <br><br>
+<!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_product' %}">Product</a></li>
+    <li class="breadcrumb-item"><a href="">Edit product</a></li>
+    </ol>
+</nav>
 <div class="container mt-5">
     <h2 class="mb-4">Edit Product</h2>
     <form action="" method="POST" enctype="multipart/form-data">

@@ -109,16 +109,13 @@
             display: none;
         }
     </style>
-    <!-- <div style="background: #f5f5f5; padding: 10px; margin: 10px 0;">
-        <p>Debug Info:</p>
-        <pre>
-        Report Type: {{ report_type }}
-        Start Date: {{ start_date }}
-        End Date: {{ end_date }}
-        Sales Data Count: {{ sales_data|length }}
-        Has Overall Stats: {{ overall_stats|yesno:"Yes,No" }}
-        </pre>
-    </div> -->
+    <!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_home' %}">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="">Sales report</a></li>
+    </ol>
+  </nav>
     <!-- Report Type Selection Form -->
     <form method="GET" class="form-group">
         <div class="form-row">
