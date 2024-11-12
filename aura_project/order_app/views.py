@@ -200,7 +200,8 @@ def order_view(request):
             elif request.POST.get('payment_retry') == '1' and payment_status == 'failed':
                 print('payment failed 2nd time of order:',order_id,request.POST.get('payment_failed'),)    
                 messages.error(request,'Your order is canceled because payment failure!')
-                order_obj.delete()
+                order_obj.order_status = 'canceled'
+                order_obj.save()
             
             # When retrying payment    
             if request.POST.get('payment_retry') == '1' and payment_status == 'success':

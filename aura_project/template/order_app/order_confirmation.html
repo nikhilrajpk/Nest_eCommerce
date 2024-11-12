@@ -19,7 +19,7 @@
 
 <!--================Order Confirmation Area =================-->
 <!-- breadcrumbs start-->
-<nav aria-label="breadcrumb">
+<nav id="bread-nav" aria-label="breadcrumb">
     <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'cart_app:cart' %}">Cart</a></li>
     <li class="breadcrumb-item"><a href="{% url 'cart_app:checkout' cart_id %}">Checkout</a></li>
@@ -30,7 +30,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h2 class="text-center">Order Confirmation</h2>
+                <h2 id="main-heading" class="text-center">Order Confirmation</h2>
 
                 <!-- Billing Address -->
                 <div class="order-summary-box">
@@ -97,7 +97,7 @@
                     <form id="paymentForm" action="{% url 'order_app:order_view' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="payment_method" value="{{payment_method}}">
-                        <input type="hidden" name="payment_retry" value="{{payment_retry|default:0}}">
+                        <input type="hidden" id="payment-retry" name="payment_retry" value="{{payment_retry|default:0}}">
                         <input type="hidden" name="total_amount" value="{{cart_total_with_discount}}">
                         <input type="hidden" name="order_id" value="{{order_id}}">
                         <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
@@ -109,10 +109,15 @@
 </section>
 <!--================End Order Confirmation Area =================-->
 <!-- <button id="rzp-button1">Pay with Razorpay</button> -->
-<!-- <script>
-    var paymentRetry = {% if payment_retry == 1 %} 2 {% else %} 0 {% endif %};
-    console.log(paymentRetry)
-</script> -->
+<script>
+    var paymentRetry = document.getElementById('payment-retry')
+    var mainHeading = document.getElementById('main-heading')
+    var breadNav = document.getElementById('bread-nav')
+    if(paymentRetry.value == 1){
+        mainHeading.textContent = "Continue Payment";
+        breadNav.style.display = "none";
+    };
+</script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     var options = {

@@ -62,7 +62,7 @@
                         <a href="{% url 'order_app:order_details' order.id %}" class="btn btn-custom">view details</a>
                     </td>
                     {% for payment in order.payments.all %}
-                        {% if payment.payment_status == 'failed' %}
+                        {% if payment.payment_status == 'failed' and order.order_status == 'pending' %}
                             <td id="failed-field" data-status="failed">
                                 <form action="{% url 'order_app:confirm_order' %}" method="post">
                                     {% csrf_token %}
