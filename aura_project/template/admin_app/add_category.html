@@ -12,11 +12,12 @@
   </nav>
     <div class="container mt-5">
         <h2 class="mb-4">Add New Category</h2>
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form id="category-form" action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="mb-3">
                 <label for="category-name" class="form-label">Category Name:</label>
+                <p id="category-warning" class="text-danger" style="display: none;">Category name should only contain letters!</p>
                 <input type="text" class="form-control" id="category-name" name="category_name" required>
             </div>
 
@@ -102,4 +103,43 @@
     }
     
     </script>
+
+    <!-- Script for form validation -->
+    <script>
+      // Real-time validation on input
+      document.getElementById('category-name').addEventListener('input', function() {
+          let categoryName = this.value.trim(); // Trim leading and trailing whitespace
+          let categoryWarning = document.getElementById('category-warning');
+          console.log("Input value:", categoryName);  // Debugging output
+  
+          let regex = /^[a-zA-Z]+$/;
+  
+          if (!regex.test(categoryName) || categoryName === "") {
+              categoryWarning.style.display = "block";
+          } else {
+              categoryWarning.style.display = "none";
+          }
+      });
+  
+      // Prevent form submission on submit event if input is invalid
+      document.getElementById('category-form').addEventListener('submit', function(event) {
+          let categoryName = document.getElementById('category-name').value.trim();
+          let categoryWarning = document.getElementById('category-warning');
+          
+          console.log("Form submitted with value:", categoryName);  // Debugging output
+          
+          // Final validation check
+          if (categoryName === "" || !/^[a-zA-Z]+$/.test(categoryName)) {
+              event.preventDefault(); // Prevent form submission
+              categoryWarning.style.display = "block";
+              console.log("Form submission prevented: Invalid input.");  // Debugging output
+              return false;
+          } else {
+              categoryWarning.style.display = "none";
+              console.log("Form submission allowed: Valid input.");  // Debugging output
+          }
+      });
+  </script>
+    
+    
 {% endblock content %}
