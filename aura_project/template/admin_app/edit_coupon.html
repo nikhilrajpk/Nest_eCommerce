@@ -9,8 +9,22 @@
         <li class="breadcrumb-item"><a href="">Edit coupon</a></li>
         </ol>
     </nav>
+    <!-- alert box  -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{message.tags}}">
+                <strong>{{message}}</strong>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <script>
+        setTimeout (() => {
+            $(".alert").alert("close")
+        },3000)
+    </script>
 <div class="container mt-5">
-    <h2 class="mb-4">Add New Coupon</h2>
+    <h2 class="mb-4">Edit Coupon</h2>
     <form action="" method="POST">
         {% csrf_token %}
 
@@ -56,4 +70,9 @@
     </form>
 </div>
 <br>
+<script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous">
+</script>
 {% endblock content %}

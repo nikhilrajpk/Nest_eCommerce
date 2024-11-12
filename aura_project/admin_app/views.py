@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+import re
 
 #For dashboard chart
 import calendar
@@ -599,30 +600,36 @@ def add_coupon(request):
         
         if request.method == 'POST':
             code = request.POST.get('code')
-            minimum_order_amount = request.POST.get('minimum_order_amount')
-            maximum_order_amount = request.POST.get('maximum_order_amount')
-            used_limit = request.POST.get('used_limit')
-            expiry_date_str = request.POST.get('expiry_date')
-            discount_amount = request.POST.get('discount_amount')
             
-            # Converting string expiry date to datetime object.
-            expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+            code_regex = r'^[a-zA-Z0-9]+$'
             
-            # Converting naive datetime to timezone-aware datetime
-            expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
-            
-            coupon = Coupons(
-                code = code,
-                minimum_order_amount = minimum_order_amount,
-                maximum_order_amount = maximum_order_amount,
-                used_limit = used_limit,
-                expiry_date = expiry_date,
-                discount_amount = discount_amount,
-            )
-            coupon.save()
-            
-            messages.success(request,f'New coupon {code} has added.')
-            return redirect('admin_app:admin_coupon')
+            if re.match(code_regex,code):
+                minimum_order_amount = request.POST.get('minimum_order_amount')
+                maximum_order_amount = request.POST.get('maximum_order_amount')
+                used_limit = request.POST.get('used_limit')
+                expiry_date_str = request.POST.get('expiry_date')
+                discount_amount = request.POST.get('discount_amount')
+                
+                # Converting string expiry date to datetime object.
+                expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+                
+                # Converting naive datetime to timezone-aware datetime
+                expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
+                
+                coupon = Coupons(
+                    code = code,
+                    minimum_order_amount = minimum_order_amount,
+                    maximum_order_amount = maximum_order_amount,
+                    used_limit = used_limit,
+                    expiry_date = expiry_date,
+                    discount_amount = discount_amount,
+                )
+                coupon.save()
+                
+                messages.success(request,f'New coupon {code} has added.')
+                return redirect('admin_app:admin_coupon')
+            else:
+                messages.error(request,'Coupon code should only be numbers and letters!')
          
         return render(request,'admin_app/add_coupon.html')
     
@@ -636,29 +643,35 @@ def edit_coupon(request,coupon_id):
         
         if request.method == 'POST':
             code = request.POST.get('code')
-            minimum_order_amount = request.POST.get('minimum_order_amount')
-            maximum_order_amount = request.POST.get('maximum_order_amount')
-            used_limit = request.POST.get('used_limit')
-            expiry_date_str = request.POST.get('expiry_date')
-            discount_amount = request.POST.get('discount_amount')
             
-            # Converting string expiry date to datetime object.
-            expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+            code_regex = r'^[a-zA-Z0-9]+$'
             
-            # Converting naive datetime to timezone-aware datetime
-            expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
-            
-            coupon.code = code
-            coupon.minimum_order_amount = minimum_order_amount
-            coupon.maximum_order_amount = maximum_order_amount
-            coupon.used_limit = used_limit
-            coupon.expiry_date = expiry_date
-            coupon.discount_amount = discount_amount
-            
-            coupon.save()
-            
-            messages.success(request,f'Coupon {code} edited.')
-            return redirect('admin_app:admin_coupon')
+            if re.match(code_regex,code):
+                minimum_order_amount = request.POST.get('minimum_order_amount')
+                maximum_order_amount = request.POST.get('maximum_order_amount')
+                used_limit = request.POST.get('used_limit')
+                expiry_date_str = request.POST.get('expiry_date')
+                discount_amount = request.POST.get('discount_amount')
+                
+                # Converting string expiry date to datetime object.
+                expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+                
+                # Converting naive datetime to timezone-aware datetime
+                expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
+                
+                coupon.code = code
+                coupon.minimum_order_amount = minimum_order_amount
+                coupon.maximum_order_amount = maximum_order_amount
+                coupon.used_limit = used_limit
+                coupon.expiry_date = expiry_date
+                coupon.discount_amount = discount_amount
+                
+                coupon.save()
+                
+                messages.success(request,f'Coupon {code} edited.')
+                return redirect('admin_app:admin_coupon')
+            else:
+                messages.error(request,'Coupon code should only be numbers and letters!')
         
         context = {
             'coupon':coupon
