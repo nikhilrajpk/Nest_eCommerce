@@ -32,37 +32,37 @@ setTimeout (() => {
         <!-- Coupon code -->
         <div class="mb-3">
             <label for="code" class="form-label">Code:</label>
-            <input type="text" class="form-control" id="code" name="code" required>
+            <input type="text" class="form-control" id="code" name="code" value="{{code}}" required>
         </div>
 
         <!-- minimum_order_amount -->
         <div class="mb-3">
             <label for="minimum_order_amount" class="form-label">Minimum order amount:</label>
-            <input type="number" class="form-control" id="minimum_order_amount" name="minimum_order_amount" min="0" max="100000" required>
+            <input type="number" class="form-control" id="minimum_order_amount" name="minimum_order_amount" min="0" max="100000" value="{{minimum_order_amount}}" required>
         </div>
 
         <!-- maximum_order_amount -->
         <div class="mb-3">
             <label for="maximum_order_amount" class="form-label">Maximum order amount:</label>
-            <input type="number" class="form-control" id="maximum_order_amount" name="maximum_order_amount" min="0" max="100000" required>
+            <input type="number" class="form-control" id="maximum_order_amount" name="maximum_order_amount" min="0" max="100000" value="{{maximum_order_amount}}" required>
         </div>
 
         <!-- Used limit -->
         <div class="mb-3">
             <label for="used_limit" class="form-label">Used limit:</label>
-            <input type="number" class="form-control" id="used_limit" name="used_limit" min="0" max="500" required>
+            <input type="number" class="form-control" id="used_limit" name="used_limit" min="0" max="500" value="{{used_limit}}" required>
         </div>
         
         <!-- Expiry Date -->
         <div class="mb-3">
             <label for="expiry-date" class="form-label">Expiry Date:</label>
-            <input type="datetime-local" class="form-control" id="expiry-date" name="expiry_date" required>
+            <input type="datetime-local" class="form-control" id="expiry-date" name="expiry_date" value="{{expiry_date|date:'Y-m-d\\TH:i'}}" required>
         </div>
         
         <!-- Discount amount -->
         <div class="mb-3">
             <label for="discount_amount" class="form-label">Discount Amount:</label>
-            <input type="number" class="form-control" id="discount_amount" name="discount_amount" min="0" max="100000" required>
+            <input type="number" class="form-control" id="discount_amount" name="discount_amount" min="0" max="100000" value="{{discount_amount}}" required>
         </div>
         
 

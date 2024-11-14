@@ -607,18 +607,18 @@ def admin_coupon(request):
     
 def add_coupon(request):
     if request.user.is_authenticated and request.user.is_staff:
-        
         if request.method == 'POST':
             code = request.POST.get('code')
             
             code_regex = r'^[a-zA-Z0-9]+$'
             
             if re.match(code_regex,code):
-                minimum_order_amount = request.POST.get('minimum_order_amount')
-                maximum_order_amount = request.POST.get('maximum_order_amount')
-                used_limit = request.POST.get('used_limit')
+                minimum_order_amount = float(request.POST.get('minimum_order_amount'))
+                maximum_order_amount = float(request.POST.get('maximum_order_amount'))
+                used_limit = int(request.POST.get('used_limit'))
                 expiry_date_str = request.POST.get('expiry_date')
-                discount_amount = request.POST.get('discount_amount')
+                discount_amount = float(request.POST.get('discount_amount'))
+                
                 
                 # Converting string expiry date to datetime object.
                 expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
@@ -626,18 +626,36 @@ def add_coupon(request):
                 # Converting naive datetime to timezone-aware datetime
                 expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
                 
-                coupon = Coupons(
-                    code = code,
-                    minimum_order_amount = minimum_order_amount,
-                    maximum_order_amount = maximum_order_amount,
-                    used_limit = used_limit,
-                    expiry_date = expiry_date,
-                    discount_amount = discount_amount,
-                )
-                coupon.save()
-                
-                messages.success(request,f'New coupon {code} has added.')
-                return redirect('admin_app:admin_coupon')
+                context = {
+                    'code':code,
+                    'minimum_order_amount':minimum_order_amount,
+                    'maximum_order_amount':maximum_order_amount,
+                    'used_limit':used_limit,
+                    'expiry_date':expiry_date,
+                    'discount_amount':discount_amount,
+                }
+                if maximum_order_amount <= minimum_order_amount:
+                    messages.error(request,'minimum order amount cannot be greater than maximum order amount!')
+                    return render(request,'admin_app/add_coupon.html',context)
+                elif minimum_order_amount <= discount_amount:
+                    messages.error(request,'Discount amount cannot be greater than minimum order amount!')
+                    return render(request,'admin_app/add_coupon.html',context)
+                elif expiry_date < timezone.now():
+                    messages.error(request,'Expiry date cannot be a past time!')
+                    return render(request,'admin_app/add_coupon.html',context)
+                else:
+                    coupon = Coupons(
+                        code = code,
+                        minimum_order_amount = minimum_order_amount,
+                        maximum_order_amount = maximum_order_amount,
+                        used_limit = used_limit,
+                        expiry_date = expiry_date,
+                        discount_amount = discount_amount,
+                    )
+                    coupon.save()
+                    
+                    messages.success(request,f'New coupon {code} has added.')
+                    return redirect('admin_app:admin_coupon')
             else:
                 messages.error(request,'Coupon code should only be numbers and letters!')
          
@@ -657,11 +675,11 @@ def edit_coupon(request,coupon_id):
             code_regex = r'^[a-zA-Z0-9]+$'
             
             if re.match(code_regex,code):
-                minimum_order_amount = request.POST.get('minimum_order_amount')
-                maximum_order_amount = request.POST.get('maximum_order_amount')
-                used_limit = request.POST.get('used_limit')
+                minimum_order_amount = float(request.POST.get('minimum_order_amount'))
+                maximum_order_amount = float(request.POST.get('maximum_order_amount'))
+                used_limit = int(request.POST.get('used_limit'))
                 expiry_date_str = request.POST.get('expiry_date')
-                discount_amount = request.POST.get('discount_amount')
+                discount_amount = float(request.POST.get('discount_amount'))
                 
                 # Converting string expiry date to datetime object.
                 expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
@@ -669,17 +687,24 @@ def edit_coupon(request,coupon_id):
                 # Converting naive datetime to timezone-aware datetime
                 expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
                 
-                coupon.code = code
-                coupon.minimum_order_amount = minimum_order_amount
-                coupon.maximum_order_amount = maximum_order_amount
-                coupon.used_limit = used_limit
-                coupon.expiry_date = expiry_date
-                coupon.discount_amount = discount_amount
-                
-                coupon.save()
-                
-                messages.success(request,f'Coupon {code} edited.')
-                return redirect('admin_app:admin_coupon')
+                if maximum_order_amount <= minimum_order_amount:
+                    messages.error(request,'minimum order amount cannot be greater than maximum order amount!')
+                elif minimum_order_amount <= discount_amount:
+                    messages.error(request,'Discount amount cannot be greater than minimum order amount!')
+                elif expiry_date < timezone.now():
+                    messages.error(request,'Expiry date cannot be a past time!')
+                else:
+                    coupon.code = code
+                    coupon.minimum_order_amount = minimum_order_amount
+                    coupon.maximum_order_amount = maximum_order_amount
+                    coupon.used_limit = used_limit
+                    coupon.expiry_date = expiry_date
+                    coupon.discount_amount = discount_amount
+                    
+                    coupon.save()
+                    
+                    messages.success(request,f'Coupon {code} edited.')
+                    return redirect('admin_app:admin_coupon')
             else:
                 messages.error(request,'Coupon code should only be numbers and letters!')
         
