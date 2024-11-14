@@ -11,19 +11,21 @@
 </nav>
 <div class="container mt-5">
     <h2 class="mb-4">Add New Offer</h2>
-    <form action="" method="POST">
+    <form id="offer-form" action="" method="POST">
         {% csrf_token %}
 
         <!-- Offer Title -->
         <div class="mb-3">
             <label for="offer-title" class="form-label">Offer Title:</label>
             <input type="text" class="form-control" id="offer-title" name="offer_title" required value="{{offer.offer_title}}">
+            <div id="offer-warning" style="display:none; color: red;">Please enter a valid offer title.</div>
         </div>
 
         <!-- Offer Description -->
         <div class="mb-3">
             <label for="offer-description" class="form-label">Offer Description:</label>
             <textarea class="form-control" id="offer-description" name="offer_description" rows="4" required>{{offer.offer_description}}</textarea>
+            <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
         </div>
 
         <!-- Offer Percentage -->
@@ -42,6 +44,8 @@
         <div class="mb-3">
             <label for="end-date" class="form-label">End Date:</label>
             <input type="datetime-local" class="form-control" id="end-date" name="end_date" required value="{{offer.end_date|date:'Y-m-d\\TH:i'}}">
+            <div id="end-date-warning-past" style="display:none; color: red;">End date cannot be set in the past. Please select a future date.</div>
+            <div id="end-date-warning-start" style="display:none; color: red;">End date cannot be earlier than the start date. Please select a valid end date.</div>
         </div>
 
         <!-- Submit Button -->
@@ -49,4 +53,109 @@
     </form>
 </div>
 <br>
+<script>
+    let offerForm = document.getElementById('offer-form')
+
+    let offerTitleInput = document.getElementById('offer-title')
+    let offerWarning = document.getElementById('offer-warning')
+
+    let descriptionInput = document.getElementById('offer-description')
+    let descriptionWarning = document.getElementById('description-warning')
+
+    let startDateInput = document.getElementById('start-date')
+
+    let endDateInput = document.getElementById('end-date')
+    let endDateWarningPast = document.getElementById('end-date-warning-past')
+    let endDateWarningStart = document.getElementById('end-date-warning-start')
+
+    let offerRegex = /^[a-zA-Z -]+$/
+    let descriptionRegex = /^[a-zA-Z0-9 \.]+$/
+
+    //offer title validation
+    offerTitleInput.addEventListener('input',function(){
+        let offerTitle = offerTitleInput.value.trim()
+        if(!offerRegex.test(offerTitle) || offerTitle === ""){
+            offerWarning.style.display = "block"
+        }
+        else{
+            offerWarning.style.display = "none"
+        }
+    });
+    //description validation
+    descriptionInput.addEventListener('input',function(){
+        let description = descriptionInput.value.trim()
+        if(!descriptionRegex.test(description) || description === ""){
+            descriptionWarning.style.display = "block"
+        }
+        else{
+            descriptionWarning.style.display = "none"
+        }
+    });
+    // end date validation
+    endDateInput.addEventListener('input',function(){
+        let startDate = new Date(startDateInput.value)
+        let endDate = new Date(endDateInput.value)
+        let now = new Date()
+
+        if(endDate < now){
+            endDateWarningPast.style.display = "block"
+            endDateWarningStart.style.display = "none"
+        }
+        else if(endDate < startDate){
+            endDateWarningStart.style.display = "block"
+            endDateWarningPast.style.display = "none"
+        }
+        else{
+            endDateWarningPast.style.display = "none"
+            endDateWarningStart.style.display = "none"
+        }
+    });
+
+    // form submission checking
+    offerForm.addEventListener('submit',function(e){
+        let isValid = true
+
+        let offerTitle = offerTitleInput.value.trim()
+        if(!offerRegex.test(offerTitle) || offerTitle === ""){
+            isValid = false
+            offerWarning.style.display = "block"
+        }
+        else{
+            offerWarning.style.display = "none"
+        };
+
+        let description = descriptionInput.value.trim()
+        if(!descriptionRegex.test(description) || description === ""){
+            isValid = false
+            descriptionWarning.style.display = "block"
+        }
+        else{
+            descriptionWarning.style.display = "none"
+        };
+
+        // end date
+        let startDate = new Date(startDateInput.value)
+        let endDate = new Date(endDateInput.value)
+        let now = new Date()
+
+        if(endDate < now){
+            isValid = false
+            endDateWarningPast.style.display = "block"
+            endDateWarningStart.style.display = "none"
+        }
+        else if(endDate < startDate){
+            isValid = false
+            endDateWarningStart.style.display = "block"
+            endDateWarningPast.style.display = "none"
+        }
+        else{
+            endDateWarningPast.style.display = "none"
+            endDateWarningStart.style.display = "none"
+        }
+
+        if(!isValid){
+            e.preventDefault();
+        };
+    });
+</script>
 {% endblock content %}
