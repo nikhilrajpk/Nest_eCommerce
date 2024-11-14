@@ -61,7 +61,7 @@ def cart_view(request):
             if item.quantity > item.product.available_stock:
                 item.quantity = item.product.available_stock
                 item.save()
-                messages.warning(request, f'Quantity for {item.product.product_name} has been adjusted to match available stock ({item.product.stock}).')
+                messages.warning(request, f'Quantity for {item.product.product_name} has been adjusted to match available stock ({item.product.available_stock}).')
             filtered_cart_items.append(item)
     
     cart_items_with_prices = []

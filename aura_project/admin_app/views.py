@@ -152,17 +152,22 @@ def add_category(request):
     if request.user.is_authenticated and request.user.is_staff:
         if request.method == 'POST':
             category_name = request.POST.get('category_name')
-            category_image = request.FILES.get('category_image')
-            is_listed = request.POST.get('available')
-            
-            new_category = Category(
-                category_name = category_name,
-                cat_image = category_image,
-                is_listed = is_listed
-            )
-            new_category.save()
-            messages.success(request,f'New category {category_name} added.')
-            return redirect('admin_app:admin_category')
+            category_exist = Category.objects.filter(category_name__iexact = category_name).exists()
+            print('Category already exist or not : ',category_exist)
+            if category_exist:
+                messages.error(request,'This category already exist!')
+            else:
+                category_image = request.FILES.get('category_image')
+                is_listed = request.POST.get('available')
+                
+                new_category = Category(
+                    category_name = category_name,
+                    cat_image = category_image,
+                    is_listed = is_listed
+                )
+                new_category.save()
+                messages.success(request,f'New category {category_name} added.')
+                return redirect('admin_app:admin_category')
         return render(request,'admin_app/add_category.html')
     else:
         return redirect('user_app:home')
@@ -285,7 +290,8 @@ def edit_product(request,id):
             price = request.POST.get('price')
             offer_id = request.POST.get('offer')
             category_id = request.POST.get('category')
-            # available_stock = request.POST.get('available_stock')
+            available_stock = request.POST.get('available_stock')
+            print('Edited stock : ',available_stock)
             image_1 = request.FILES.get('image_1')
             image_2 = request.FILES.get('image_2')
             image_3 = request.FILES.get('image_3')
@@ -310,7 +316,7 @@ def edit_product(request,id):
             category = Category.objects.get(id = category_id)
             product.category = category
             
-            # product.available_stock = available_stock
+            product.available_stock = available_stock
             
             if image_1:
                 product.image_1 = image_1

@@ -80,8 +80,9 @@
             $(".alert").alert("close")
         }, 3000)
     </script>
-<br><br>
-    <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
+    <br><br>
+    <div style="max-height: 280px; overflow-y: auto; transform: translateY(-2rem); scroll-behavior: smooth;">
+    <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
                 <th scope="col">Category</th>
@@ -113,9 +114,12 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
+<!-- Category listing ajax -->
 <script>
     $(document).ready(function () {
         $(".btn_3").on("click", function (e) {

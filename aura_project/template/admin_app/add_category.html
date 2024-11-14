@@ -11,6 +11,20 @@
     </ol>
   </nav>
     <div class="container mt-5">
+      <!-- alert box  -->
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+            <strong>{{message}}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 3000)
+</script>
         <h2 class="mb-4">Add New Category</h2>
         <form id="category-form" action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -24,7 +38,8 @@
 
             <div class="mb-3">
                 <label for="category-image" class="form-label">Category Image:</label>
-                <input type="file" class="form-control image-input" id="category-image" name="category_image" accept="image/*" required>
+                <input type="file" class="form-control image-input" id="category-image" name="category_image" accept=".jpg, .jpeg, .png, .gif" required>
+                <div id="image-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
             </div>
 
             <!-- Modal for cropping -->
@@ -112,7 +127,7 @@
           let categoryWarning = document.getElementById('category-warning');
           console.log("Input value:", categoryName);  // Debugging output
   
-          let regex = /^[a-zA-Z]+$/;
+          let regex = /^[a-zA-Z ]+$/;
   
           if (!regex.test(categoryName) || categoryName === "") {
               categoryWarning.style.display = "block";
@@ -129,7 +144,7 @@
           console.log("Form submitted with value:", categoryName);  // Debugging output
           
           // Final validation check
-          if (categoryName === "" || !/^[a-zA-Z]+$/.test(categoryName)) {
+          if (categoryName === "" || !/^[a-zA-Z ]+$/.test(categoryName)) {
               event.preventDefault(); // Prevent form submission
               categoryWarning.style.display = "block";
               console.log("Form submission prevented: Invalid input.");  // Debugging output
@@ -139,6 +154,28 @@
               console.log("Form submission allowed: Valid input.");  // Debugging output
           }
       });
+
+
+      // Image validation
+      document.getElementById('category-form').addEventListener('submit', function(event) {
+        let categoryImage = document.getElementById('category-image').value;
+        let imageWarning = document.getElementById('image-warning');
+        
+        // Regex to match valid image extensions
+        let validImageRegex = /\.(jpg|jpeg|png|gif)$/i;
+    
+        // Check if the selected file is a valid image
+        if (!validImageRegex.test(categoryImage)) {
+            event.preventDefault(); // Prevent form submission
+            imageWarning.style.display = "block";
+            console.log("Form submission prevented: Invalid image file type."); // Debugging output
+            return false;
+        } else {
+            imageWarning.style.display = "none";
+            console.log("Form submission allowed: Valid image file."); // Debugging output
+        }
+    });
+    
   </script>
     
     

@@ -16,22 +16,23 @@
         {% csrf_token %}
 
         <div class="mb-3">
-            <label for="product-name" class="form-label">Product Name:</label>
+            <label for="product-name" class="form-label">Product Name*</label>
+            
             <input type="text" class="form-control" id="product-name" name="product_name" required>
         </div>
 
         <div class="mb-3">
-            <label for="description" class="form-label">Description:</label>
+            <label for="description" class="form-label">Description*</label>
             <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
         </div>
 
         <div class="mb-3">
-            <label for="price" class="form-label">Price:</label>
+            <label for="price" class="form-label">Price*</label>
             <input type="number" step="0.01" class="form-control" id="price" name="price" required>
         </div>
         
         <div class="mb-3">
-            <label for="offer" class="form-label">Offer:</label>
+            <label for="offer" class="form-label">Offer</label>
             <select class="form-select" id="offer" name="offer">
 
                 <option value="">None</option>
@@ -42,7 +43,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="category" class="form-label">Category:</label>
+            <label for="category" class="form-label">Category*</label>
             <select class="form-select" id="category" name="category" required>
 
                 {% for category in categories %}
@@ -52,22 +53,22 @@
         </div>
 
         <div class="mb-3">
-            <label for="available-stock" class="form-label">Available Stock:</label>
+            <label for="available-stock" class="form-label">Available Stock*</label>
             <input type="number" class="form-control" id="available-stock" name="available_stock" min="0" required>
         </div>
 
         <div class="mb-3">
-            <label for="image-1" class="form-label">Image 1:</label>
+            <label for="image-1" class="form-label">Image 1*</label>
             <input type="file" class="form-control image-input" id="image-1" name="image_1" accept="image/*" required>
         </div>
 
         <div class="mb-3">
-            <label for="image-2" class="form-label">Image 2:</label>
+            <label for="image-2" class="form-label">Image 2*</label>
             <input type="file" class="form-control image-input" id="image-2" name="image_2" accept="image/*" required>
         </div>
 
         <div class="mb-3">
-            <label for="image-3" class="form-label">Image 3:</label>
+            <label for="image-3" class="form-label">Image 3*</label>
             <input type="file" class="form-control image-input" id="image-3" name="image_3" accept="image/*" required>
         </div>
 
@@ -93,7 +94,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="is-listed" class="form-label">Is Listed:</label>
+            <label for="is-listed" class="form-label">Is Listed*</label>
             <select class="form-select" id="is-listed" name="is_listed" required>
                 <option value="True">Yes</option>
                 <option value="False">No</option>
@@ -101,7 +102,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="in-stock" class="form-label">In Stock:</label>
+            <label for="in-stock" class="form-label">In Stock*</label>
             <select class="form-select" id="in-stock" name="in_stock" required>
                 <option value="True">Yes</option>
                 <option value="False">No</option>
@@ -109,25 +110,25 @@
         </div>
 
         <div class="mb-3">
-            <label for="material" class="form-label">Material:</label>
-            <input type="text" class="form-control" id="material" name="material">
+            <label for="material" class="form-label">Material*</label>
+            <input type="text" class="form-control" id="material" name="material" required>
         </div>
 
         <div class="mb-3">
-            <label for="color" class="form-label">Color:</label>
-            <input type="text" class="form-control" id="color" name="color">
+            <label for="color" class="form-label">Color*</label>
+            <input type="text" class="form-control" id="color" name="color" required>
         </div>
         <div class="mb-3">
-            <label for="width" class="form-label">Width:</label>
-            <input type="text" class="form-control" id="width" name="width">
+            <label for="width" class="form-label">Width*</label>
+            <input type="text" class="form-control" id="width" name="width" required>
         </div>
         <div class="mb-3">
-            <label for="length" class="form-label">Length:</label>
-            <input type="text" class="form-control" id="length" name="length">
+            <label for="length" class="form-label">Length*</label>
+            <input type="text" class="form-control" id="length" name="length" required>
         </div>
         <div class="mb-3">
-            <label for="height" class="form-label">Height:</label>
-            <input type="text" class="form-control" id="height" name="height">
+            <label for="height" class="form-label">Height*</label>
+            <input type="text" class="form-control" id="height" name="height" required>
         </div>
 
         <!-- Submit Button -->
@@ -178,4 +179,7 @@ function cropImage() {
 }
 
 </script>
+
+<!-- Form validation -->
+ 
 {% endblock content %}
