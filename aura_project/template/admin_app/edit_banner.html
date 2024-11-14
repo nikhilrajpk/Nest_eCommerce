@@ -11,17 +11,19 @@
 </nav>
     <div class="container mt-5">
         <h2 class="mb-4">Edit Banner</h2>
-        <form action="" method="POST" enctype="multipart/form-data">
+        <form id="banner-form" action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="mb-3">
                 <label for="banner-name" class="form-label">Banner Name:</label>
                 <input type="text" class="form-control" id="banner-name" name="banner_name" required value="{{banner.banner_name}}">
+                <div id="banner-warning" style="display:none; color: red;">Please enter a valid banner name.</div>
             </div>
             
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label>
                 <textarea class="form-control" id="description" name="description" rows="4" required>{{banner.banner_description}}</textarea>
+                <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
             </div>
 
             <div class="mb-3">
@@ -46,8 +48,9 @@
             </div>
 
             <div class="mb-3">
-                <label for="deal_price" class="form-label">Deal price:</label>
-                <input type="number" step="0.01" class="form-control" id="deal_price" name="deal_price" required value="{{banner.deal_price}}">
+                <label for="deal-price" class="form-label">Deal price:</label>
+                <input type="number" step="0.01" class="form-control" id="deal-price" name="deal_price" required value="{{banner.deal_price}}">
+                <div id="deal-warning" style="display:none; color: red;">Deal price cannot be greater than price.</div>
             </div>
 
             <div class="mb-3">
@@ -60,7 +63,8 @@
                     </div>
                 {% endif %}
 
-                <input type="file" class="form-control" id="banner-image" name="banner_image" accept="image/*">
+                <input type="file" class="form-control" id="banner-image" name="banner_image" accept=".jpg, .jpeg, .png, .gif">
+                <div id="image-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
             </div>
 
             <div class="mb-3">
@@ -71,6 +75,8 @@
             <div class="mb-3">
                 <label for="end-date" class="form-label">End Date:</label>
                 <input type="datetime-local" class="form-control" id="end-date" name="end_date" required value="{{banner.end_date|date:'Y-m-d\\TH:i'}}">
+                <div id="end-date-warning-past" style="display:none; color: red;">End date cannot be set in the past. Please select a future date.</div>
+                <div id="end-date-warning-start" style="display:none; color: red;">End date cannot be earlier than the start date. Please select a valid end date.</div>
             </div>
 
             <!-- Submit Button -->
@@ -78,4 +84,147 @@
         </form>
     </div>
 <br><br>
+
+<script>
+    let bannerForm = document.getElementById('banner-form')
+
+    let bannerInput = document.getElementById('banner-name')
+    let bannerWarning = document.getElementById('banner-warning')
+
+    let descriptionInput = document.getElementById('description')
+    let descriptionWarning = document.getElementById('description-warning')
+
+    let startDateInput = document.getElementById('start-date')
+
+    let endDateInput = document.getElementById('end-date')
+    let endDateWarningPast = document.getElementById('end-date-warning-past')
+    let endDateWarningStart = document.getElementById('end-date-warning-start')
+
+    let priceInput = document.getElementById('price')
+
+    let dealPriceInput = document.getElementById('deal-price')
+    let dealWarning = document.getElementById('deal-warning')
+
+    let bannerImage = document.getElementById('banner-image')
+    let imageWarning = document.getElementById('image-warning')
+
+    let bannerRegex = /^[a-zA-Z -]+$/
+    let descriptionRegex = /^[a-zA-Z0-9 \.]+$/
+    let validImageRegex = /\.(jpg|jpeg|png|gif)$/i;
+
+    //offer title validation
+    bannerInput.addEventListener('input',function(){
+        let bannerName = bannerInput.value.trim()
+        if(!bannerRegex.test(bannerName) || bannerName === ""){
+            bannerWarning.style.display = "block"
+        }
+        else{
+            bannerWarning.style.display = "none"
+        }
+    });
+    //description validation
+    descriptionInput.addEventListener('input',function(){
+        let description = descriptionInput.value.trim()
+        if(!descriptionRegex.test(description) || description === ""){
+            descriptionWarning.style.display = "block"
+        }
+        else{
+            descriptionWarning.style.display = "none"
+        }
+    });
+    // end date validation
+    endDateInput.addEventListener('input',function(){
+        let startDate = new Date(startDateInput.value)
+        let endDate = new Date(endDateInput.value)
+        let now = new Date()
+
+        if(endDate < now){
+            endDateWarningPast.style.display = "block"
+            endDateWarningStart.style.display = "none"
+        }
+        else if(endDate < startDate){
+            endDateWarningStart.style.display = "block"
+            endDateWarningPast.style.display = "none"
+        }
+        else{
+            endDateWarningPast.style.display = "none"
+            endDateWarningStart.style.display = "none"
+        }
+    });
+    //deal price validation
+    dealPriceInput.addEventListener('input',function(){
+        let dealPrice = parseFloat(dealPriceInput.value)
+        let price = parseFloat(priceInput.value)
+
+        dealWarning.style.display = (dealPrice > price)? "block":"none";
+    })
+
+    // form submission checking
+    bannerForm.addEventListener('submit',function(e){
+        let isValid = true
+
+        let bannerName= bannerInput.value.trim()
+        if(!bannerRegex.test(bannerName) || bannerName === ""){
+            isValid = false
+            bannerWarning.style.display = "block"
+        }
+        else{
+            bannerWarning.style.display = "none"
+        };
+
+        let description = descriptionInput.value.trim()
+        if(!descriptionRegex.test(description) || description === ""){
+            isValid = false
+            descriptionWarning.style.display = "block"
+        }
+        else{
+            descriptionWarning.style.display = "none"
+        };
+
+        // end date
+        let startDate = new Date(startDateInput.value)
+        let endDate = new Date(endDateInput.value)
+        let now = new Date()
+
+        if(endDate < now){
+            isValid = false
+            endDateWarningPast.style.display = "block"
+            endDateWarningStart.style.display = "none"
+        }
+        else if(endDate < startDate){
+            isValid = false
+            endDateWarningStart.style.display = "block"
+            endDateWarningPast.style.display = "none"
+        }
+        else{
+            endDateWarningPast.style.display = "none"
+            endDateWarningStart.style.display = "none"
+        }
+
+        //deal price
+        let dealPrice = parseFloat(dealPriceInput.value)
+        let price = parseFloat(priceInput.value)
+        if(dealPrice > price){
+            isValid = false
+            dealWarning.style.display = "block"
+        }
+        else{
+            dealWarning.style.display = "none"
+        }
+
+        //image 
+        let image = bannerImage.value
+        if(!validImageRegex.test(image)){
+            isValid =false
+            imageWarning.style.display = "block"
+        }
+        else{
+            imageWarning.style.display = "none"
+        }
+
+        if(!isValid){
+            e.preventDefault();
+        };
+    });
+</script>
 {% endblock content %}
