@@ -12,22 +12,25 @@
 </nav>
 <div class="container mt-5">
     <h2 class="mb-4">Edit Product</h2>
-    <form action="" method="POST" enctype="multipart/form-data">
+    <form id="product-form" action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 
         <div class="mb-3">
             <label for="product-name" class="form-label">Product Name:</label>
             <input type="text" class="form-control" id="product-name" name="product_name" value="{{product.product_name}}" required>
+            <div id="product-name-warning" style="display:none; color: red;">Please enter a valid product name.</div>
         </div>
 
         <div class="mb-3">
             <label for="description" class="form-label">Description:</label>
             <textarea class="form-control" id="description" name="description" rows="4" required>{{product.description}}</textarea>
+            <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
         </div>
 
         <div class="mb-3">
             <label for="price" class="form-label">Price:</label>
-            <input type="number" step="0.01" class="form-control" id="price" name="price" required value="{{product.price}}">
+            <input type="number" step="0.01" class="form-control" id="price" min="0" name="price" required value="{{product.price}}">
+            <div id="price-warning" style="display:none; color: red;">Price cannot be 0.</div>
         </div>
         
         <div class="mb-3">
@@ -79,7 +82,8 @@
                 </div>
             {% endif %}
 
-            <input type="file" class="form-control image-input" id="image-1" name="image_1" accept="image/*">
+            <input type="file" class="form-control image-input" id="image-1" name="image_1" accept=".jpg, .jpeg, .png, .gif">
+            <div id="image1-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
         </div>
 
         <div class="mb-3">
@@ -92,7 +96,8 @@
                 </div>
             {% endif %}
 
-            <input type="file" class="form-control image-input" id="image-2" name="image_2" accept="image/*">
+            <input type="file" class="form-control image-input" id="image-2" name="image_2" accept=".jpg, .jpeg, .png, .gif">
+            <div id="image2-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
         </div>
 
         <div class="mb-3">
@@ -105,7 +110,8 @@
                 </div>
             {% endif %}
 
-            <input type="file" class="form-control image-input" id="image-3" name="image_3" accept="image/*">
+            <input type="file" class="form-control image-input" id="image-3" name="image_3" accept=".jpg, .jpeg, .png, .gif">
+            <div id="image3-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
         </div>
 
         <!-- Modal for cropping -->
@@ -158,11 +164,13 @@
         <div class="mb-3">
             <label for="material" class="form-label">Material:</label>
             <input type="text" class="form-control" id="material" name="material" value="{{product.material}}">
+            <div id="material-warning" style="display:none; color: red;">Please enter a valid material.</div>
         </div>
 
         <div class="mb-3">
             <label for="color" class="form-label">Color:</label>
             <input type="text" class="form-control" id="color" name="color" value="{{product.color}}">
+            <div id="color-warning" style="display:none; color: red;">Please enter a valid color.</div>
         </div>
         <div class="mb-3">
             <label for="width" class="form-label">Width:</label>
@@ -182,6 +190,7 @@
     </form>
 </div>
 <br><br>
+<!-- cropper js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script>
     let cropper;
@@ -224,5 +233,159 @@ function cropImage() {
   }
 }
 
+</script>
+<!-- Form validation -->
+<script>
+    let productForm = document.getElementById('product-form');
+
+    let productNameInput = document.getElementById('product-name');
+    let productNameWarning = document.getElementById('product-name-warning');
+
+    let descriptionInput = document.getElementById('description');
+    let descriptionWarning = document.getElementById('description-warning');
+
+    let priceInput = document.getElementById('price');
+    let priceWarning = document.getElementById('price-warning');
+
+    let image1Input = document.getElementById('image-1');
+    let image1Warning = document.getElementById('image1-warning');
+
+    let image2Input = document.getElementById('image-2');
+    let image2Warning = document.getElementById('image2-warning');
+
+    let image3Input = document.getElementById('image-3');
+    let image3Warning = document.getElementById('image3-warning');
+
+    let materialInput = document.getElementById('material');
+    let materialWarning = document.getElementById('material-warning');
+
+    let colorInput = document.getElementById('color');
+    let colorWarning = document.getElementById('color-warning');
+
+    let productNameRegex = /^[a-zA-Z -]+$/;
+    let descriptionRegex = /^[a-zA-Z\.0-9 ]+$/;
+    let validImageRegex = /\.(jpg|jpeg|png|gif)$/i;
+    let materialRegex = /^[a-zA-Z ]+$/;
+    let colorRegex = /^[a-zA-Z ]+$/;
+
+    // Product name validation
+    productNameInput.addEventListener('input', function(){
+        let productName = productNameInput.value.trim();
+        if(!productNameRegex.test(productName) || productName === ""){
+            productNameWarning.style.display = "block";
+        } else {
+            productNameWarning.style.display = "none";
+        }
+    });
+
+    // Description validation
+    descriptionInput.addEventListener('input', function(){
+        let description = descriptionInput.value.trim();
+        if(!descriptionRegex.test(description) || description === ""){
+            descriptionWarning.style.display = "block";
+        } else {
+            descriptionWarning.style.display = "none";
+        }
+    });
+
+    // Material validation
+    materialInput.addEventListener('input', function(){
+        let material = materialInput.value.trim();
+        if(!materialRegex.test(material) || material === ""){
+            materialWarning.style.display = "block";
+        } else {
+            materialWarning.style.display = "none";
+        }
+    });
+
+    // Color validation
+    colorInput.addEventListener('input', function(){
+        let color = colorInput.value.trim();
+        if(!colorRegex.test(color) || color === ""){
+            colorWarning.style.display = "block";
+        } else {
+            colorWarning.style.display = "none";
+        }
+    });
+
+    // Form submission validation
+    productForm.addEventListener('submit', function(e){
+        let isValid = true;
+
+        // Product name validation
+        let productName = productNameInput.value.trim();
+        if(!productNameRegex.test(productName) || productName === ""){
+            isValid = false;
+            productNameWarning.style.display = "block";
+        } else {
+            productNameWarning.style.display = "none";
+        }
+
+        // Description validation
+        let description = descriptionInput.value.trim();
+        if(!descriptionRegex.test(description) || description === ""){
+            isValid = false;
+            descriptionWarning.style.display = "block";
+        } else {
+            descriptionWarning.style.display = "none";
+        }
+
+        // Price validation
+        let price = priceInput.value;
+        if(price === "" || price <= 0){
+            isValid = false;
+            priceWarning.style.display = "block";
+        } else {
+            priceWarning.style.display = "none";
+        }
+
+        // Image validation
+        let image1 = image1Input.value;
+        let image2 = image2Input.value;
+        let image3 = image3Input.value;
+
+        if (!validImageRegex.test(image1)) {
+            isValid = false;
+            image1Warning.style.display = "block";
+        } else {
+            image1Warning.style.display = "none";
+        }
+
+        if (!validImageRegex.test(image2)) {
+            isValid = false;
+            image2Warning.style.display = "block";
+        } else {
+            image2Warning.style.display = "none";
+        }
+
+        if (!validImageRegex.test(image3)) {
+            isValid = false;
+            image3Warning.style.display = "block";
+        } else {
+            image3Warning.style.display = "none";
+        }
+
+        // Material validation
+        let material = materialInput.value.trim();
+        if(!materialRegex.test(material) || material === ""){
+            isValid = false;
+            materialWarning.style.display = "block";
+        } else {
+            materialWarning.style.display = "none";
+        }
+
+        // Color validation
+        let color = colorInput.value.trim();
+        if(!colorRegex.test(color) || color === ""){
+            isValid = false;
+            colorWarning.style.display = "block";
+        } else {
+            colorWarning.style.display = "none";
+        }
+
+        if (!isValid) {
+            e.preventDefault();  // Prevent form submission if validation fails
+        }
+    });
 </script>
 {% endblock content %}

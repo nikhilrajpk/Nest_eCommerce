@@ -228,48 +228,52 @@ def add_product(request):
     if request.user.is_authenticated and request.user.is_staff:
         if request.method == 'POST':
             product_name = request.POST.get('product_name')
-            product_description = request.POST.get('description')
-            price = request.POST.get('price')
-            offer_id = request.POST.get('offer')
-            category_id = request.POST.get('category')
-            available_stock = request.POST.get('available_stock')
-            image_1 = request.FILES.get('image_1')
-            image_2 = request.FILES.get('image_2')
-            image_3 = request.FILES.get('image_3')
-            is_listed = request.POST.get('is_listed')
-            in_stock = request.POST.get('in_stock')
-            material = request.POST.get('material')
-            color = request.POST.get('color')
-            width = request.POST.get('width')
-            height = request.POST.get('height')
-            length = request.POST.get('length')
+            product_exist = Product.objects.filter(product_name__iexact = product_name).exists()
+            if product_exist:
+                messages.error(request,'Product name already exist.')
+            else:
+                product_description = request.POST.get('description')
+                price = request.POST.get('price')
+                offer_id = request.POST.get('offer')
+                category_id = request.POST.get('category')
+                available_stock = request.POST.get('available_stock')
+                image_1 = request.FILES.get('image_1')
+                image_2 = request.FILES.get('image_2')
+                image_3 = request.FILES.get('image_3')
+                is_listed = request.POST.get('is_listed')
+                in_stock = request.POST.get('in_stock')
+                material = request.POST.get('material')
+                color = request.POST.get('color')
+                width = request.POST.get('width')
+                height = request.POST.get('height')
+                length = request.POST.get('length')
+                    
+                category = Category.objects.get(id = category_id)
                 
-            category = Category.objects.get(id = category_id)
-            
-            new_product = Product(
-                product_name = product_name,
-                description = product_description,
-                price = price,
-                category = category,
-                available_stock = available_stock,
-                image_1 = image_1,
-                image_2 = image_2,
-                image_3 = image_3,
-                is_listed = is_listed,
-                in_stock = in_stock,
-                material = material,
-                color = color,
-                length = length,
-                width = width,
-                height = height,
-            )
-            if offer_id:
-                offer = Offer.objects.get(id = offer_id)
-                new_product.offer = offer
-            
-            new_product.save()
-            messages.success(request,f'New product {product_name} added.')
-            return redirect('admin_app:admin_product')
+                new_product = Product(
+                    product_name = product_name,
+                    description = product_description,
+                    price = price,
+                    category = category,
+                    available_stock = available_stock,
+                    image_1 = image_1,
+                    image_2 = image_2,
+                    image_3 = image_3,
+                    is_listed = is_listed,
+                    in_stock = in_stock,
+                    material = material,
+                    color = color,
+                    length = length,
+                    width = width,
+                    height = height,
+                )
+                if offer_id:
+                    offer = Offer.objects.get(id = offer_id)
+                    new_product.offer = offer
+                
+                new_product.save()
+                messages.success(request,f'New product {product_name} added.')
+                return redirect('admin_app:admin_product')
         categories = Category.objects.all()
         offers = Offer.objects.all()
         context = {
