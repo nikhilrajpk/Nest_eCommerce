@@ -109,7 +109,7 @@
     let imageWarning = document.getElementById('image-warning')
 
     let bannerRegex = /^[a-zA-Z -]+$/
-    let descriptionRegex = /^[a-zA-Z0-9 \.]+$/
+    let descriptionRegex = /^[a-zA-Z0-9 \.,]+$/
     let validImageRegex = /\.(jpg|jpeg|png|gif)$/i;
 
     //offer title validation
@@ -214,7 +214,10 @@
 
         //image 
         let image = bannerImage.value
-        if(!validImageRegex.test(image)){
+        if(image === ""){
+            imageWarning.style.display = "none"            
+        }
+        else if(!validImageRegex.test(image)){
             isValid =false
             imageWarning.style.display = "block"
         }

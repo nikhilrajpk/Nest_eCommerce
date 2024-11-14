@@ -179,7 +179,10 @@
         let validImageRegex = /\.(jpg|jpeg|png|gif)$/i;
     
         // Check if the selected file is a valid image
-        if (!validImageRegex.test(categoryImage)) {
+        if(categoryImage === ""){
+            imageWarning.style.display = "none";
+        }
+        else if (!validImageRegex.test(categoryImage)) {
             event.preventDefault(); // Prevent form submission
             imageWarning.style.display = "block";
             console.log("Form submission prevented: Invalid image file type."); // Debugging output

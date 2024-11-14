@@ -263,7 +263,7 @@ function cropImage() {
     let colorWarning = document.getElementById('color-warning');
 
     let productNameRegex = /^[a-zA-Z -]+$/;
-    let descriptionRegex = /^[a-zA-Z\.0-9 ]+$/;
+    let descriptionRegex = /^[a-zA-Z\.0-9 ,]+$/;
     let validImageRegex = /\.(jpg|jpeg|png|gif)$/i;
     let materialRegex = /^[a-zA-Z ]+$/;
     let colorRegex = /^[a-zA-Z ]+$/;
@@ -340,25 +340,33 @@ function cropImage() {
         }
 
         // Image validation
-        let image1 = image1Input.value;
-        let image2 = image2Input.value;
-        let image3 = image3Input.value;
-
-        if (!validImageRegex.test(image1)) {
+        let image1 = image1Input.value.trim();
+        let image2 = image2Input.value.trim();
+        let image3 = image3Input.value.trim();
+        if(image1 === ""){
+            image1Warning.style.display = "none";
+        }
+        else if (!validImageRegex.test(image1)) {
             isValid = false;
             image1Warning.style.display = "block";
         } else {
             image1Warning.style.display = "none";
         }
 
-        if (!validImageRegex.test(image2)) {
+        if(image2 === ""){
+            image2Warning.style.display = "none";
+        }
+        else if (!validImageRegex.test(image2)) {
             isValid = false;
             image2Warning.style.display = "block";
         } else {
             image2Warning.style.display = "none";
         }
-
-        if (!validImageRegex.test(image3)) {
+        
+        if(image3 === ""){
+            image3Warning.style.display = "none";
+        }
+        else if (!validImageRegex.test(image3)) {
             isValid = false;
             image3Warning.style.display = "block";
         } else {
