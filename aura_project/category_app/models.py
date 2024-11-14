@@ -6,6 +6,8 @@ from pyparsing import alphas
 from shortuuid.django_fields import ShortUUIDField
 from django.utils.html import mark_safe
 
+from offer_app.models import Offer
+
 def user_directory_path(instance, filename):
     return 'user_{0}/{1}'.format(instance.user.id, filename)
 
@@ -16,6 +18,8 @@ class Category(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_listed = models.BooleanField(default=True)
+    offer = models.ForeignKey(Offer, on_delete=models.SET_NULL, null=True, blank=True)
+    
     
     def __str__(self) -> str:
         return self.category_name

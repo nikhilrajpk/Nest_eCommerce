@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from authentication_app.models import CustomUser
 from category_app.models import *
 from product_app.models import *
@@ -148,56 +148,119 @@ def category_listed(request, id):
 
 
 @never_cache
+
 def add_category(request):
     if request.user.is_authenticated and request.user.is_staff:
+
         if request.method == 'POST':
+
             category_name = request.POST.get('category_name')
+
             category_exist = Category.objects.filter(category_name__iexact = category_name).exists()
+
             print('Category already exist or not : ',category_exist)
+
             if category_exist:
                 messages.error(request,'This category already exist!')
+
             else:
                 category_image = request.FILES.get('category_image')
+
                 is_listed = request.POST.get('available')
-                
+
+                offer = None
+
                 new_category = Category(
+
                     category_name = category_name,
+                    offer = offer,
                     cat_image = category_image,
                     is_listed = is_listed
+
                 )
-                new_category.save()
+
+                new_category.save() 
+
                 messages.success(request,f'New category {category_name} added.')
+
                 return redirect('admin_app:admin_category')
-        return render(request,'admin_app/add_category.html')
+
+        offers = Offer.objects.all()
+
+        return render(request,'admin_app/add_category.html',{'offers':offers})
+
     else:
+
         return redirect('user_app:home')
-    
+
+
 @never_cache
+
 def edit_category(request,id):
+
     if request.user.is_authenticated and request.user.is_staff:
-        category = Category.objects.get(id = id)    # Retrive data of the catgory
+
+        category = Category.objects.get(id = id)# Retrive data of the catgory
+
         if request.method == 'POST':
+
             category_name = request.POST.get('category_name')
+
+            offer_id = request.POST.get('offer')
+            print('offer_id : ',offer_id)
             category_image = request.FILES.get('category_image')
             is_listed = request.POST.get('available')
-            
+
+            if offer_id == '0' or not offer_id:
+                offer = None  # No offer selected
+            else:
+                offer = get_object_or_404(Offer, id=offer_id)
+
+            print('offer object:', offer)
+            category.offer = offer 
+
+
             category.category_name = category_name
+
             category.is_listed = is_listed
-            
+
             if category_image:
                 category.cat_image = category_image
-            
+
             category.save()
-            
+
+           
+
+            # Update products without an individual offer
+            if offer is None:  
+                products = category.product.all()  
+                for product in products:
+                    product.offer = None 
+                    product.save()
+
+            else:
+                products = category.product.filter(offer__isnull=True)  # products with no offer
+                for product in products:
+                    product.offer = offer  
+                    product.save()
+                
+
             messages.success(request,f'Category {category_name} edited.')
+
             return redirect('admin_app:admin_category')
-        return render(request,'admin_app/edit_category.html',{'category':category})
+
+        if category.offer:
+            offers = Offer.objects.all().exclude(id = category.offer.id)
+        else:
+            offers = Offer.objects.all()
+
+        return render(request,'admin_app/edit_category.html',{'category':category,'offers':offers})
+
     else:
+
         return redirect('user_app:home')
-    
-    
- # Product Details 
-    
+
+
 @never_cache
 def admin_product(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -205,7 +268,7 @@ def admin_product(request):
         if query:
             products = Product.objects.all().filter(Q(product_name__icontains = query)| Q(category__category_name__icontains = query))
         else:
-            products = Product.objects.all()
+            products = Product.objects.all().order_by('category__category_name')
         return render(request,'admin_app/product.html',{'products':products,'query':query})
     
     else:

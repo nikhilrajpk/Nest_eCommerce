@@ -3,13 +3,9 @@ from category_app.models import Category
 from authentication_app.models import CustomUser
 # Create your models here.
 
-
-class Offer(models.Model):
-    offer_title = models.CharField(max_length=255)
-    offer_description = models.TextField()
-    offer_percentage = models.IntegerField()
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+from datetime import datetime
+import pytz
+from offer_app.models import Offer
     
 
 class Product(models.Model):
@@ -22,7 +18,6 @@ class Product(models.Model):
     image_1 = models.ImageField(upload_to='products/', null=True, blank=True)
     image_2 = models.ImageField(upload_to='products/', null=True, blank=True)
     image_3 = models.ImageField(upload_to='products/', null=True, blank=True)
-    offer = models.ForeignKey(Offer,on_delete=models.SET_NULL,null=True)
     is_listed = models.BooleanField(default=True)
     in_stock = models.BooleanField(default=True)
     material = models.CharField(max_length=255, null=True, blank=True)
@@ -36,11 +31,23 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
 
+   # Set the timezone to Asia/Kolkata
+
     @property
     def discount_price(self):
-        if self.offer:
-            discount = self.price - (self.offer.offer_percentage * self.price / 100)
+        kolkata_tz = pytz.timezone('Asia/Kolkata')
+        # Get the current time in Asia/Kolkata timezone
+        now = datetime.now(kolkata_tz)
+
+        # Check for a product-specific offer first
+        applicable_offer = self.offer or self.category.offer
+
+        # Ensure the offer is valid (not expired)
+        if applicable_offer and applicable_offer.start_date <= now <= applicable_offer.end_date:
+            discount = self.price - (applicable_offer.offer_percentage * self.price / 100)
             return round(discount, 2)
+        
+        # No valid offer found, return the original price
         return self.price
     
 RATING = (

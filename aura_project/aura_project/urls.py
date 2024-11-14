@@ -35,7 +35,7 @@ urlpatterns = [
     path('',include('profile_app.urls')),
     path('',include('wallet_app.urls')),
     path('',include('wishlist_app.urls')),
-    
+    path('',include('offer_app.urls')),
     
 ]
 

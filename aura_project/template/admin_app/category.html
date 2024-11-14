@@ -53,7 +53,7 @@
 </style>
 
 <div class="container mt-5">
-    <br><br><br>
+    
     <div class="col-sm-5" id="tdiv">
         <h2 class="mb-4">Category</h2>
         <form action="" method="get">
@@ -63,7 +63,7 @@
         <a href="{% url 'admin_app:add_category' %}">
             <button id="search_btn" type="button" style="margin-left: 50rem; transform: translateY(-2rem);">Add</button>
         </a>
-    </div>
+    </div><br>
     <a href="{% url 'admin_app:top_selling_category' %}" style="text-decoration: none;"><button class="btn btn-outline-danger">Top selling category</button></a><br>
 
     <!-- alert box  -->
@@ -81,12 +81,13 @@
         }, 3000)
     </script>
     <br><br>
-    <div style="max-height: 280px; overflow-y: auto; transform: translateY(-2rem); scroll-behavior: smooth;">
+    <div style="max-height: 330px; overflow-y: auto; transform: translateY(-2rem); scroll-behavior: smooth;">
     <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
                 <th scope="col">Category</th>
                 <th scope="col">Image</th>
+                <th scope="col">Offer</th>
                 <th scope="col">Action</th>
                 <th scope="col">Available</th>
             </tr>
@@ -96,6 +97,9 @@
             <tr id="category-row-{{ cat.id }}">
                 <td>{{ cat.category_name }}</td>
                 <td><img src="{{ cat.cat_image.url }}" alt="{{ cat.category_name }}" width="50" height="50"></td>
+                <td>
+                    {{cat.offer.offer_title}}
+                </td>
                 <td>
                     <a href="{% url 'admin_app:edit_category' cat.id %}">
                         <button class="unlist-btn" type="button">Edit</button>

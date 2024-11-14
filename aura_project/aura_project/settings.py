@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'profile_app',
     'wallet_app',
     'wishlist_app',
-    
+    'offer_app',
     
     
     # Google sign in 

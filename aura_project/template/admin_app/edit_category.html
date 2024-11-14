@@ -71,6 +71,25 @@
                 </div>
             </div>
 
+
+            <div class="mb-3">
+                <label for="offer" class="form-label">Offer:</label>
+                <select class="form-select" id="offer" name="offer">
+                    {% if category.offer %}
+                        <option value="{{ category.offer.id }}">{{category.offer.offer_title}}</option>
+                        <option value="0">None</option>
+                        {% for offer in offers %}
+                            <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">None</option>
+                        {% for offer in offers %}
+                            <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+
             <div class="mb-3">
                 <label for="available" class="form-label">Available:</label>
                 {% if category.is_listed %}
