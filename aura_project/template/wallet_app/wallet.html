@@ -35,7 +35,8 @@
             <table class="table table-bordered">
                 <thead class="thead-light">
                     <tr>
-                        <th>Number</th>
+                        <th>No</th>
+                        <th>Transaction Id</th>
                         <th>Amount</th>
                         <th>Type</th>
                         <th>Date</th>
@@ -44,6 +45,7 @@
                 <tbody id="transactionTable">
                     {% for transaction in wallet_transactions %}
                     <tr>
+                        <td>{{ forloop.counter }}</td>
                         <td>{{transaction.id}}</td>
                         <td>₹{{transaction.amount}}</td>
                         <td>{{transaction.transaction_type}}</td>

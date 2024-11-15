@@ -57,11 +57,12 @@
                                 },3000)
                             </script>
 
-                            <form class="row contact_form" action="" method="post" novalidate="novalidate">
+                            <form id="login-form" class="row contact_form" action="" method="post" novalidate="novalidate">
                                 {% csrf_token %}
                                 <div class="col-md-12 form-group p_star">
-                                    <input type="email" class="form-control"  name="email" value="{{email}}"
+                                    <input type="email" class="form-control" id="email" name="email" value="{{email}}"
                                         placeholder="Email" required>
+                                    <div id="email-warning" style="display:none; color: red;">Please enter a valid Email.</div>
                                 </div>
                                 <div class="col-md-12 form-group p_star">
                                     <input type="password" class="form-control" id="password" name="password" 
@@ -94,5 +95,45 @@
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
   crossorigin="anonymous"></script>
     <!--================login_part end =================-->
+
+<!-- form validation -->
+ <script>
+    let loginForm = document.getElementById('login-form')
+
+    let emailInput = document.getElementById('email')
+    let emailWarning = document.getElementById('email-warning')
+
+    let emailRegex = /^[a-zA-Z0-9\._%+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z]{2,}$/;
+
+    //email
+    emailInput.addEventListener('input',function(){
+        let email=emailInput.value.trim()
+        if(!emailRegex.test(email) || email === ""){
+            emailWarning.style.display = "block"
+        }
+        else{
+            emailWarning.style.display = "none"
+        };
+    });
+
+    // form submission validation
+    loginForm.addEventListener('submit',function(e){
+        isValid = true
+
+        //email
+        let email=emailInput.value.trim()
+        if(!emailRegex.test(email) || email === ""){
+            isValid = false
+            emailWarning.style.display = "block"
+        }
+        else{
+            emailWarning.style.display = "none"
+        };
+
+        if(!isValid){
+            e.preventDefault()
+        }
+    });
+ </script>
 
     {% endblock content %}

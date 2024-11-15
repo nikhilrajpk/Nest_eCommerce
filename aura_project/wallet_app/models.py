@@ -13,7 +13,7 @@ class WalletTransation(models.Model):
         ('refund', 'Refund'),
         ('cancellation', 'Cancellation'),
         ('debited', 'Debited'),
-        
+        ('referral','Referral'),
     ]
 
     wallet = models.ForeignKey(Wallet,on_delete=models.CASCADE,related_name='transactions')

@@ -91,28 +91,31 @@
                                 {% endif %} -->
 
 
-                            <form class="row contact_form" action="" method="post" novalidate="novalidate">
+                            <form id="signup-form" class="row contact_form" action="" method="post" novalidate="novalidate">
                                 {% csrf_token %}
                                 <div class="col-md-12 form-group ">
-                                    <input type="email" class="form-control {% if errors.email_error %}is-invalid{% endif %}" name="email"  placeholder="Email" value="{{email}}" required>
+                                    <input type="email" class="form-control {% if errors.email_error %}is-invalid{% endif %}" id="email" name="email"  placeholder="Email*" value="{{email}}" required>
+                                    <div id="email-warning" style="display:none; color: red;">Please enter a valid Email.</div>
                                     {% if errors.email_error %}
                                         <div class="invalid-feedback">{{ errors.email_error }}</div>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <input type="text" class="form-control {% if errors.first_name_error %}is-invalid{% endif %}" name="first_name"  placeholder="First name" value="{{first_name}}" required>
+                                    <input type="text" class="form-control {% if errors.first_name_error %}is-invalid{% endif %}" id="first-name" name="first_name"  placeholder="First name*" value="{{first_name}}" required>
+                                    <div id="first-warning" style="display:none; color: red;">Please enter a valid first name.First name only contains letters.</div>
                                     {% if errors.first_name_error %}
                                         <div class="invalid-feedback">{{ errors.first_name_error }}</div>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <input type="text" class="form-control {% if errors.last_name_error %}is-invalid{% endif %}" name="last_name"  placeholder="Last name" value="{{last_name}}" required>
+                                    <input type="text" class="form-control {% if errors.last_name_error %}is-invalid{% endif %}" id="last-name" name="last_name"  placeholder="Last name*" value="{{last_name}}" required>
+                                    <div id="last-warning" style="display:none; color: red;">Please enter a valid last name.Last name only contains letters.</div>
                                     {% if errors.last_name_error %}
                                         <div class="invalid-feedback">{{ errors.last_name_error }}</div>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <input type="password" class="form-control {% if errors.password_error %}is-invalid{% endif %}" name="password"  placeholder="password" required>
+                                    <input type="password" class="form-control {% if errors.password_error %}is-invalid{% endif %}" name="password"  placeholder="password*" required>
                                     {% if errors.password_error %}
                                         {% for error in errors.password_error %}
                                             <div class="invalid-feedback">{{ error }}</div>
@@ -120,9 +123,16 @@
                                     {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <input type="password" class="form-control {% if errors.password_mismatch %}is-invalid{% endif %}" name="confirm_password"  placeholder="Confirm password" required>
+                                    <input type="password" class="form-control {% if errors.password_mismatch %}is-invalid{% endif %}" name="confirm_password"  placeholder="Confirm password*" required>
                                     {% if errors.password_mismatch %}
                                         <div class="invalid-feedback">{{ errors.password_mismatch }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12 form-group">
+                                    <input type="text" class="form-control {% if errors.referral_error %}is-invalid{% endif %}" id="referral-code" name="referral_code"  placeholder="Referral code" value="{{referral_code}}">
+                                    <div id="referral-warning" style="display:none; color: red;">Referral code doesn't match. Enter correct code.</div>
+                                    {% if errors.referral_error %}
+                                        <div class="invalid-feedback">{{ errors.referral_error }}</div>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-12 form-group">
@@ -142,4 +152,108 @@
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
   crossorigin="anonymous"></script>
     <!--================sign_up_part end =================-->
+
+    <!-- Form validation -->
+<script>
+    let signupForm = document.getElementById('signup-form')
+
+    let emailInput = document.getElementById('email')
+    let emailWarning = document.getElementById('email-warning')
+
+    let firstInput = document.getElementById('first-name')
+    let firstWarning = document.getElementById('first-warning')
+
+    let lastInput = document.getElementById('last-name')
+    let lastWarning = document.getElementById('last-warning')
+
+    let referralInput = document.getElementById('referral-code')
+    let referralWarning = document.getElementById('referral-warning')
+
+    let emailRegex = /^[a-zA-Z0-9\._%+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z]{2,}$/;
+    let firstRegex = /^[a-zA-Z ]+$/
+    let lastRegex = /^[a-zA-Z ]+$/
+
+    //email
+    emailInput.addEventListener('input',function(){
+        let email=emailInput.value.trim()
+        if(!emailRegex.test(email) || email === ""){
+            emailWarning.style.display = "block"
+        }
+        else{
+            emailWarning.style.display = "none"
+        };
+    });
+
+    // first name
+    firstInput.addEventListener('input',function(){
+        let firstName = firstInput.value.trim()
+        if(!firstRegex.test(firstName) || firstName === ""){
+            firstWarning.style.display = "block"
+        }
+        else{
+            firstWarning.style.display = "none"
+        };
+    });
+
+    // last name
+    lastInput.addEventListener('input',function(){
+        let lastName = lastInput.value.trim()
+        if(!lastRegex.test(lastName) || lastName === ""){
+            lastWarning.style.display = "block"
+        }
+        else{
+            lastWarning.style.display = "none"
+        };
+    });
+
+    // form submission validation
+    signupForm.addEventListener('submit',function(e){
+        isValid = true
+
+        //email
+        let email=emailInput.value.trim()
+        if(!emailRegex.test(email) || email === ""){
+            isValid = false
+            emailWarning.style.display = "block"
+        }
+        else{
+            emailWarning.style.display = "none"
+        };
+
+        //first name
+        let firstName = firstInput.value.trim()
+        if(!firstRegex.test(firstName) || firstName === ""){
+            isValid = false
+            firstWarning.style.display = "block"
+        }
+        else{
+            firstWarning.style.display = "none"
+        };
+
+        //last name
+        let lastName = lastInput.value.trim()
+        if(!lastRegex.test(lastName) || lastName === ""){
+            isValid = false
+            lastWarning.style.display = "block"
+        }
+        else{
+            lastWarning.style.display = "none"
+        };        
+
+        if(!isValid){
+            e.preventDefault()
+        }
+    });
+
+
+    //referral code error.
+    if(referralInput.classList.contains("is-invalid")){
+        referralWarning.style.display = "block"
+    }
+    else{
+        referralWarning.style.display = "none"
+    };
+
+
+</script>
     {% endblock content %}

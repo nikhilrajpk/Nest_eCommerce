@@ -3,7 +3,9 @@ from django.contrib.auth import get_user_model
 # from .forms import UserRegisterForm
 from django.contrib import messages
 from django.contrib.auth import login,authenticate,logout
-from .models import CustomUser
+from .models import CustomUser,UserReferral
+from wallet_app.models import *
+from django.db.models import F
 from .validators import Authentication_check
 
 from django.views.decorators.cache import never_cache
@@ -65,6 +67,8 @@ def register_view(request):
         last_name = request.POST.get('last_name')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
+        referral_code = request.POST.get('referral_code')
+        
         
         # Setting the token to access the verify_otp view
         request.session['otp_verification_allowed'] = True
@@ -72,12 +76,23 @@ def register_view(request):
         # validating the request data
         errors = validation_view(request,email,first_name,last_name,password,confirm_password)    
         
+        if referral_code:
+            try:
+                # Check if referral code exists in the UserReferral model
+                referral = UserReferral.objects.get(referral_code=referral_code)
+                request.session['referral_code'] = referral_code
+            except UserReferral.DoesNotExist:
+                # If referral code is invalid, add an error message
+                errors['referral_error'] = "Invalid referral code. Please check and try again."
+
+            
         if errors:
             context = {
                 'errors' : errors,
                 'email' : email,
                 'first_name' : first_name,
                 'last_name' : last_name,
+                'referral_code' : referral_code,
             }
             
             return render(request,'authentication_app/sign_up.html', context)
@@ -163,10 +178,12 @@ def verify_otp(request):
         session_email = request.session.get('registered_email')
         otp_secret_key = request.session['otp_secret_key']
         otp_valid_until = request.session['otp_valid_date']
+        referral_code = request.session['referral_code']
         print(session_otp)
         print(session_email)
         print(otp_secret_key)
         print(otp_valid_until)
+        print(referral_code)
         
         
         # Ensure all necessary session data exists
@@ -194,11 +211,48 @@ def verify_otp(request):
             user.is_active = True
             user.save()
             
+            # Creating referral code for the new user.
+            new_referral_code = generate_referral_code(user.id)
+            print('New user referral code: ',new_referral_code)
+            UserReferral.objects.create(
+                user=user,
+                referral_code = new_referral_code,
+            )
+            
+            if referral_code:
+                try:
+                    # If signup is using a referral code, credit both users
+                    # Creating/Updating wallet for the new user
+                    wallet, created = Wallet.objects.get_or_create(user=user)
+                    
+                    WalletTransation.objects.create(
+                        wallet=wallet,
+                        transaction_type='referral',
+                        amount=1000,  # Amount for the referral reward
+                    )
+                    wallet.balance = F('balance') + 1000
+                    wallet.save()
+
+                    # Credit referrer’s wallet
+                    referred_user = UserReferral.objects.get(referral_code=referral_code)
+                    referrer_wallet, created = Wallet.objects.get_or_create(user=referred_user.user)
+                    WalletTransation.objects.create(
+                        wallet=referrer_wallet,
+                        transaction_type='referral',
+                        amount=1000,
+                    )
+                    referrer_wallet.balance = F('balance') + 1000
+                    referrer_wallet.save()
+
+                except UserReferral.DoesNotExist:
+                    messages.error(request, "Invalid referral code.")
+            
             # Clear the OTP session
             del request.session['registration_otp']
             del request.session['registered_email']
             del request.session['otp_secret_key']
             del request.session['otp_valid_date']
+            del request.session['referral_code']
             
             # Clearing the otp_verification_allowed 
             del request.session['otp_verification_allowed']
@@ -214,6 +268,15 @@ def verify_otp(request):
         expiry_time = now() + timedelta(minutes=3)
         context = {'expiry_time': expiry_time}
         return render(request, 'authentication_app/verify_otp.html',context)
+    
+    
+import hashlib
+
+def generate_referral_code(user_id, salt="my_secret_salt"):
+    hash_input = f"{user_id}{salt}".encode()
+    code = hashlib.md5(hash_input).hexdigest()[:6].upper()  # Take first 8 characters
+    return code
+
 
 @never_cache
 def resend_otp_view(request):
