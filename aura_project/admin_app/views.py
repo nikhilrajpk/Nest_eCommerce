@@ -128,7 +128,13 @@ def admin_category(request):
         if query:
             category = Category.objects.all().filter(category_name__icontains = query)
         else:
-            category = Category.objects.all()
+            category = Category.objects.all().order_by('category_name')
+        for i in category:
+            if i.offer and i.offer.end_date < timezone.now():
+                i.offer = None
+                i.product.all().update(offer=None)
+                i.save()
+            
         return render(request,'admin_app/category.html',{'category':category,'query':query})
     
     else:
@@ -185,7 +191,7 @@ def add_category(request):
 
                 return redirect('admin_app:admin_category')
 
-        offers = Offer.objects.all()
+        offers = Offer.objects.exclude(end_date__lt = timezone.now())
 
         return render(request,'admin_app/add_category.html',{'offers':offers})
 
@@ -250,9 +256,10 @@ def edit_category(request,id):
             return redirect('admin_app:admin_category')
 
         if category.offer:
-            offers = Offer.objects.all().exclude(id = category.offer.id)
+            offers = Offer.objects.exclude(id = category.offer.id)
+            offers = offers.exclude( end_date__lt = timezone.now())
         else:
-            offers = Offer.objects.all()
+            offers = Offer.objects.exclude(end_date__lt = timezone.now())
 
         return render(request,'admin_app/edit_category.html',{'category':category,'offers':offers})
 
@@ -269,6 +276,13 @@ def admin_product(request):
             products = Product.objects.all().filter(Q(product_name__icontains = query)| Q(category__category_name__icontains = query))
         else:
             products = Product.objects.all().order_by('category__category_name')
+            
+        for i in products:
+            if i.offer and i.offer.end_date < timezone.now():
+                i.offer = None
+                i.category.offer = None
+                i.save()
+                
         return render(request,'admin_app/product.html',{'products':products,'query':query})
     
     else:
@@ -338,7 +352,7 @@ def add_product(request):
                 messages.success(request,f'New product {product_name} added.')
                 return redirect('admin_app:admin_product')
         categories = Category.objects.all()
-        offers = Offer.objects.all()
+        offers = Offer.objects.exclude(end_date__lt = timezone.now())
         context = {
             'categories' : categories,
             'offers' : offers
@@ -407,8 +421,9 @@ def edit_product(request,id):
         categories = Category.objects.all().exclude(id = product.category.id)
         if product.offer:
             offers = Offer.objects.all().exclude(id = product.offer.id)
+            offers = offers.exclude(end_date__lt=timezone.now())
         else:
-            offers = Offer.objects.all()
+            offers = Offer.objects.exclude(end_date__lt=timezone.now())
         context = {
             'product':product,
             'categories' : categories,
