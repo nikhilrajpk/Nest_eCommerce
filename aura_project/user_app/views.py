@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.shortcuts import render,redirect
 from product_app.models import *
 from authentication_app.models import *
@@ -10,66 +11,16 @@ from django.db.models import Q
 
 from django.core.paginator import Paginator
 
-# def home(request):
-#     if request.user.is_authenticated and request.user.is_staff:
-#         return redirect('admin_app:admin_home')
-    
-#     banners = Banner.objects.all()
-    
-#     latest_products = Product.objects.all().order_by('-id')[:4]
-    
-#     best_sellers = Product.objects.all().order_by('-sold_count')[:8]
-    
-#     # Paginator for the products
-#     page = 1
-#     if request.GET:
-#         page = request.GET.get('page',1)
-
-#     query = request.GET.get('search_query','')
-    
-#     if query:
-#         request.session['is_searched'] = True
-#         request.session['query'] = query
-#         products = Product.objects.filter(Q(product_name__icontains = query) | Q(category__category_name__icontains = query))
-    
-#         print(query,request.session['is_searched'],1)
-#     else:    
-#         query = request.session.get('query')
-#         print(query,request.session['is_searched'],2)
-#         # Sorting with price or name
-#         sort_with = 'product_name'
-#         is_searched = request.session.get('is_searched',False)
-#         if request.method == 'POST':
-#             sort_with = request.POST.get('sort_with')
-#             request.session['sort_with'] = sort_with
-#             print(sort_with)
-#         sort_with = request.session.get('sort_with','product_name')
-#         if is_searched and query:
-#             products = Product.objects.all().order_by(sort_with).filter(Q(product_name__icontains = query)|Q(category__category_name__icontains = query))
-#         else:
-#             products = Product.objects.all().order_by(sort_with)
-#         print(sort_with,'hai')
-        
-#     # products = Product.objects.all()
-#     product_paginator = Paginator(products,8)
-#     products = product_paginator.get_page(page)
-        
-#     context = {
-#         'banners':banners,
-#         'latest_products':latest_products,
-#         'products':products,
-#         'best_sellers':best_sellers,
-#         'query':query,
-#     }
-#     return render(request,'user_app/index.html',context)
-
 def home(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
     if request.user.is_authenticated and request.user.is_block:
         return redirect('authentication_app:logout')
     
-    banners = Banner.objects.all()
+    print(timezone.localtime(timezone.now()))
+    now = timezone.now()
+    banners = Banner.objects.exclude(end_date__lt = now)
+    
     latest_products = Product.objects.all().order_by('-id')[:4]
     best_sellers = Product.objects.all().order_by('-sold_count')[:8]
     products = Product.objects.all()

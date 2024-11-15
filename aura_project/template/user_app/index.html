@@ -56,7 +56,7 @@
                                             {% if not banner.product.is_listed or not banner.product.category.is_listed or banner.product.available_stock == 0 %}
                                                 <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3>
                                             {% else %}
-                                                <a href="{%url 'product_app:single_product' banner.product.id %}" class="btn_2">Buy Now</a>
+                                                <a href="{%url 'product_app:single_product' banner.product.id %}?deal_price={{banner.deal_price}}" class="btn_2">Buy Now</a>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -211,21 +211,22 @@
                                         </div>
                                     </div>
                                 {% else %}
-                                    <a href="{% url 'product_app:single_product' product.id %}">
+                                    <a href="{% url 'product_app:single_product' product.id %}" style="text-decoration: none;">
                                     <div class="col-lg-3 col-sm-6">
                                             <div class="single_product_item" style="height: 30rem;">
                                                 <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
-                                                <div class="single_product_text">
-                                                    <h4>{{product.product_name}}</h4>
+                                                
+                                                    <h5>{{product.product_name}}</h5>
                                                     {% if product.offer %}
-                                                        <h3><del>{{product.price}} Rs</del></h3>
-                                                        <h3>{{product.discount_price}} Rs</h3>
+                                                        <h5><del>{{product.price}} Rs</del></h5>
+                                                        <h5>{{product.discount_price}} Rs</h5>
                                                     {% else %}
-                                                        <h3>{{product.price}} Rs</h3>
+                                                        <h5>{{product.price}} Rs</h5>
                                                     {% endif %}
+                                                    <div class="single_product_text">
                                                     <div id="wishlistLogoProduct">
-                                                        <a href="#" class="add-to-cart" data-product-id="{{ product.id }}">+ Add to cart</a>
-                                                    <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}">
+                                                        <a href="#" class="add-to-cart" data-product-id="{{ product.id }}" style="text-decoration: none;">+ Add to cart</a>
+                                                    <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}" style="text-decoration: none;">
                                                         <i class="ti-heart"></i> 
                                                     </a>
                                                     </div>
@@ -428,7 +429,7 @@
                                 {% endfor %} -->
                                         {% for best_seller in best_sellers %}
                                         {% if best_seller.is_listed and best_seller.category.is_listed and best_seller.available_stock > 0 %}
-                                        <a href="{% url 'product_app:single_product' best_seller.id %}">
+                                        <a href="{% url 'product_app:single_product' best_seller.id %}" style="text-decoration: none;">
                                             <div class="single_product_item">
                                                 <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
                                                 <div class="single_product_text">
