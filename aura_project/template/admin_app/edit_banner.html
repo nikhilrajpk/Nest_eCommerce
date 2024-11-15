@@ -1,6 +1,7 @@
 {% extends 'admin_app/admin_base.html' %}
 {% load static %}
 {% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
 <br><br>
 <!-- breadcrumbs start-->
 <nav aria-label="breadcrumb">
@@ -36,8 +37,29 @@
                     </div>
                 {% endif %}
 
-                <input type="file" class="form-control" id="banner-image" name="banner_image" accept=".jpg, .jpeg, .png, .gif">
+                <input type="file" class="form-control image-input" id="banner-image" name="banner_image" accept=".jpg, .jpeg, .png, .gif">
                 <div id="image-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
+            </div>
+
+            <!-- Modal for cropping -->
+            <div id="cropperModal" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Crop Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                    <img id="cropperImage" src="" alt="Crop Image Preview" style="max-width: 100%;">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+                </div>
             </div>
 
             <div class="mb-3">
@@ -57,7 +79,7 @@
         </form>
     </div>
 <br><br>
-
+<!-- form validation -->
 <script>
     let bannerForm = document.getElementById('banner-form')
 
@@ -181,4 +203,74 @@
         };
     });
 </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+        let activeInput;
+        
+        document.querySelectorAll('.image-input').forEach(input => {
+          input.addEventListener('change', function () {
+            const file = this.files[0];
+            activeInput = this; // Store reference to the active input
+        
+            if (file) {
+              const reader = new FileReader();
+        
+              reader.onload = function (e) {
+                const cropperImage = document.getElementById('cropperImage');
+                cropperImage.src = e.target.result;
+        
+                // Show the modal
+                $('#cropperModal').modal('show');
+        
+                // Destroy any previous instance of Cropper
+                if (cropper) {
+                  cropper.destroy();
+                }
+        
+                // Initialize Cropper.js
+                cropper = new Cropper(cropperImage, {
+                  aspectRatio: 1,
+                  viewMode: 1,
+                  autoCropArea: 1,
+                  responsive: true,
+                });
+              };
+        
+              reader.readAsDataURL(file);
+            }
+          });
+        });
+        
+        function cropImage() {
+          if (cropper && activeInput) {
+            const canvas = cropper.getCroppedCanvas();
+        
+            if (canvas) {
+              canvas.toBlob((blob) => {
+                const croppedFile = new File([blob], 'cropped_image.png', { type: 'image/png' });
+        
+                // Replace the original input file with the cropped image
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(croppedFile);
+                activeInput.files = dataTransfer.files;
+        
+                // Hide the modal
+                $('#cropperModal').modal('hide');
+              }, 'image/png');
+            }
+          }
+        }
+        
+        // Reset Cropper when the modal is closed
+        $('#cropperModal').on('hidden.bs.modal', function () {
+          if (cropper) {
+            cropper.destroy();
+            cropper = null;
+          }
+        });
+        
+    </script>
 {% endblock content %}
