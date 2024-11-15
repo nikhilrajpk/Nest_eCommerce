@@ -72,10 +72,6 @@ class ProductReview(models.Model):
 class Banner(models.Model):
     banner_name = models.CharField(max_length=255)
     banner_description = models.TextField()
-    product = models.OneToOneField(Product,on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    deal_price = models.DecimalField(max_digits=10, decimal_places=2)
     banner_image = models.ImageField(upload_to='banner/')
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    is_listed = models.BooleanField(default=True)

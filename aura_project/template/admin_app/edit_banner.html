@@ -27,33 +27,6 @@
             </div>
 
             <div class="mb-3">
-                <label for="product" class="form-label">Product:</label>
-                <select class="form-select" id="product" name="product_id" required>
-                    {% if banner.product %}
-                    <option value="{{ banner.product.id }}">{{ banner.product.product_name }}</option>
-                    {% for product in products %}
-                        <option value="{{ product.id }}">{{ product.product_name }}</option>
-                    {% endfor %}
-                    {% else %}
-                        {% for product in products %}
-                            <option value="{{ product.id }}">{{ product.product_name }}</option>
-                        {% endfor %}
-                    {% endif %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="price" class="form-label">Price:</label>
-                <input type="number" step="0.01" class="form-control" id="price" name="price" required value="{{banner.price}}">
-            </div>
-
-            <div class="mb-3">
-                <label for="deal-price" class="form-label">Deal price:</label>
-                <input type="number" step="0.01" class="form-control" id="deal-price" name="deal_price" required value="{{banner.deal_price}}">
-                <div id="deal-warning" style="display:none; color: red;">Deal price cannot be greater than price.</div>
-            </div>
-
-            <div class="mb-3">
                 <label for="banner-image" class="form-label">Banner Image:</label>
 
                 <!-- Image Preview -->
@@ -99,11 +72,6 @@
     let endDateInput = document.getElementById('end-date')
     let endDateWarningPast = document.getElementById('end-date-warning-past')
     let endDateWarningStart = document.getElementById('end-date-warning-start')
-
-    let priceInput = document.getElementById('price')
-
-    let dealPriceInput = document.getElementById('deal-price')
-    let dealWarning = document.getElementById('deal-warning')
 
     let bannerImage = document.getElementById('banner-image')
     let imageWarning = document.getElementById('image-warning')
@@ -151,13 +119,6 @@
             endDateWarningStart.style.display = "none"
         }
     });
-    //deal price validation
-    dealPriceInput.addEventListener('input',function(){
-        let dealPrice = parseFloat(dealPriceInput.value)
-        let price = parseFloat(priceInput.value)
-
-        dealWarning.style.display = (dealPrice > price)? "block":"none";
-    })
 
     // form submission checking
     bannerForm.addEventListener('submit',function(e){
@@ -201,16 +162,6 @@
             endDateWarningStart.style.display = "none"
         }
 
-        //deal price
-        let dealPrice = parseFloat(dealPriceInput.value)
-        let price = parseFloat(priceInput.value)
-        if(dealPrice > price){
-            isValid = false
-            dealWarning.style.display = "block"
-        }
-        else{
-            dealWarning.style.display = "none"
-        }
 
         //image 
         let image = bannerImage.value

@@ -579,21 +579,13 @@ def add_banner(request):
         if request.method == 'POST':
             banner_name = request.POST.get('banner_name')
             description = request.POST.get('description')
-            product_id = request.POST.get('product_id')
-            price = request.POST.get('price')
-            deal_price = request.POST.get('deal_price')
             banner_image = request.FILES.get('banner_image')
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
-            print(product_id)
-            product = Product.objects.get(id = product_id)
             
             new_banner = Banner(
                 banner_name = banner_name,
                 banner_description = description,
-                product = product,
-                price = price,
-                deal_price = deal_price,
                 banner_image = banner_image,
                 start_date = start_date,
                 end_date = end_date,
@@ -603,13 +595,8 @@ def add_banner(request):
             messages.success(request,f'New banner {banner_name} added.')
             return redirect('admin_app:admin_banner')
         
-        products = Product.objects.all()
         
-        context = {
-            'products':products,
-        }
-        
-        return render(request,'admin_app/add_banner.html',context)
+        return render(request,'admin_app/add_banner.html')
     else:
         return redirect('user_app:home')
 
@@ -620,20 +607,13 @@ def edit_banner(request,id):
         if request.method == 'POST':
             banner_name = request.POST.get('banner_name')
             description = request.POST.get('description')
-            product_id = request.POST.get('product_id')
-            price = request.POST.get('price')
-            deal_price = request.POST.get('deal_price')
             banner_image = request.FILES.get('banner_image')
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
             
-            product = Product.objects.get(id = product_id)
             
             banner.banner_name = banner_name
             banner.banner_description = description
-            banner.product = product
-            banner.price = price
-            banner.deal_price = deal_price
             banner.start_date = start_date
             banner.end_date = end_date
             
@@ -645,11 +625,9 @@ def edit_banner(request,id):
             messages.success(request,f' banner {banner_name} edited.')
             return redirect('admin_app:admin_banner')
         
-        products = Product.objects.exclude(id = banner.product.id)
         
         context = {
             'banner':banner,
-            'products':products,
         }
         
         return render(request,'admin_app/edit_banner.html',context)

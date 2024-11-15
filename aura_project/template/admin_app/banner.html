@@ -52,9 +52,8 @@
     }
 </style>
 <div class="container mt-5">
-    <br><br><br>
     <div class="col-sm-5" id="tdiv">
-            <h2 class="mb-4">Offer</h2>
+            <h2 class="mb-4">Banner</h2>
             <form action="" method="get"">
                 <input id="search" type="search" name="search_query" placeholder="Search banner..." {% if query %} value="{{query}}" {% endif %} >
                 <button id="search_btn" type="submit">Search</button>
@@ -77,14 +76,13 @@
         },3000)
     </script>
     <div class="table-responsive">
+        <br><br>
     <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
         <thead class="table-dark">
             <tr>
                 <th scope="col">Banner name</th>
-                <th scope="col">Product name</th>
+                <th scope="col">Description</th>
                 <th scope="col">Image</th>
-                <th scope="col">Price</th>
-                <th scope="col">Dealprice</th>
                 <th scope="col">Start date</th>
                 <th scope="col">End date</th>
                 <th scope="col">Action</th>
@@ -95,11 +93,8 @@
             {% for banner in banners %}
             <tr>
                 <td>{{banner.banner_name}}</td>
-                <td>{{banner.product.product_name}}</td>
-                <td><img src="{{banner.banner_image.url}}" alt="{{banner.banner_name}}" width="50" height="50">
-                </td>
-                <td>{{banner.price}}</td>
-                <td>{{banner.deal_price}}</td>
+                <td>{{banner.banner_description}}</td>
+                <td><img src="{{banner.banner_image.url}}" alt="{{banner.banner_name}}" width="50" height="50"></td>
                 <td>{{banner.start_date}}</td>
                 <td>{{banner.end_date}}</td>
                 <td>

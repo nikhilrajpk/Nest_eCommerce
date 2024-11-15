@@ -26,31 +26,32 @@
                 <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
             </div>
 
-            <div class="mb-3">
-                <label for="product" class="form-label">Product:</label>
-                <select class="form-select" id="product" name="product_id" required>
-    
-                    {% for product in products %}
-                        <option value="{{product.id}}">{{ product.product_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="price" class="form-label">Price:</label>
-                <input type="number" step="0.01" class="form-control" id="price" name="price" min="1" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="deal-price" class="form-label">Deal price:</label>
-                <input type="number" step="0.01" class="form-control" id="deal-price" name="deal_price" min="1" required>
-                <div id="deal-warning" style="display:none; color: red;">Deal price cannot be greater than price.</div>
-            </div>
 
             <div class="mb-3">
                 <label for="banner-image" class="form-label">Banner Image:</label>
-                <input type="file" class="form-control" id="banner-image" name="banner_image" accept=".jpg, .jpeg, .png, .gif" required>
+                <input type="file" class="form-control image-input" id="banner-image" name="banner_image" accept=".jpg, .jpeg, .png, .gif" required>
                 <div id="image-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
+            </div>
+
+            <!-- Modal for cropping -->
+            <div id="cropperModal" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Crop Image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                    <img id="cropperImage" src="" alt="Crop Image Preview" style="max-width: 100%;">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+                </div>
             </div>
 
             <div class="mb-3">
@@ -86,10 +87,6 @@
     let endDateWarningPast = document.getElementById('end-date-warning-past')
     let endDateWarningStart = document.getElementById('end-date-warning-start')
 
-    let priceInput = document.getElementById('price')
-
-    let dealPriceInput = document.getElementById('deal-price')
-    let dealWarning = document.getElementById('deal-warning')
 
     let bannerImage = document.getElementById('banner-image')
     let imageWarning = document.getElementById('image-warning')
@@ -137,13 +134,6 @@
             endDateWarningStart.style.display = "none"
         }
     });
-    //deal price validation
-    dealPriceInput.addEventListener('input',function(){
-        let dealPrice = parseFloat(dealPriceInput.value)
-        let price = parseFloat(priceInput.value)
-
-        dealWarning.style.display = (dealPrice > price)? "block":"none";
-    })
 
     // form submission checking
     bannerForm.addEventListener('submit',function(e){
@@ -187,17 +177,6 @@
             endDateWarningStart.style.display = "none"
         }
 
-        //deal price
-        let dealPrice = parseFloat(dealPriceInput.value)
-        let price = parseFloat(priceInput.value)
-        if(dealPrice > price){
-            isValid = false
-            dealWarning.style.display = "block"
-        }
-        else{
-            dealWarning.style.display = "none"
-        }
-
         //image 
         let image = bannerImage.value
         if(!validImageRegex.test(image)){
@@ -213,4 +192,48 @@
         };
     });
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+    let activeInput;
+    
+    document.querySelectorAll('.image-input').forEach(input => {
+      input.addEventListener('change', function() {
+        const file = this.files[0];
+        activeInput = this;  // Store reference to the active input
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            document.getElementById('cropperImage').src = e.target.result;
+            $('#cropperModal').modal('show');
+    
+            if (cropper) {
+              cropper.destroy();
+            }
+    
+            cropper = new Cropper(document.getElementById('cropperImage'), {
+              aspectRatio: 1,
+              viewMode: 1,
+            });
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+    
+    function cropImage() {
+      if (cropper && activeInput) {
+        const canvas = cropper.getCroppedCanvas();
+        canvas.toBlob((blob) => {
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(new File([blob], 'cropped_image.png', { type: 'image/png' }));
+          activeInput.files = dataTransfer.files;
+    
+          $('#cropperModal').modal('hide');
+        });
+      }
+    }
+    
+    </script>
 {% endblock content %}
