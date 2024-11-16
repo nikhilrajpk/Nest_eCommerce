@@ -56,6 +56,12 @@ def confirm_order(request):
                 item.product.category.offer = None
                 item.save()
                 
+            # Check if quantity exceeds available stock
+            if item.quantity > item.product.available_stock:
+                item.quantity = item.product.available_stock
+                item.save()
+                messages.warning(request, f'Quantity for {item.product.product_name} has been adjusted to match available stock ({item.product.available_stock}).')
+                
             if item.product.offer:
                 item.total_price = item.product.discount_price * item.quantity
             else:
