@@ -42,19 +42,26 @@ def confirm_order(request):
     cart_items_with_prices = []
     # Calculate the total price for each item
     for item in cart_items:
-        # removing offers if it expires 
-        if item.product.offer and item.product.offer.end_date < timezone.now():
-            messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
-            item.product.offer = None
-            item.product.category.offer = None
-            item.save()
-            
-        if item.product.offer:
-            item.total_price = item.product.discount_price * item.quantity
+        # checking if item and category is listed
+        if not item.product.is_listed or not item.product.category.is_listed:
+            # Set SweetAlert message in session
+            request.session['swal_message'] = f"{item.product.product_name} is unavailable now. You need to remove it to proceed."
+            request.session['swal_icon'] = "error"
+            return redirect('cart_app:cart')
         else:
-            item.total_price = item.product.price * item.quantity
-    
-        cart_items_with_prices.append(item)
+            # removing offers if it expires 
+            if item.product.offer and item.product.offer.end_date < timezone.now():
+                messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
+                item.product.offer = None
+                item.product.category.offer = None
+                item.save()
+                
+            if item.product.offer:
+                item.total_price = item.product.discount_price * item.quantity
+            else:
+                item.total_price = item.product.price * item.quantity
+        
+            cart_items_with_prices.append(item)
 
     # Get cart totals
     cart_total = sum(item.total_price for item in cart_items)

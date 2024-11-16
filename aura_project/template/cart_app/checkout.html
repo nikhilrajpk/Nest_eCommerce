@@ -44,7 +44,7 @@
 <script>
 setTimeout (() => {
     $(".alert").alert("close")
-},3000)
+},5000)
 </script>
                     <form action="{% url 'order_app:confirm_order' %}" method="post">
                         {% csrf_token %}

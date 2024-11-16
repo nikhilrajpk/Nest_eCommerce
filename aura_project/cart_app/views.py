@@ -53,11 +53,15 @@ def cart_view(request):
     # List to hold the items that should stay in the cart
     filtered_cart_items = []
     
+    # Handle session-based SweetAlert message
+    swal_message = request.session.pop('swal_message', None)
+    swal_icon = request.session.pop('swal_icon', None)
+    
     # Loop through cart items and remove those that are not listed
     for item in cart_items:
-        if not item.product.is_listed or not item.product.category.is_listed:
-            item.delete()
-        else:
+        # if not item.product.is_listed or not item.product.category.is_listed:
+        #     item.delete()
+        # else:
             # removing offers if it expires 
             if item.product.offer and item.product.offer.end_date < timezone.now():
                 messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
@@ -92,6 +96,8 @@ def cart_view(request):
         'cart': cart,
         'cart_items': filtered_cart_items,
         'cart_total': cart_total,
+        'swal_message': swal_message,
+        'swal_icon': swal_icon,
     })
 
 @login_required
@@ -155,19 +161,26 @@ def checkout(request,cart_id):
     cart_items_with_prices = []
     # Calculate the total price for each item
     for item in cart_items:
-        # removing offers if it expires 
-        if item.product.offer and item.product.offer.end_date < timezone.now():
-            messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
-            item.product.offer = None
-            item.product.category.offer = None
-            item.save()
-            
-        if item.product.offer:
-            item.total_price = item.product.discount_price * item.quantity
-        else:
-            item.total_price = item.product.price * item.quantity
+        # checking if item and category is listed
+        if not item.product.is_listed or not item.product.category.is_listed:
+            # Set SweetAlert message in session
+            request.session['swal_message'] = f"{item.product.product_name} is unavailable now. You need to remove it to proceed."
+            request.session['swal_icon'] = "error"
+            return redirect('cart_app:cart')
+        else: 
+            # removing offers if it expires 
+            if item.product.offer and item.product.offer.end_date < timezone.now():
+                messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
+                item.product.offer = None
+                item.product.category.offer = None
+                item.save()
+                
+            if item.product.offer:
+                item.total_price = item.product.discount_price * item.quantity
+            else:
+                item.total_price = item.product.price * item.quantity
     
-        cart_items_with_prices.append(item)
+            cart_items_with_prices.append(item)
     cart_total = sum(item.total_price for item in cart_items_with_prices)
     
     # Apply coupon discount if applicable
@@ -220,31 +233,32 @@ def check_coupon(request):
             return redirect('cart_app:checkout', cart_id=cart_id)
 
         # Apply coupon if not already applied
-        if not coupon_applied:
-            if coupon_code:
-                coupon = get_object_or_404(Coupons, code=coupon_code)
-                
-                for c in checkout:
-                    if coupon == c.coupons:
-                        messages.error(request,'You already applied this coupon ones. Cannot use again!')
-                        return redirect('cart_app:checkout', cart_id=cart_id)
-                
-                if coupon.used_limit < 0:
-                    coupon.update(used_limit=0)
-                if coupon.used_limit > 0 and coupon.expiry_date > timezone.now():
-                    discount = Decimal(coupon.discount_amount)
-                    cart_total_discount = cart_total - discount
-
-                    request.session['cart_total'] = float(cart_total_discount)
-                    request.session['coupon_applied'] = True
-                    request.session['discount_amount'] = float(coupon.discount_amount)
-                    request.session['coupon_code'] = coupon_code
-
-                    messages.success(request, f'{coupon.code} applied successfully.')
+        
+        # if not coupon_applied:
+        if coupon_code:
+            coupon = get_object_or_404(Coupons, code=coupon_code)
+            
+            for c in checkout:
+                if coupon == c.coupons:
+                    messages.error(request,'You already applied this coupon ones. Cannot use again!')
                     return redirect('cart_app:checkout', cart_id=cart_id)
-                else:
-                    messages.error(request, f'{coupon.code} is no longer available or expired.')
-                    return redirect('cart_app:checkout', cart_id=cart_id)
+            
+            if coupon.used_limit < 0:
+                coupon.update(used_limit=0)
+            if coupon.used_limit > 0 and coupon.expiry_date > timezone.now():
+                discount = Decimal(coupon.discount_amount)
+                cart_total_discount = cart_total - discount
+
+                request.session['cart_total'] = float(cart_total_discount)
+                request.session['coupon_applied'] = True
+                request.session['discount_amount'] = float(coupon.discount_amount)
+                request.session['coupon_code'] = coupon_code
+
+                messages.success(request, f'{coupon.code} applied successfully.')
+                return redirect('cart_app:checkout', cart_id=cart_id)
+            else:
+                messages.error(request, f'{coupon.code} is no longer available or expired.')
+                return redirect('cart_app:checkout', cart_id=cart_id)
 
     messages.error(request, 'Invalid coupon code.')
     return redirect('cart_app:checkout', cart_id=cart_id)
