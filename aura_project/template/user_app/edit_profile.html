@@ -35,26 +35,28 @@
                     $(".alert").alert("close")
                 },3000)
                 </script>
+
+
                 <div class="card-body">
-                    <form method="POST" action="{% url 'user_app:edit_profile' %}">
+                    <form id="edit-profile-form" method="POST" action="{% url 'user_app:edit_profile' %}">
                         {% csrf_token %}
                         <!-- First Name -->
                         <div class="form-group">
-                            <label for="first_name">First Name</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                            <label for="first-name">First Name</label>
+                            <input type="text" class="form-control" id="first-name" name="first_name" value="{{ user.first_name }}" required>
+                            <div id="first-warning" style="display:none; color: red;">Please enter a valid first name. First name only contains letters.</div>
                         </div>
                         
                         <!-- Last Name -->
                         <div class="form-group">
-                            <label for="last_name">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                            <label for="last-name">Last Name</label>
+                            <input type="text" class="form-control" id="last-name" name="last_name" value="{{ user.last_name }}" required>
+                            <div id="last-warning" style="display:none; color: red;">Please enter a valid last name. Last name only contains letters.</div>
                         </div>
-                        
-                        <!-- Email
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
-                        </div> -->
+
+                        <!-- Save Changes Button -->
+                        <button type="submit" class="btn btn-success btn-block mt-4">Save Changes</button>
+                    </form>  
 
                         <!-- Address Section -->
                         <h5 class="mt-4">Addresses:</h5>
@@ -64,18 +66,20 @@
                                     <h6 class="card-title">{{ address.get_address_type_display }} Address</h6>
                                     <p class="card-text">
                                         {{ address.street_address }}<br>
-                                        {{ address.landmark }}<br>
+                                        {% if address.landmark != None %}
+                                            {{ address.landmark }}
+                                        {% endif%}<br>
                                         {{ address.state }}, {{ address.country }}<br>
                                         Postal Code: {{ address.postal_code }}<br>
                                         Phone: {{ address.phone }}<br>
-                                        {% if address.alternative_phone %}
+                                        {% if address.alternative_phone != '' %}
                                             Alternative Phone: {{ address.alternative_phone }}
                                         {% endif %}
                                     </p>
                                 </div>
                                     <div class="card-footer">
                                         <a href="{% url 'user_app:edit_address' address.id %}" class="btn btn-sm btn-warning">Edit Address</a>
-                                        <form id="delete_address" action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;" >
+                                        <form class="delete_address" action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;" >
                                             {% csrf_token %}
                                             <button class="btn btn-sm btn-danger" type="submit">Delete</button>
                                         </form>
@@ -83,9 +87,6 @@
                             </div>
                         {% endfor %}
 
-                        <!-- Save Changes Button -->
-                        <button type="submit" class="btn btn-success btn-block mt-4">Save Changes</button>
-                    </form>
                 </div>
                 <div class="card-footer text-center">
                     <a href="{% url 'user_app:add_address' %}" class="btn btn-info">Add New Address</a>
@@ -94,11 +95,80 @@
         </div>
     </div>
 </div>
+<!-- form validation -->
+ <script>
+    let editProfileForm = document.getElementById('edit-profile-form')
+
+    let firstInput = document.getElementById('first-name')
+    let firstWarning = document.getElementById('first-warning')
+
+    let lastInput = document.getElementById('last-name')
+    let lastWarning = document.getElementById('last-warning')
+
+    let regex = /^[a-zA-Z]+$/
+
+    //first name validation
+    firstInput.addEventListener('input',function(){
+        let firstName = firstInput.value.trim()
+        if(!regex.test(firstName) || firstName === ""){
+            firstWarning.style.display = "block"
+        }
+        else{
+            firstWarning.style.display = "none"
+        };
+    });
+
+    //last name validation
+    lastInput.addEventListener('input',function(){
+        let lastName = lastInput.value.trim()
+        if(!regex.test(lastName) || lastName === ""){
+            lastWarning.style.display = "block"
+        }else{
+            lastWarning.style.display = "none"
+        };
+    });
+
+    //form submission validation
+    editProfileForm.addEventListener('submit',function(e){
+        isValid = true
+
+        // first name
+        let firstName = firstInput.value.trim()
+        if(!regex.test(firstName) || firstName === ""){
+            isValid = false
+            firstWarning.style.display = "block"
+        }
+        else{
+            firstWarning.style.display = "none"
+        };
+
+        //last name
+        let lastName = lastInput.value.trim()
+        if(!regex.test(lastName) || lastName === ""){
+            isValid = false
+            lastWarning.style.display = "block"
+        }else{
+            lastWarning.style.display = "none"
+        };
+
+        if(!isValid){
+            e.preventDefault()
+        }
+
+    });
+ </script>
+
+
 <!-- swal cdn  -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    document.getElementById("delete_address").addEventListener("submit", function(event) {
+    // Get all elements with the class "delete_address"
+let deleteForms = document.getElementsByClassName("delete_address");
+
+// Loop through each form and attach the event listener
+Array.from(deleteForms).forEach(function(form) {
+    form.addEventListener("submit", function(event) {
         event.preventDefault(); // Prevent the form from submitting immediately
 
         Swal.fire({
@@ -114,17 +184,18 @@
                 // Show success alert after deletion confirmation
                 Swal.fire({
                     title: "Deleted!",
-                    text: "Your address has been deleted.",
+                    text: "Your profile has been deleted.",
                     icon: "success",
                     timer: 1500,
                     showConfirmButton: false
                 }).then(() => {
                     // Submit the form after confirmation
-                    event.target.submit();
+                    form.submit();
                 });
             }
         });
     });
+});
 </script>
 
 <script

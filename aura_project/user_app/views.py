@@ -105,10 +105,20 @@ def address_validation(request,address_type,street_address,landmark,state,countr
         messages.error(request, 'Postal code must be numeric.')
         return render(request, 'user_app/add_address.html',context)
 
-    # Check if phone number is valid (basic length check)
-    if len(phone) != 10:
-        messages.error(request, 'Phone number must be 10 digits.')
-        return render(request, 'user_app/add_address.html',context)
+    # Phone number validation
+    phone = phone.strip()
+    alternative_phone = alternative_phone.strip()
+    
+    print(f"Raw phone: '{phone}' (Length: {len(phone)})")
+    print(f"Raw alternative phone: '{alternative_phone}' (Length: {len(alternative_phone)})")
+
+    if len(phone) != 10 or not phone.isdigit():
+        messages.error(request, 'Phone number must be exactly 10 digits.')
+        return render(request, 'user_app/add_address.html', context)
+
+    if alternative_phone and (len(alternative_phone) != 10 or not alternative_phone.isdigit()):
+        messages.error(request, 'Alternative phone number must be exactly 10 digits.')
+        return render(request, 'user_app/add_address.html', context)
     
     # Check if the fields contain only whitespace using strip()
     if not street_address.strip():
@@ -131,7 +141,7 @@ def address_validation(request,address_type,street_address,landmark,state,countr
         messages.error(request, 'Address cannot contain only spaces.')
         return render(request, 'user_app/add_address.html', context)
     
-    address_pattern = r'^[a-zA-Z0-9\s,.-]+$'
+    address_pattern = r'^[a-zA-Z0-9\s,.\-()]+$'
     phone_pattern = r'^[0-9]+$'
     
     if not re.match(address_pattern, street_address):
@@ -146,6 +156,9 @@ def address_validation(request,address_type,street_address,landmark,state,countr
         messages.error(request, 'Phone cannot contain only spaces.')
         return render(request, 'user_app/add_address.html', context)
 
+    if alternative_phone and not re.match(phone_pattern, alternative_phone):
+        messages.error(request, 'Alternative phone cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
 
     if not re.match(address_pattern, address_input):
         messages.error(request, 'Address cannot contain only spaces.')
@@ -322,6 +335,8 @@ def edit_address(request,address_id):
         
         if landmark:
             address.landmark = landmark
+        else:
+            address.landmark = None
             
         address.state = state
         address.country = country
@@ -330,6 +345,8 @@ def edit_address(request,address_id):
         
         if alternative_phone:
             address.alternative_phone = alternative_phone
+        else:
+            address.alternative_phone = ''
         
         address.address = address_inp
         
@@ -337,9 +354,11 @@ def edit_address(request,address_id):
         
         messages.success(request,'Address have been updated.')
         return redirect('user_app:edit_profile')
-    
+    # List of states
+    states = ["Andhra Pradesh", "Goa", "Karnataka", "Kerala", "Tamil Nadu", "Telangana"]
     context = {
         'address':address,
+        'states':states,
     }
     return render(request,'user_app/edit_address.html',context)
 

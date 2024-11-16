@@ -18,7 +18,7 @@
                     <h4 class="text-center text-white">Add New Address</h4>
                 </div>
                 <div class="card-body">
-                    <form action="" method="POST">
+                    <form id="address_form" action="" method="POST">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="address_type">Address Type</label>
@@ -33,21 +33,41 @@
                         <div class="mb-3">
                             <label for="street_address" class="form-label">Street Address</label>
                             <input type="text" class="form-control" id="street_address" name="street_address" required value="{{address.street_address}}">
+                            <div id="street-warning" style="display:none; color: red;">Please enter a valid street address. Street address only contains letters, numbers ',' '()'.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="landmark" class="form-label">Landmark</label>
                             <input type="text" class="form-control" id="landmark" name="landmark" value="{{address.landmark}}">
+                            <div id="landmark-warning" style="display:none; color: red;">Please enter a valid landmark. landmark only contains letters, numbers ',' '()'.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="state" class="form-label">State</label>
-                            <input type="text" class="form-control" id="state" name="state" required value="{{address.state}}">
+                            <label for="state" class="form-label">State*</label>
+                            <select class="form-control" id="state" name="state" required size="5" style="max-height: 150px; overflow-y: auto;">
+                                <option value="" disabled>Select your state</option>
+                                
+                                <!-- Display the current state -->
+                                {% if address.state %}
+                                    <option value="{{ address.state }}" selected>{{ address.state }}</option>
+                                {% endif %}
+                                
+                                <!-- Display other states -->
+                                {% for state in states %}
+                                    {% if state != address.state %}
+                                        <option value="{{ state }}">{{ state }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <div id="state-warning" style="display:none; color: red;">Please choose a state.</div>
                         </div>
+                        
+                        
 
                         <div class="mb-3">
                             <label for="country" class="form-label">Country</label>
                             <input type="text" class="form-control" id="country" name="country" required value="{{address.country}}">
+                            <div id="country-warning" style="display:none; color: red;">Please enter a valid country. country only contains.</div>
                         </div>
 
                         <div class="mb-3">
@@ -58,16 +78,19 @@
                         <div class="mb-3">
                             <label for="phone" class="form-label">Phone</label>
                             <input type="text" class="form-control" id="phone" name="phone" required value="{{address.phone}}">
+                            <div id="phone-warning" style="display:none; color: red;">Please enter a 10 digit phone number.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="alternative_phone" class="form-label">Alternative Phone</label>
                             <input type="text" class="form-control" id="alternative_phone" name="alternative_phone" value="{{address.alternative_phone}}">
+                            <div id="alternative-phone-warning" style="display:none; color: red;">Please enter a 10 digit alternative phone number.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="address" class="form-label">Address Details</label>
                             <textarea class="form-control" id="address" name="address" rows="3" required>{{address.address}}</textarea>
+                            <div id="address-warning" style="display:none; color: red;">Please enter a valid address. address only contains letters, numbers ',' '()'.</div>
                         </div>
                         <button type="submit" class="btn btn-success w-100">Save Address</button>
                     </form>
@@ -76,4 +99,163 @@
         </div>
     </div>
 </div>
+
+
+<!-- swal cdn  -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- form validation -->
+<script>
+    let addressForm = document.getElementById('address_form')
+
+    let streetInput = document.getElementById('street_address')
+    let streetWarning = document.getElementById('street-warning')
+
+    let landmarkInput = document.getElementById('landmark')
+    let landmarkWarning = document.getElementById('landmark-warning')
+
+    let countryInput = document.getElementById('country')
+    let countryWarning = document.getElementById('country-warning')
+
+    let addressInput = document.getElementById('address')
+    let addressWarning = document.getElementById('address-warning')
+
+    let stateInput = document.getElementById('state')
+    let stateWarning = document.getElementById('state-warning')
+
+    let phoneWarning = document.getElementById('phone-warning')
+
+    let alternativePhoneWarning = document.getElementById('alternative-phone-warning')
+
+    let regex = /^[a-zA-Z0-9 ,()\-\.]+$/
+    let countryRegex = /^[a-zA-Z ]+$/
+
+    //street address validation
+    streetInput.addEventListener('input',function(){
+        let street = streetInput.value.trim()
+        if(!regex.test(street) || street === ""){
+            streetWarning.style.display = "block"
+        }else{
+            streetWarning.style.display = "none"
+        };
+    });
+
+    //landmark validation
+    landmarkInput.addEventListener('input',function(){
+        let landmark = landmarkInput.value.trim()
+        if(landmark && !regex.test(landmark)){
+            landmarkWarning.style.display = "block"
+        }else{
+            landmarkWarning.style.display = "none"
+        };
+    });
+
+    // country validation
+    countryInput.addEventListener('input',function(){
+        let country = countryInput.value.trim()
+        if(!countryRegex.test(country) || country === ""){
+            countryWarning.style.display = "block"
+        }else{
+            countryWarning.style.display = "none"
+        };
+    });
+
+    //address validation
+    addressInput.addEventListener('input',function(){
+        let address = addressInput.value.trim()
+        if(!regex.test(address) || address === ""){
+            addressWarning.style.display = "block"
+        }else{
+            addressWarning.style.display = "none"
+        };
+    });
+
+    //form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        let addressForm = document.getElementById('address_form');
+        
+        if (addressForm) { // Make sure the form exists
+            addressForm.addEventListener('submit', function (e) {
+                e.preventDefault()
+                isValid = true
+                //street
+                let street = streetInput.value.trim()
+                if(!regex.test(street) || street === ""){
+                    isValid = false
+                    streetWarning.style.display = "block"
+                }else{
+                    streetWarning.style.display = "none"
+                };
+                //landmark
+                let landmark = landmarkInput.value.trim();
+                if (landmark && !regex.test(landmark)) {
+                    isValid = false;
+                    landmarkWarning.style.display = "block";
+                    console.log("Invalid landmark:", landmark); // Debugging
+                } else {
+                    landmarkWarning.style.display = "none";
+                }
+                //country
+                let country = countryInput.value.trim()
+                if(!countryRegex.test(country) || country === ""){
+                    isValid =false
+                    countryWarning.style.display = "block"
+                }else{
+                    countryWarning.style.display = "none"
+                };
+                //address
+                let address = addressInput.value.trim()
+                if(!regex.test(address) || address === ""){
+                    isValid = false
+                    addressWarning.style.display = "block"
+                }else{
+                    addressWarning.style.display = "none"
+                };
+
+                let phone = document.getElementById("phone").value.trim();
+                let alternativePhone = document.getElementById("alternative_phone").value.trim();
+
+                if (phone.length !== 10 || isNaN(phone)) {
+                    isValid = false;
+                    phoneWarning.style.display = "block"
+                }else{
+                    phoneWarning.style.display = "none"
+                };
+            
+                if (alternativePhone && (alternativePhone.length !== 10 || isNaN(alternativePhone))) {
+                    isValid = false;
+                    alternativePhoneWarning.style.display = "block"
+                }else{
+                    alternativePhoneWarning.style.display = "none"
+                };
+
+                //state
+                let state = stateInput.value.trim()
+                if(!state){
+                    isValid = false
+                    stateWarning.style.display = "block"
+                }else{
+                    stateWarning.style.display = "none"
+                };
+            
+                // Only proceed if all validations pass
+                if (isValid) {
+                    console.log("Form is valid. Triggering SweetAlert...");
+                    Swal.fire({
+                        title: "Address edited.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false,
+                    }).then(() => {
+                        this.submit(); // Submit the form after the alert
+                    });
+                } else {
+                    console.log("Form is invalid. Stopping submission.");
+                }
+                
+            });
+        } else {
+            console.error('Address form not found.');
+        }
+    });
+</script>
 {% endblock content %}
