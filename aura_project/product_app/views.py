@@ -3,6 +3,7 @@ from category_app.models import Category
 from product_app.models import *
 from django.core.paginator import Paginator
 from django.db.models import Count,Sum
+from django.utils import timezone
 # Create your views here.
 
 def display_products(request,id):
@@ -21,6 +22,12 @@ def display_products(request,id):
     else:
         # getting all the products in the specified category
         products = category.product.all()
+        
+    for i in products:
+        if i.offer and i.offer.end_date < timezone.now():
+            i.offer = None
+            i.category.offer = None
+            i.save()
     
     product_paginator = Paginator(products,1)
     products = product_paginator.get_page(page)
@@ -42,6 +49,13 @@ def single_product_view(request,id):
     product = Product.objects.get(id = id)
     category_id = product.category.id
     category = Category.objects.get(id=category_id)
+    
+    # removing offers if it expires 
+    if category.offer and category.offer.end_date < timezone.now():
+        category.offer = None
+        category.product.all().update(offer=None)
+        category.save()
+    
     related_products = category.product.all()
     related_products = related_products.exclude(id=id)
     # getting the review data

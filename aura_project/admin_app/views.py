@@ -260,7 +260,7 @@ def edit_category(request,id):
             offers = offers.exclude( end_date__lt = timezone.now())
         else:
             offers = Offer.objects.exclude(end_date__lt = timezone.now())
-
+    
         return render(request,'admin_app/edit_category.html',{'category':category,'offers':offers})
 
     else:

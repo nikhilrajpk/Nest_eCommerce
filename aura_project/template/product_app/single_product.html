@@ -390,17 +390,17 @@
                                 <div class="col-lg-3 col-sm-6">
                                         <div class="single_product_item" style="height: 30rem;">
                                             <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                            <h5>{{product.product_name}}</h5>
+                                            {% if product.offer %}
+                                            <h4><del>{{product.price}} Rs</del></h4>
+                                            <h4>{{product.discount_price}} Rs</h4>
+                                            {% else %}
+                                            <h4>{{product.price}} Rs</h4>
+                                            {% endif %}
                                             <div class="single_product_text">
-                                                <h4>{{product.product_name}}</h4>
-                                                {% if product.offer %}
-                                                    <h3><del>{{product.price}} Rs</del></h3>
-                                                    <h3>{{product.discount_price}} Rs</h3>
-                                                {% else %}
-                                                    <h3>{{product.price}} Rs</h3>
-                                                {% endif %}
                                                 <div id="wishlistLogoProduct">
-                                                    <a href="#" class="add-to-cart" data-product-id="{{ product.id }}">+ Add to cart</a>
-                                                <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}">
+                                                    <a href="#" class="add-to-cart" data-product-id="{{ product.id }}" style="transform: translateX(-1rem);">+ Add to cart</a>
+                                                <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}" style="transform: translateY(-2rem);">
                                                     <i class="ti-heart"></i> 
                                                 </a>
                                                 </div>

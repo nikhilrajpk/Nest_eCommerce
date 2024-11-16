@@ -59,7 +59,10 @@ setTimeout (() => {
                                 <h6 class="card-title">{{ address.get_address_type_display }} Address</h6>
                                 <p class="card-text">
                                     {{ address.street_address }}<br>
-                                    {{ address.landmark }}<br>
+                                    {% if address.landmark != None %}
+                                        {{ address.landmark }}
+                                    {% endif %}
+                                        <br>
                                     {{ address.state }}, {{ address.country }}<br>
                                     Postal Code: {{ address.postal_code }}<br>
                                     Phone: {{ address.phone }}<br>

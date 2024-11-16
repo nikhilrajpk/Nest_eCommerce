@@ -24,6 +24,14 @@ def home(request):
     latest_products = Product.objects.all().order_by('-id')[:4]
     best_sellers = Product.objects.all().order_by('-sold_count')[:8]
     products = Product.objects.all()
+    
+    # removing offers that are expired
+    for i in products:
+        if i.offer and i.offer.end_date < timezone.now():
+            i.offer = None
+            i.category.offer = None
+            i.save()
+    
     page = 1
     if request.method == 'GET':
         # Paginator setup
@@ -142,7 +150,8 @@ def address_validation(request,address_type,street_address,landmark,state,countr
         return render(request, 'user_app/add_address.html', context)
     
     address_pattern = r'^[a-zA-Z0-9\s,.\-()]+$'
-    phone_pattern = r'^[0-9]+$'
+    phone_pattern = r'^[1-9][0-9]{9}$'
+    post_pattern = r'^[1-9][0-9]{5}$'
     
     if not re.match(address_pattern, street_address):
         messages.error(request, 'Street address cannot contain only spaces.')
@@ -153,11 +162,15 @@ def address_validation(request,address_type,street_address,landmark,state,countr
         return render(request, 'user_app/add_address.html', context)
     
     if not re.match(phone_pattern, phone):
-        messages.error(request, 'Phone cannot contain only spaces.')
+        messages.error(request, 'Phone cannot start with 0.')
         return render(request, 'user_app/add_address.html', context)
 
     if alternative_phone and not re.match(phone_pattern, alternative_phone):
         messages.error(request, 'Alternative phone cannot contain only spaces.')
+        return render(request, 'user_app/add_address.html', context)
+    
+    if not re.match(post_pattern, postal_code):
+        messages.error(request,'Postal code cannot start with 0')
         return render(request, 'user_app/add_address.html', context)
 
     if not re.match(address_pattern, address_input):

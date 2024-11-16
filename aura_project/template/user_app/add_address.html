@@ -76,18 +76,22 @@ setTimeout (() => {
                         <div class="mb-3">
                             <label for="postal_code" class="form-label">Postal Code*</label>
                             <input type="number" class="form-control" id="postal_code" name="postal_code" {% if postal_code %} value="{{postal_code}}" {% endif %} required>
+                            <div id="postal-warning" style="display:none; color: red;">Please enter a 6 digit postal code.</div>
+                            <div id="postal-start-warning" style="display:none; color: red;">Postal code cannot start with 0.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="phone" class="form-label">Phone*</label>
-                            <input type="text" class="form-control" id="phone" name="phone" {% if phone %} value="{{phone}}" {% endif %} required>
+                            <input type="number" class="form-control" id="phone" name="phone" {% if phone %} value="{{phone}}" {% endif %} required>
                             <div id="phone-warning" style="display:none; color: red;">Please enter a 10 digit phone number.</div>
+                            <div id="phone-start-warning" style="display:none; color: red;">Phone number cannot start with 0.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="alternative_phone" class="form-label">Alternative Phone</label>
-                            <input type="text" class="form-control" id="alternative_phone" name="alternative_phone" {% if alternative_phone %} value="{{alternative_phone}}" {% endif %}>
+                            <input type="number" class="form-control" id="alternative_phone" name="alternative_phone" {% if alternative_phone %} value="{{alternative_phone}}" {% endif %}>
                             <div id="alternative-phone-warning" style="display:none; color: red;">Please enter a 10 digit alternative phone number.</div>
+                            <div id="alternative-phone-start-warning" style="display:none; color: red;">Alternative phone number cannot start with 0.</div>
                         </div>
 
                         <div class="mb-3">
@@ -126,8 +130,14 @@ setTimeout (() => {
     let stateWarning = document.getElementById('state-warning')
 
     let phoneWarning = document.getElementById('phone-warning')
+    let phoneStartWarning = document.getElementById('phone-start-warning')
 
     let alternativePhoneWarning = document.getElementById('alternative-phone-warning')
+    let alternativePhoneStartWarning = document.getElementById('alternative-phone-start-warning')
+
+    let postalInput = document.getElementById('postal_code')
+    let postalWarning = document.getElementById('postal-warning')
+    let postalStartWarning = document.getElementById('postal-start-warning')
 
     let regex = /^[a-zA-Z0-9 ,()\-\.]+$/
     let countryRegex = /^[a-zA-Z ]+$/
@@ -172,6 +182,45 @@ setTimeout (() => {
         };
     });
 
+    //phone validation
+    document.getElementById('phone').addEventListener('input',function(){
+        let phoneNumber = String(this.value.trim())
+        if(phoneNumber.startsWith(0)){
+            phoneStartWarning.style.display = "block"
+            phoneWarning.style.display = "none"
+        }
+        else{
+            phoneStartWarning.style.display = "none"
+            phoneWarning.style.display = "none"
+        };
+    });
+
+    //alternative phone validation
+    document.getElementById('alternative_phone').addEventListener('input',function(){
+        let alternativePhone = String(this.value.trim())
+        if(alternativePhone && alternativePhone.startsWith(0)){
+            alternativePhoneStartWarning.style.display = "block"
+            alternativePhoneWarning.style.display = "none"
+        }
+        else{
+            alternativePhoneWarning.style.display = "none"
+            alternativePhoneStartWarning.style.display = "none"
+        };
+    });
+
+    //postal code validation
+    postalInput.addEventListener('input',function(){
+        let postalCode = String(postalInput.value.trim())
+        if(postalCode.startsWith(0)){
+            postalStartWarning.style.display = "block"
+            postalWarning.style.display = "none"
+        }
+        else{
+            postalWarning.style.display = "none"
+            postalStartWarning.style.display = "none"
+        }
+    })
+
     //form validation
     addressForm.addEventListener('submit',function(e){
         e.preventDefault()
@@ -211,21 +260,56 @@ setTimeout (() => {
         };
 
         let phone = document.getElementById("phone").value.trim();
-        let alternativePhone = document.getElementById("alternative_phone").value.trim();
+        
 
         if (phone.length !== 10 || isNaN(phone)) {
             isValid = false;
             phoneWarning.style.display = "block"
-        }else{
+            phoneStartWarning.style.display = "none"
+        }
+        else if(String(phone).startsWith(0)){
+            isValid = false
+            phoneStartWarning.style.display = "block"
             phoneWarning.style.display = "none"
+        }
+        else{
+            phoneWarning.style.display = "none"
+            phoneStartWarning.style.display = "none"
         };
     
+        let alternativePhone = document.getElementById("alternative_phone").value.trim();
+
         if (alternativePhone && (alternativePhone.length !== 10 || isNaN(alternativePhone))) {
             isValid = false;
             alternativePhoneWarning.style.display = "block"
-        }else{
+            alternativePhoneStartWarning.style.display = "none"
+        }
+        else if(alternativePhone && String(alternativePhone).startsWith(0)){
+            isValid = false
+            alternativePhoneStartWarning.style.display = "block"
             alternativePhoneWarning.style.display = "none"
+        }
+        else{
+            alternativePhoneWarning.style.display = "none"
+            alternativePhoneStartWarning.style.display = "none"
         };
+
+        //postal code
+        let postalCode = postalInput.value.trim()
+        if(postalCode.length !== 6 || isNaN(postalCode)){
+            isValid = false
+            postalWarning.style.display = "block"
+            postalStartWarning.style.display = "none"
+        }
+        else if(String(postalCode).startsWith(0)){
+            isValid = false
+            postalStartWarning.style.display = "block"
+            postalWarning.style.display = "none"
+        }
+        else{
+            postalWarning.style.display = "none"
+            postalStartWarning.style.display = "none"
+        }
 
         //state
         let state = stateInput.value.trim()

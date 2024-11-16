@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .models import *
 from product_app.models import *
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 # Create your views here.
 from django.http import JsonResponse
 @login_required
@@ -39,6 +40,13 @@ def wishlist_view(request):
     user = request.user
     wishlist, created = Wishlist.objects.get_or_create(user=user)
     wishlist_items = wishlist.wishlist_items_set.all()  # Access the related Wishlist_items
+    
+    for item in wishlist_items:
+        # removing offers if it expires 
+        if item.product.offer and item.product.offer.end_date < timezone.now():
+            item.product.offer = None
+            item.product.category.offer = None
+            item.save()
     
     return render(request, 'wishlist_app/wishlist.html', {
         'wishlist': wishlist,

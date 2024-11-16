@@ -42,6 +42,13 @@ def confirm_order(request):
     cart_items_with_prices = []
     # Calculate the total price for each item
     for item in cart_items:
+        # removing offers if it expires 
+        if item.product.offer and item.product.offer.end_date < timezone.now():
+            messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
+            item.product.offer = None
+            item.product.category.offer = None
+            item.save()
+            
         if item.product.offer:
             item.total_price = item.product.discount_price * item.quantity
         else:
