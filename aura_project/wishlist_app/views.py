@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 # Create your views here.
 from django.http import JsonResponse
+
 @login_required
 def add_to_wishlist(request, product_id):
     if request.user.is_authenticated and request.user.is_staff:
@@ -23,7 +24,10 @@ def add_to_wishlist(request, product_id):
     
     if not item_created:
         # If the product already exists
-        pass
+        return JsonResponse({
+            'status': 'exists',
+            'message': 'Product is already in the wishlist'
+        })
     
     return JsonResponse({
         'status': 'success',

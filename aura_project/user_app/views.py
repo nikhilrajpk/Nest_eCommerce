@@ -2,6 +2,8 @@ from django.utils import timezone
 from django.shortcuts import render,redirect
 from product_app.models import *
 from authentication_app.models import *
+from cart_app.models import *
+from wishlist_app.models import *
 from address_app.models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -62,12 +64,28 @@ def home(request):
     product_paginator = Paginator(products, 8)
     products = product_paginator.get_page(page)
     
+    # Get the user's cart
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_items = cart.items.all()
+    
+    # Get the user's wishlist
+    wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+    wishlist_items = wishlist.wishlist_items_set.all()
+    
+    # Create lists of product IDs for the cart and wishlist
+    cart_product_ids = cart_items.values_list('product__id', flat=True)
+    wishlist_product_ids = wishlist_items.values_list('product__id', flat=True)
+    
+    print(cart_product_ids)
+    
     context = {
         'banners': banners,
         'latest_products': latest_products,
         'products': products,
         'best_sellers': best_sellers,
         'query': query,
+        'cart_product_ids': list(cart_product_ids),  # Convert to a list
+        'wishlist_product_ids': list(wishlist_product_ids),  # Convert to a list
     }
     if sort_with:
         context['sort_with']=sort_with

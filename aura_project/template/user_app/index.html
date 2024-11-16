@@ -219,7 +219,7 @@
                                                     <div class="single_product_text">
                                                     <div id="wishlistLogoProduct">
                                                         <a href="#" class="add-to-cart" data-product-id="{{ product.id }}" style="text-decoration: none;">+ Add to cart</a>
-                                                    <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}" style="text-decoration: none;">
+                                                        <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}" style="text-decoration: none;">
                                                         <i class="ti-heart"></i> 
                                                     </a>
                                                     </div>
@@ -527,7 +527,9 @@
                     if (response.status === 'success') {
                         alert(response.message);
                         $('#cart-quantity').text(response.quantity);  // Update cart quantity display if needed
-                    } else if (response.redirect_url) {
+                    } else if (response.status === 'exists') {
+                        alert(response.message);// Alert if product is already in cart
+                    }else if (response.redirect_url) {
                         window.location.href = response.redirect_url;
                     }
                 },
@@ -550,6 +552,8 @@
                 success: function(response) {
                     if (response.status === 'success') {
                         alert(response.message);
+                    }else if (response.status === 'exists') {
+                        alert(response.message); // Alert if product is already in wishlist
                     } else if (response.redirect_url) {
                         window.location.href = response.redirect_url;
                     }

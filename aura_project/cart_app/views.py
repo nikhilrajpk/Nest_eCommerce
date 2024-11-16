@@ -25,7 +25,12 @@ def add_to_cart(request, product_id):
     cart_item, item_created = Cart_item.objects.get_or_create(cart=cart, product=product, defaults={'quantity': 1})
 
     if not item_created:
-        cart_item.quantity += 1
+        return JsonResponse({
+            'status': 'exists',
+            'message': 'Product is already in the cart',
+            'quantity': cart_item.quantity
+        })
+        
     cart_item.total_price = cart_item.quantity * (product.discount_price if product.offer else product.price)
     cart_item.save()
     
