@@ -324,9 +324,16 @@ def login_view(request):
         remember_me = request.POST.get('remember_me')
         user = authenticate(request, email = email, password = password)
         
-        user_block = CustomUser.objects.get(email = email)
-        if user_block.is_block:
-            messages.error(request, 'you are blocked by the admin!')
+        try:
+            user_block = CustomUser.objects.get(email = email)
+            if not user_block.is_active:
+                messages.error(request,'you need to verify the email using otp.')
+                return redirect('authentication_app:sign_up')
+            if user_block.is_block:
+                messages.error(request, 'you are blocked by the admin!')
+                return render(request,'authentication_app/login.html')
+        except Exception as e:
+            messages.error(request,'you entered the wrong email!')
             return render(request,'authentication_app/login.html')
         
         print(user)
