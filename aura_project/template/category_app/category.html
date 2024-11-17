@@ -205,11 +205,16 @@
                                             </div>
                                         <!-- </a> -->
                                     {% else %}
-                                        <a href="{% url 'product_app:products_view' category.id %}">
+                                        <a href="{% url 'product_app:products_view' category.id %}" style="text-decoration: none;">
                                             <img width="300rem" height="300rem" src="{{category.cat_image.url}}" alt="{{category.category_name}}">
                                             <div class="single_product_text">
                                                 <h4>{{category.category_name}}</h4>
-                                                <h3>Total product : {{category.count_of_product}}</h3>  
+                                                <h3>Total product : {{category.count_of_product}}</h3>
+                                                {% if category.offer %}  
+                                                    <h3>Offer : {{category.offer.offer_title}}</h3>
+                                                {% else %}
+                                                    <p></p>
+                                                {% endif %}
                                             </div>
                                         </a>
                                     {% endif %}
