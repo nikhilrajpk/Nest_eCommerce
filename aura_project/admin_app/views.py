@@ -794,6 +794,12 @@ def admin_orders(request):
             orders = Order.objects.filter(id__icontains = query)        
         else:
             orders = Order.objects.all().order_by('-id')
+        
+        for order in orders:
+            order.has_pending_returns = any(
+                item.return_reason and item.return_status == 'pending' for item in order.items.all()
+            )
+
         context = {
             'orders':orders,
             'query':query,

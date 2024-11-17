@@ -79,6 +79,7 @@
     <table class="table table-striped table-hover" style="transform: translateY(-2rem);">
         <thead class="table-dark">
             <tr>
+                <th scope="col">No.</th>
                 <th scope="col">Order Id</th>
                 <th scope="col">User</th>
                 <th scope="col">Address</th>
@@ -86,11 +87,13 @@
                 <th scope="col">Delivering Date</th>
                 <th scope="col">Status</th>
                 <th scope="col">Show</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for order in orders %}
             <tr>
+                <td>{{forloop.counter}}</td>
                 <td>{{order.id}}</td>
                 <td>{{order.user.first_name}}</td>
                 <td>{{order.address.street_address}},<br>
@@ -107,6 +110,11 @@
                 <td>{{order.order_status}}</td>
                 <td>
                     <a href="{% url 'admin_app:show_order' order.id %}" ><button id="unblock" type="button" >Show</button></a>
+                </td>
+                <td>
+                    {% if order.has_pending_returns %}
+                        <button style=" height: 15px;width: 15px; border-radius: 50%;" class="bg-primary border-0"></button>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
