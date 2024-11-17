@@ -301,6 +301,9 @@ def order_details(request,order_id):
         return redirect('authentication_app:logout')
     
     order = Order.objects.get(id = order_id)
+    if request.user != order.user:
+        return redirect('authentication_app:logout')
+        
     try:
         payment = Payment.objects.get(order = order)
         if payment:
@@ -392,6 +395,8 @@ def cancel_order(request, order_id):
     
     if request.method == 'POST':
         order = Order.objects.get(id=order_id)
+        if request.user != order.user:
+            return redirect('authentication_app:logout')
         
         # If order is done by COD then in cancel order money should not be credited to the wallet.
         try:

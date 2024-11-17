@@ -64,19 +64,19 @@ def home(request):
     product_paginator = Paginator(products, 8)
     products = product_paginator.get_page(page)
     
-    # Get the user's cart
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_items = cart.items.all()
+    # # Get the user's cart
+    # cart, created = Cart.objects.get_or_create(user=request.user)
+    # cart_items = cart.items.all()
     
-    # Get the user's wishlist
-    wishlist, created = Wishlist.objects.get_or_create(user=request.user)
-    wishlist_items = wishlist.wishlist_items_set.all()
+    # # Get the user's wishlist
+    # wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+    # wishlist_items = wishlist.wishlist_items_set.all()
     
-    # Create lists of product IDs for the cart and wishlist
-    cart_product_ids = cart_items.values_list('product__id', flat=True)
-    wishlist_product_ids = wishlist_items.values_list('product__id', flat=True)
+    # # Create lists of product IDs for the cart and wishlist
+    # cart_product_ids = cart_items.values_list('product__id', flat=True)
+    # wishlist_product_ids = wishlist_items.values_list('product__id', flat=True)
     
-    print(cart_product_ids)
+    # print(cart_product_ids)
     
     context = {
         'banners': banners,
@@ -84,8 +84,8 @@ def home(request):
         'products': products,
         'best_sellers': best_sellers,
         'query': query,
-        'cart_product_ids': list(cart_product_ids),  # Convert to a list
-        'wishlist_product_ids': list(wishlist_product_ids),  # Convert to a list
+        # 'cart_product_ids': list(cart_product_ids),  # Convert to a list
+        # 'wishlist_product_ids': list(wishlist_product_ids),  # Convert to a list
     }
     if sort_with:
         context['sort_with']=sort_with
@@ -329,6 +329,8 @@ def edit_address(request,address_id):
         return redirect('authentication_app:logout')
     
     address = Address.objects.get(id=address_id)
+    if request.user != address.user:
+        return redirect('authentication_app:logout')
     
     if request.method == 'POST':
         address_type = request.POST.get('address_type')
@@ -403,6 +405,8 @@ def delete_address(request,address_id):
     
     if request.method == 'POST':
         address = Address.objects.get(id = address_id)
+        if request.user != address.user:
+            return redirect('authentication_app:logout')
         address.delete()
     
         return redirect('user_app:edit_profile')
