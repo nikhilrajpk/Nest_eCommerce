@@ -101,6 +101,9 @@ def confirm_order(request):
         
         if cart_total_with_discount > wallet_balance:
             messages.error(request,'Insufficient balance in wallet!')
+            # Set SweetAlert message in session
+            request.session['swal_message'] = f"Insufficient balance in wallet!"
+            request.session['swal_icon'] = "error"
             return redirect('cart_app:checkout',cart_id=cart.id)
     
     # Razor pay ******************************
@@ -159,7 +162,7 @@ def order_view(request):
         # Creating order items for the items from cart.
         for item in cart_item:
             # product price if it has offer or not.
-            item_price = 0
+            item_price = 0                                      #######***********change needed************
             if item.product.offer:
                 item_price = item.product.discount_price
             else:
@@ -395,7 +398,7 @@ def cancel_order(request, order_id):
             payment = Payment.objects.get(order = order)
             payment_method = payment.payment_method
         except Exception as e:
-            payment_method = 'COD'
+            payment_method = 'cod'
         
         # Get cancellation reason from form
         cancel_reason = request.POST.get('cancel_reason')

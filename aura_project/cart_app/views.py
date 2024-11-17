@@ -163,6 +163,10 @@ def checkout(request,cart_id):
     cart_items = cart.items.all()
     request.session['cart_id'] = cart_id
     
+    # Handle session-based SweetAlert message
+    swal_message = request.session.pop('swal_message', None)
+    swal_icon = request.session.pop('swal_icon', None)
+    
     cart_items_with_prices = []
     # Calculate the total price for each item
     for item in cart_items:
@@ -195,13 +199,14 @@ def checkout(request,cart_id):
     cart_total = sum(item.total_price for item in cart_items_with_prices)
     
     # Apply coupon discount if applicable
-    discount = Decimal(request.session.get('discount_amount', 0))
+    discount = Decimal(request.session.pop('discount_amount', 0))
+    print(discount)
     cart_total_with_discount = float(cart_total) - float(discount)
     cart_total_with_discount += 50
     
     request.session['cart_total'] = float(cart_total_with_discount)
 
-    coupon_code = request.session.get('coupon_code', '')
+    coupon_code = request.session.pop('coupon_code', '')
     
      # Wallet payment
     wallet,created = Wallet.objects.get_or_create(user = user)
@@ -215,6 +220,10 @@ def checkout(request,cart_id):
         'cart_total_with_discount':cart_total_with_discount,
         'coupon_code':coupon_code,
         'wallet_balance':wallet_balance,
+        'discount':discount,
+        'cart_id':cart_id,
+        'swal_message': swal_message,
+        'swal_icon': swal_icon,
     }
     return render(request,'cart_app/checkout.html',context)
 
@@ -231,12 +240,16 @@ def check_coupon(request):
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon_code')
         coupon_applied = request.session.get('coupon_applied', False)
-        cart_id = request.session.get('cart_id')
+        cart_id = request.POST.get('cart_id')
         cart = Cart.objects.get(id=cart_id)
         checkout = Checkout.objects.filter(cart=cart)
         
         #  coupon removal
         if coupon_code == 'remove':
+            # Set SweetAlert message in session
+            request.session['swal_message'] = f"Coupon removed."
+            request.session['swal_icon'] = "success"
+            
             request.session['coupon_applied'] = False
             request.session['discount_amount'] = 0
             request.session['coupon_code'] = ''
@@ -251,23 +264,51 @@ def check_coupon(request):
             
             for c in checkout:
                 if coupon == c.coupons:
+                    # Set SweetAlert message in session
+                    request.session['swal_message'] = f"You already applied {coupon_code} ones. Cannot use again!"
+                    request.session['swal_icon'] = "error"
+                    
                     messages.error(request,'You already applied this coupon ones. Cannot use again!')
                     return redirect('cart_app:checkout', cart_id=cart_id)
             
             if coupon.used_limit < 0:
                 coupon.update(used_limit=0)
             if coupon.used_limit > 0 and coupon.expiry_date > timezone.now():
-                discount = Decimal(coupon.discount_amount)
-                cart_total_discount = cart_total - discount
+                # checking the cart total is in between minimum and maximum order amount
+                minimum_amount = Decimal(coupon.minimum_order_amount)
+                maximum_amount = Decimal(coupon.maximum_order_amount)
+                
+                if minimum_amount <= cart_total <= maximum_amount:
+                    discount = Decimal(coupon.discount_amount)
+                    cart_total_discount = cart_total - discount
 
-                request.session['cart_total'] = float(cart_total_discount)
-                request.session['coupon_applied'] = True
-                request.session['discount_amount'] = float(coupon.discount_amount)
-                request.session['coupon_code'] = coupon_code
-
-                messages.success(request, f'{coupon.code} applied successfully.')
-                return redirect('cart_app:checkout', cart_id=cart_id)
+                    request.session['cart_total'] = float(cart_total_discount)
+                    request.session['coupon_applied'] = True
+                    request.session['discount_amount'] = float(coupon.discount_amount)
+                    request.session['coupon_code'] = coupon_code
+                    
+                    # Set SweetAlert message in session
+                    request.session['swal_message'] = f"{coupon_code} applied successfully."
+                    request.session['swal_icon'] = "success"
+                    
+                    messages.success(request, f'{coupon.code} applied successfully.')
+                    return redirect('cart_app:checkout', cart_id=cart_id)
+                else:
+                    # Set SweetAlert message in session
+                    if cart_total < minimum_amount:
+                        request.session['swal_message'] = f"Cart total : {cart_total} is less than Minimum order amount: {minimum_amount}. So {coupon_code} cannot be applied."
+                        request.session['swal_icon'] = "error"
+                    elif(cart_total > maximum_amount):
+                        request.session['swal_message'] = f"Cart total : {cart_total} is greater than Maximum order amount {maximum_amount}. So {coupon_code} cannot be applied."
+                        request.session['swal_icon'] = "error"
+                    else:
+                        pass
+                    return redirect('cart_app:checkout', cart_id=cart_id)
             else:
+                # Set SweetAlert message in session
+                request.session['swal_message'] = f"{coupon_code} is no longer available or expired."
+                request.session['swal_icon'] = "error"
+                
                 messages.error(request, f'{coupon.code} is no longer available or expired.')
                 return redirect('cart_app:checkout', cart_id=cart_id)
 

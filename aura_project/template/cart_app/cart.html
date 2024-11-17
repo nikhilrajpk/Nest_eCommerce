@@ -100,7 +100,7 @@ setTimeout (() => {
                         <div class="product_count">
                             <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'decrement' %}"><span class="input-number-decrement"><i class="ti-angle-down"></i></span></a>
                             <input class="input-number" type="text" value="{{ item.quantity }}" min="0" max="{{ item.product.available_stock }}">
-                            <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'increment' %}"><span class="input-number-increment"><i class="ti-angle-up"></i></span></a>
+                            <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'increment' %}"><span class="input-number-increment" style="height: 1rem;!important"><i class="ti-angle-up"></i></span></a>
                         </div>
                     </td>
                     

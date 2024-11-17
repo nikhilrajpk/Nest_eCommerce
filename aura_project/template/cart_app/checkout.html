@@ -89,7 +89,7 @@ setTimeout (() => {
                             </ul>
                             <ul class="list list_2">
                                 <li><a href="#">Subtotal <span>₹{{ cart_total }}</span></a></li>
-                                <li><a href="#">Discount <span>₹{{ request.session.discount_amount }}</span></a></li>
+                                <li><a href="#">Discount <span>₹{{ discount }}</span></a></li>
                                 <li><a href="#">Shipping <span>Flat rate: ₹50.00</span></a></li>
                                 <li><a href="#">Total <span>₹{{ cart_total_with_discount }}</span></a></li>
                             </ul>
@@ -149,6 +149,7 @@ setTimeout (() => {
                     <div class="cupon_text float-right" style="display: flex; flex-wrap: nowrap; margin-top: 25rem; width: 23rem;">
                         <form action="{% url 'cart_app:check_coupon' %}" method="post">
                             {% csrf_token %}
+                            <input type="hidden" name="cart_id" value="{{cart_id}}">
                             <input type="text" name="coupon_code" style="width: 10rem;" placeholder="Enter Coupon Code">
                             <button type="submit" class="btn_1">Apply Coupon</button>
                         </form>
@@ -159,6 +160,7 @@ setTimeout (() => {
                         <form action="{% url 'cart_app:check_coupon' %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="coupon_code" value="remove">
+                            <input type="hidden" name="cart_id" value="{{cart_id}}">
                             <input type="text" value="{{ coupon_code }}" 
                             {% if request.session.coupon_applied %} disabled class="disabled-input" {% endif %}>
                             <button type="submit" class="btn_1">Remove Coupon</button>
@@ -173,6 +175,19 @@ setTimeout (() => {
     </div>
 </section>
 <!--================End Checkout Area =================-->
+
+
+<script>
+    // Check if there's a SweetAlert message
+    {% if swal_message %}
+    Swal.fire({
+        title: "Notice",
+        text: "{{ swal_message }}",
+        icon: "{{ swal_icon }}",
+        confirmButtonText: "Okay"
+    });
+    {% endif %}
+</script>
 
 <!-- To show the wallet balance if it is clicked -->
 <script>
