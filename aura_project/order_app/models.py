@@ -32,6 +32,7 @@ class Order(models.Model):
     delivery_date = models.DateTimeField()
     address = models.ForeignKey(Address,on_delete=models.SET_NULL, null=True)
     cancellation_reason = models.TextField(null=True, blank=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     def __str__(self) -> str:
         return f'{self.user.first_name}-{self.order_status}'
@@ -44,9 +45,25 @@ class OrderItems(models.Model):
     return_reason = models.TextField(null=True, blank=True)
     return_date = models.DateTimeField(auto_now_add=True,null=True)
     return_status = models.CharField(max_length=10,default='pending',null=True,blank=True)
+    discount_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self) -> str:
         return f'{self.product.product_name}-{self.quantity}'
+    
+class OrderAddress(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="orderAddress")
+    address = models.ForeignKey(Address,on_delete=models.SET_NULL, null=True,)
+    country = models.CharField(max_length=255)
+    street_address = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    landmark = models.CharField(max_length=255, null=True, blank=True)
+    postal_code = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+    alternative_phone = models.CharField(max_length=20, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    address_field = models.TextField(default=None)
+    address_type = models.CharField(max_length=12)
     
 
 class Payment(models.Model):
@@ -60,6 +77,7 @@ class Payment(models.Model):
     payment_status = models.CharField(max_length=50,null=True,blank=True,default='pending')
 
 class Checkout(models.Model):
+    order = models.OneToOneField(Order,on_delete=models.CASCADE,related_name='checkout')
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2)
     coupons = models.ForeignKey(Coupons, on_delete=models.SET_NULL, null=True, blank=True)

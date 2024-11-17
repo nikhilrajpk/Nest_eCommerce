@@ -69,15 +69,15 @@
                         {% endfor %}
                     </ul>
                     <ul class="list-group mt-3">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li id="subtotal" class="list-group-item d-flex justify-content-between align-items-center">
                             Subtotal:
                             <span>₹{{ cart_total }}</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li id="discount" class="list-group-item d-flex justify-content-between align-items-center">
                             Discount:
-                            <span>₹{{ request.session.discount_amount }}</span>
+                            <span>₹{{ discount }}</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li id="shipping" class="list-group-item d-flex justify-content-between align-items-center">
                             Shipping:
                             <span>₹50.00</span>
                         </li>
@@ -103,6 +103,8 @@
                 <form action="{% url 'order_app:order_view' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="payment_method" value="{{payment_method}}">
+                        <input type="hidden" name="discount" value="{{discount}}">
+                        <input type="hidden" name="coupon_code" value="{{coupon_code}}">
                         <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
                     </form>
                 {% else %}
@@ -113,6 +115,8 @@
                         <input type="hidden" id="payment-retry" name="payment_retry" value="{{payment_retry|default:0}}">
                         <input type="hidden" name="total_amount" value="{{cart_total_with_discount}}">
                         <input type="hidden" name="order_id" value="{{order_id}}">
+                        <input type="hidden" name="discount" value="{{discount}}">
+                        <input type="hidden" name="coupon_code" value="{{coupon_code}}">
                         <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
                     </form>
                 {% endif %}
@@ -126,9 +130,15 @@
     var paymentRetry = document.getElementById('payment-retry')
     var mainHeading = document.getElementById('main-heading')
     var breadNav = document.getElementById('bread-nav')
+    var subtotal = document.getElementById('subtotal')
+    var discount = document.getElementById('discount')
+    var shipping = document.getElementById('shipping')
     if(paymentRetry.value == 1){
         mainHeading.textContent = "Continue Payment";
         breadNav.style.display = "none";
+        subtotal.style.display = "none";
+        discount.style.display = "none";
+        shipping.style.display = "none";
     };
 </script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
