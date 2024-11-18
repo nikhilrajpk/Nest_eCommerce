@@ -1161,7 +1161,7 @@ class SalesReportView(TemplateView):
             ).values('period').annotate(
                 orders=Count('order', distinct=True),
                 total_amount=Coalesce(
-                    Sum(F('price') * F('quantity')),
+                    Sum(F('total_price')),
                     Decimal('0.00'),
                     output_field=DecimalField(max_digits=10, decimal_places=2)
                 ),
