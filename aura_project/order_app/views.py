@@ -42,7 +42,7 @@ def confirm_order(request):
         discount = request.POST.get('discount',0)
         coupon_code = request.POST.get('coupon_code',None)
         print('discount amount of coupon if applied . confirm order line 42',discount)
-        print('coupon_code  applied . confirm order line 42',coupon_code)
+        print('coupon_code  applied . confirm order line 42:',coupon_code)
         
         if request.POST.get('payment_retry') == 1:
             order = Order.objects.get(id = order_id)
@@ -87,10 +87,10 @@ def confirm_order(request):
     if cart_total_with_discount == 50:
         total_amount = request.POST.get('total_amount')
         cart_total_with_discount = total_amount
-        print(cart_total_with_discount,'this is when retrying payment*********** line 82 cofirm order')
+        print(cart_total_with_discount,'this is when retrying payment*********** line 90 cofirm order')
         
     request.session['cart_total_with_discount'] = cart_total_with_discount
-    print(request.session['cart_total_with_discount'])
+    print('from confirm order line 93.  session cart_total_with_discount=',request.session['cart_total_with_discount'])
     
     context = {
         'cart_id':cart.id,
@@ -130,11 +130,11 @@ def confirm_order(request):
             payment = client.order.create(data=data)        
             request.session['razor_payment'] = payment
             # ***************
-            print(payment)
+            print('razorpay payment details on line 133 : ',payment)
             #****************
             context['payment'] = payment
             context['payment_retry'] = request.POST.get('payment_retry')
-            print('first continue payment value',context['payment_retry'])
+            print('first continue payment value line 137 :',context['payment_retry'])
         except Exception as e:
             messages.error(request,'Razor pay server is currently down.',e)
     else:

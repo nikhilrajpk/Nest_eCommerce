@@ -9,7 +9,7 @@ setTimeout (() => {
 <!-- breadcrumbs start-->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'user_app:account' %}">Account</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'user_app:account' %}" id="breadcrumb-a">Account</a></li>
     <li class="breadcrumb-item active" aria-current="page"><a href="">Add Address</a></li>
     </ol>
   </nav>
@@ -100,6 +100,9 @@ setTimeout (() => {
                             <div id="address-warning" style="display:none; color: red;">Please enter a valid address. address only contains letters, numbers ',' '()'.</div>
                         </div>
 
+                        <!-- When adding address from checkout page -->
+                        <input id="checkout_add_address" type="hidden" name="checkout_add_address" value="{{checkout_add_address}}">
+
                         <button type="submit" class="btn btn-success w-100">Save Address</button>
                     </form>
                 </div>
@@ -107,6 +110,25 @@ setTimeout (() => {
         </div>
     </div>
 </div>
+
+<!-- adding address from checkout -->
+ <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let checkout_add_address = "{{ checkout_add_address|default:'' }}";
+        let breadcrumb = document.getElementById('breadcrumb-a');
+        
+        if (breadcrumb) { // Check if the element exists
+            console.log(checkout_add_address);
+            if (checkout_add_address) {
+                console.log('from checkout page');
+                breadcrumb.href = "/checkout/0/".replace('0', checkout_add_address);
+                breadcrumb.innerHTML = "Checkout"; // Wrap text in quotes
+            }
+        } else {
+            console.error("Breadcrumb element not found.");
+        }
+    });
+ </script>
 
 <!-- swal cdn  -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -337,7 +359,7 @@ setTimeout (() => {
     });
 </script>
 
-    
+    <!-- JQuery -->
 <script
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="

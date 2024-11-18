@@ -157,11 +157,15 @@ def checkout(request,cart_id):
     if request.user.is_authenticated and request.user.is_block:
         return redirect('authentication_app:logout')
     
+    
     user_email = request.user.email
     user = CustomUser.objects.get(email = user_email)
     cart = Cart.objects.get(id = cart_id)
     cart_items = cart.items.all()
     request.session['cart_id'] = cart_id
+    
+    if request.user != cart.user:
+        return redirect('authentication_app:logout')
     
     # Handle session-based SweetAlert message
     swal_message = request.session.pop('swal_message', None)
@@ -200,7 +204,7 @@ def checkout(request,cart_id):
     
     # Apply coupon discount if applicable
     discount = Decimal(request.session.pop('discount_amount', 0))
-    print(discount)
+    print('discount amount from coupon: ',discount,': from checkout line 207')
     cart_total_with_discount = float(cart_total) - float(discount)
     cart_total_with_discount += 50
     

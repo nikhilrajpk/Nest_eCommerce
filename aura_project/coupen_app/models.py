@@ -19,7 +19,8 @@ class Coupons(models.Model):
             raise ValidationError('Invalid expiry date format.')
         
         if self.expiry_date < timezone.now():
-            raise ValidationError('The coupon has already expired.')
+            print('The coupon has already expired')
+            # raise ValidationError('The coupon has already expired.')
 
         
         if self.minimum_order_amount > self.maximum_order_amount:

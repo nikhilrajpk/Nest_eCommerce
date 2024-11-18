@@ -262,9 +262,19 @@ def add_address(request):
         new_address.save()
         messages.success(request,'New address added.')
         
-        return redirect('user_app:account')
-        
-    return render(request,'user_app/add_address.html')
+        checkout_add_address = request.POST.get('checkout_add_address',None)
+        print("checkout_add_address status from add_address line 266: ",checkout_add_address)
+        if checkout_add_address and checkout_add_address.isdigit():
+            print('inside if checkout add address line268')
+            return redirect('cart_app:checkout',cart_id = checkout_add_address)
+        else:
+            print('redirecting to the account. from add address line 271')
+            return redirect('user_app:account')
+    
+    checkout_add_address = request.GET.get('from',None)
+    print("checkout_add_address status from add_address line 273: ",checkout_add_address)
+    
+    return render(request,'user_app/add_address.html',{'checkout_add_address':checkout_add_address})
 
 
 @login_required

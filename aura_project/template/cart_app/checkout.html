@@ -60,7 +60,7 @@ setTimeout (() => {
                                 {% endfor %}
                             </select>
                         </div>
-                        <a href="{% url 'user_app:add_address' %}" class="btn btn-custom mt-2">Add New Address</a>
+                        <a href="{% url 'user_app:add_address' %}?from={{user.cart.id}}" class="btn btn-custom mt-2">Add New Address</a>
                         <br><br>
 
                         <!-- Delivery Method -->
