@@ -84,6 +84,7 @@
         <table class="table table-striped table-hover" style="transform: translateY(1rem);">
             <thead class="table-dark">
                 <tr>
+                    <th scope="col">No.</th>
                     <th scope="col">Product</th>
                     <th scope="col">Category</th>
                     <th scope="col">Quantity</th>
@@ -98,6 +99,7 @@
             <tbody>
                 {% for product in products %}
                 <tr id="product-row-{{ product.id }}">
+                    <td>{{ forloop.counter }}</td>
                     <td>{{ product.product_name }}</td>
                     <td>{{ product.category.category_name }}</td>
                     <td>

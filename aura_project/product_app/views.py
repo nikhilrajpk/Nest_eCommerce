@@ -56,6 +56,10 @@ def single_product_view(request,id):
         category.product.all().update(offer=None)
         category.save()
     
+    if product.offer and product.offer.end_date < timezone.now():
+        product.offer = None
+        product.save()
+    
     related_products = category.product.all()
     related_products = related_products.exclude(id=id)
     # getting the review data

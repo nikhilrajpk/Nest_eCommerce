@@ -10,7 +10,7 @@ from decimal import Decimal
 from django.contrib import messages
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import F
+from django.db.models import F, Count
 import razorpay
 from django.conf import settings
 
@@ -397,6 +397,7 @@ def order_details(request,order_id):
     # Get the coupon code from the request
     # coupon_code = request.session.get('coupon_code', '')
     coupon_discount = 0
+    coupon_code = None
     try:
         coupon_code = order.checkout.coupons.code
         print('coupon code getting from order details line 369:',coupon_code)
@@ -412,15 +413,16 @@ def order_details(request,order_id):
                 coupon = None
                 messages.error(request, "Coupon not found or expired.")
     except Exception as e:
-        print('coupon does not exist on order details line 388',e)
+        print('coupon does not exist on order details line 416',e)
         
-    address = order.orderAddress.all()    
+    address = order.orderAddress.first()    
     context = {
         'order':order,
         'total_price':total_price,
         'payment_method':payment_method,
         'coupon_discount':coupon_discount,
-        'address':address,
+        'coupon_code':coupon_code,
+        'a':address,
     }
     
     return render(request,'order_app/order_details.html',context)
@@ -551,18 +553,41 @@ def return_confirm(request,item_id,order_id):
         order_item = OrderItems.objects.get(id=item_id)
         
         # Adding money to wallet when returning the item.
-        total_price = order_item.price * order_item.quantity
-        print(order_item.price,order_item.quantity)
-        print(total_price)
+        total_price = order_item.total_price
+        print('total price of order item from return confirm line 557: ',total_price)
         
         # getting the user of the order.
         order = Order.objects.get(id = order_id)
         user_id = order.user.id
         user = CustomUser.objects.get(id=user_id)
+        
+        coupon_discount = 0
+        coupon_code = None
+        try:
+            coupon_code = order.checkout.coupons.code
+            print('coupon code getting from return confirm line 568:',coupon_code)
+            coupon = None
+            if coupon_code:
+                try:
+                    coupon = Coupons.objects.get(code=coupon_code)
+                    coupon_discount = coupon.discount_amount
+                except Coupons.DoesNotExist:
+                    coupon = None
+                    messages.error(request, "Coupon not found or expired.")
+        except Exception as e:
+            print('coupon does not exist on return confirm line 579',e)
+        
+        if coupon_code:
+            item_count = order.items.count()
+            if item_count:
+                amount = coupon_discount / item_count
+                shipping_amount = float(50) / item_count
+                total_price = float(total_price) - float(amount) + float(shipping_amount)
+        
         wallet,created = Wallet.objects.get_or_create(user=user)
         wallet.balance = F('balance') + total_price
         wallet.save()
-        print(wallet.balance)
+        print('wallet balance after returning the order item line 566 : ',wallet.balance)
         
         wallet_transaction = WalletTransation.objects.create(
             wallet = wallet,
@@ -610,23 +635,28 @@ def download_invoice_pdf(request, order_id):
     #     total_price += item_price
     # total_price += 50
 
+    address = order.orderAddress.first()
+    
     # Get coupon and discount amount if any
+    coupon_discount = 0
+    coupon_code = None
     try:
         coupon_code = order.checkout.coupons.code
-        print('coupon code getting from download invoice line 582:',coupon_code)
-        coupon_discount = 0
+        print('coupon code getting from download invoice  line 619:',coupon_code)
+        coupon = None
         if coupon_code:
             try:
                 coupon = Coupons.objects.get(code=coupon_code)
-                total_price -= float(coupon.discount_amount)
+                total_price = float(total_price) - float(coupon.discount_amount)
                 coupon_discount = coupon.discount_amount
             except Coupons.DoesNotExist:
-                pass
+                coupon = None
+                messages.error(request, "Coupon not found or expired.")
     except Exception as e:
-        print(f'coupon not available on order id {order.id} on download invoice as pdf line 610.')
-
+        print('coupon does not exist on order details line 388',e)
+        
     # Context for rendering the PDF template
-    sub_total = total_price-50
+    sub_total = order.total_price-50 + coupon_discount
     context = {
         'order': order,
         'order_items': order_items,
@@ -634,6 +664,9 @@ def download_invoice_pdf(request, order_id):
         'coupon_discount': coupon_discount,
         'payment_method':payment_method,
         'sub_total':sub_total,
+        'address':address,
+        'coupon_discount':coupon_discount,
+        'coupon_code':coupon_code,
     }
 
     # Render the template to HTML

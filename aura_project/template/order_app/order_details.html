@@ -49,14 +49,12 @@
     <div class="card p-4 mb-4">
         <h5>Shipping Details</h5>
         <p>{{ order.user.first_name }} {{ order.user.last_name }}<br>
-        {% for a in address %}
             {{ a.street_address }}, {{ a.postal_code }}<br>
             Address Type: {{ a.address_type }} <br>
             Phone number: {{ a.phone }} <br>
             {% if a.alternative_phone %}
             Alternative number: {{a.alternative_phone}}
             {% endif %}</p>
-        {% endfor %}
     </div>
 
     <div class="card p-4 mb-4">
@@ -83,9 +81,6 @@ setTimeout (() => {
                     <th>Quantity</th>
                     <th>Price</th>
                     <th>Offer Price</th>
-                    {% if coupon_discount != 0 %}
-                        <th>Coupon Discount</th>
-                    {% endif %}
                     <th>Total</th>
                     <th>Payment method</th>
                     <th>Actions</th>
@@ -107,9 +102,6 @@ setTimeout (() => {
 
                     <td>₹{{ item.discount_price }}</td>
 
-                    {% if coupon_discount != 0 %}
-                        <td>{{coupon_discount}}</td>
-                    {% endif %}
                     <td>{{item.total_price}}</td>
                     <td>{{payment_method}}</td>
                     {% if order.order_status == 'delivered' %}
@@ -173,7 +165,10 @@ setTimeout (() => {
                 {% endfor %}
             </tbody>
         </table>
-        
+        {% if coupon_code %}
+            <h5 class="mt-4">Coupon : {{coupon_code}}</h5><br>
+            <h5 class="mt-4">Discount Amount : ₹{{coupon_discount}}</h5><br>
+        {% endif %}
         <h5 class="mt-4">Total Amount: ₹{{ order.total_price }}</h5>
 
         {% if order.order_status != 'delivered' %}

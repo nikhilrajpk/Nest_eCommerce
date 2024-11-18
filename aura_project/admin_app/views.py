@@ -840,12 +840,33 @@ def show_order(request,order_id):
             total_price += item_total
             item_total_prices.append(item_total)  # Store each item's total price
 
+        address = order.orderAddress.first()
+        coupon_discount = 0
+        coupon_code = None
+        try:
+            coupon_code = order.checkout.coupons.code
+            print('coupon code getting from show order  line 847:',coupon_code)
+            coupon = None
+            if coupon_code:
+                try:
+                    coupon = Coupons.objects.get(code=coupon_code)
+                    total_price = float(total_price) - float(coupon.discount_amount)
+                    coupon_discount = coupon.discount_amount
+                except Coupons.DoesNotExist:
+                    coupon = None
+                    messages.error(request, "Coupon not found or expired.")
+        except Exception as e:
+            print('coupon does not exist on order details line 388',e)
+            
         context = {
             'order': order,
             'order_items': zip(order_items, item_total_prices),  # Pass both items and their individual total prices
             'total_price': total_price,
             'status_choices': STATUS,
             'items':order_items,
+            'address':address,
+            'coupon_discount':coupon_discount,
+            'coupon_code':coupon_code,
         }
         return render(request,'admin_app/show_order.html',context)
     

@@ -61,7 +61,7 @@ def home(request):
     
     
     # Pagination
-    product_paginator = Paginator(products, 8)
+    product_paginator = Paginator(products, 12)
     products = product_paginator.get_page(page)
     
     # # Get the user's cart

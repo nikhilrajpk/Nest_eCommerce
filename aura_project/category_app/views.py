@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from category_app.models import *
 from django.db.models import *
-
+from django.utils import timezone
 from django.core.paginator import Paginator
 # Create your views here.
 
@@ -19,9 +19,17 @@ def category_view(request):
         categories = Category.objects.all().filter(category_name__icontains = query).annotate(count_of_product = Count('product'))
     else:
         categories = Category.objects.annotate(count_of_product = Count('product'))
+        
+    # removing offers if it expires 
+    for category in categories:
+        if category.offer and category.offer.end_date < timezone.now():
+            category.offer = None
+            category.product.all().update(offer=None)
+            category.save()
+    
     
     # Paginator
-    category_paginator = Paginator(categories,3)
+    category_paginator = Paginator(categories,9)
     categories = category_paginator.get_page(page)
     
     total = Category.objects.count()
