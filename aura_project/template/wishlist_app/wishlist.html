@@ -68,7 +68,9 @@
             </tbody>
           </table>
           {% else %}
-              <h1>No items available in Wishlist</h1>
+            <div style="background-image: url({% static 'img/order.jpg' %}); height: 20rem;display: flex; align-items: center; justify-content:center;">
+                <h2 style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">No Items In Wishlist.</h2>
+            </div>
           {% endif %}
         </div>
       </div>
@@ -76,7 +78,7 @@
   <!--================End Cart Area =================-->
   <!-- swal cdn  -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<!-- remove from wishlist swal -->
   <script>
     document.querySelectorAll(".remove_item").forEach(form => {
         form.addEventListener("submit", function(event) {

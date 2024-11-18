@@ -177,8 +177,10 @@ document.querySelectorAll('.image-input').forEach(input => {
         }
 
         cropper = new Cropper(document.getElementById('cropperImage'), {
-          aspectRatio: 1,
-          viewMode: 1,
+            aspectRatio: 3 / 4, // Width:Height
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
         });
       };
       reader.readAsDataURL(file);

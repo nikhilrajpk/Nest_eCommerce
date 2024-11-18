@@ -37,6 +37,7 @@
 
 
     <h2 class="text-center mt-5">YOUR ORDERS</h2>
+    {% if orders %}
     <div class="table-responsive order-table">
         <table class="table table-bordered">
             <thead class="thead-light">
@@ -83,6 +84,12 @@
             </tbody>
         </table>
     </div>
+    {% else %}
+    <br><br>
+    <div style="background-image: url({% static 'img/order.jpg' %}); height: 20rem;display: flex; align-items: center; justify-content:center;">
+        <h2 style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">No Orders Yet. Continue Your Shopping From Home.</h2>
+    </div>
+    {% endif %}
 </div>
 <script>
     var td = document.getElementById('continue-payment')

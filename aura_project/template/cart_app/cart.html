@@ -250,7 +250,9 @@ setTimeout (() => {
             <a class="btn_1 checkout_btn_1" href="{% url 'cart_app:checkout' cart.id %}">Proceed to checkout</a>
           </div>
           {% else %}
-              <h1>No items available in Cart</h1>
+            <div style="background-image: url({% static 'img/order.jpg' %}); height: 20rem;display: flex; align-items: center; justify-content:center;">
+                <h2 style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">No Items In Cart.</h2>
+            </div>
           {% endif %}
         </div>
       </div>
