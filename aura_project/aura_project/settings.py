@@ -232,13 +232,22 @@ SOCIALACCOUNT_PIPELINE = (
     'social_core.pipeline.social_auth.auth_allowed',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
-    'authentication_app.pipelines.save_user_details',  # Add your custom pipeline here
+    'authentication_app.pipelines.save_user_details',  #  custom pipeline 
     'social_core.pipeline.user.create_user',
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
+    'authentication_app.pipelines.suppress_success_message',
 )
 
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # Or set it to 'none' depending on your use case
+ACCOUNT_AUTHENTICATED_REDIRECT_URL = '/'  # Redirect to home after login
+
+SOCIALACCOUNT_ADAPTER = 'authentication_app.adapters.CustomSocialAccountAdapter'
+
+
+# Add the error handler for social login
+SOCIALACCOUNT_LOGIN_ERROR_URL = 'authentication_app:login'
 
 
 KEY = 'rzp_test_C3XukPdiQMUknh'

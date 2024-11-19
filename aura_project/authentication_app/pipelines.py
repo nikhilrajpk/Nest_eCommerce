@@ -18,3 +18,10 @@ def save_user_details(backend, user, response, *args, **kwargs):
             user.last_name = last_name
         # Save the user to the database
         user.save()
+
+from django.contrib import messages
+# custom pipeline to suppress the success message
+def suppress_success_message(backend, user, response, *args, **kwargs):
+    # Clear the success message from the session or messages
+    if 'account_logged_in' in messages.get_levels(backend.request):
+        messages.get_messages(backend.request).filter(level=messages.SUCCESS).clear()

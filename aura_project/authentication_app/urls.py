@@ -13,5 +13,5 @@ urlpatterns = [
     path('reset_password_otp/',views.verify_otp_reset_password,name='reset_password_otp'),
     path('reset_password_resend_otp/',views.reset_pass_resend_otp,name='reset_password_resend_otp'),
     path('reset_password',views.reset_password_view,name='reset_password'),
-    
+    path('social-login-error/', views.social_login_error_view, name='social_login_error'),
 ]

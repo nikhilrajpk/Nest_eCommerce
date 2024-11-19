@@ -8,6 +8,8 @@ from wallet_app.models import *
 from django.db.models import F
 from .validators import Authentication_check
 
+from allauth.socialaccount.models import SocialAccount
+
 from django.views.decorators.cache import never_cache
 
 from .utils import send_otp
@@ -318,47 +320,75 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('user_app:home')
     
+    if 'account_blocked' in request.session:  # Check for blocked account
+        messages.error(request, "Your account is blocked by the admin. Please contact support.")
+        del request.session['account_blocked']  # Clear session after displaying the message
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         remember_me = request.POST.get('remember_me')
-        user = authenticate(request, email = email, password = password)
-        
+
         try:
-            user_block = CustomUser.objects.get(email = email)
-            if not user_block.is_active:
-                messages.error(request,'you need to verify the email using otp.')
+            # Check if the user exists
+            user = CustomUser.objects.get(email=email)
+
+            # Check if the user is blocked
+            if user.is_block:
+                messages.error(request, "Your account is blocked by the admin. Please contact support.")
+                return render(request, 'authentication_app/login.html', {'email': email})
+
+            # Check if the user is signed in via Google
+            if SocialAccount.objects.filter(user=user, provider='google').exists():
+                # If a Google user tries to log in using email/password
+                if password:
+                    messages.error(request, "Your account is linked to Google. Please sign in using Google.")
+                    return render(request, 'authentication_app/login.html', {'email': email})
+
+            # Check if the user is inactive
+            if not user.is_active:
+                messages.error(request, "You need to verify your email using OTP.")
                 return redirect('authentication_app:sign_up')
-            if user_block.is_block:
-                messages.error(request, 'you are blocked by the admin!')
-                return render(request,'authentication_app/login.html')
-        except Exception as e:
-            messages.error(request,'you entered the wrong email!')
-            return render(request,'authentication_app/login.html')
-        
-        print(user)
-        # request.session['name'] = user.first_name
+
+        except CustomUser.DoesNotExist:
+            # If the email does not match any user
+            messages.error(request, "The email you entered does not exist!")
+            return render(request, 'authentication_app/login.html', {'email': email})
+
+        # Authenticate the user using email/password
+        user = authenticate(request, email=email, password=password)
+
         if user is not None:
+            # Log in the user
             login(request, user)
             if remember_me:
                 request.session.set_expiry(1209600)  # 2 weeks
             else:
-                request.session.set_expiry(0) # expires when browser is closed
+                request.session.set_expiry(0)  # Session expires when the browser is closed
+
+            # Redirect based on user role
             if user.is_staff:
                 return redirect('admin_app:admin_home')
             else:
                 return redirect('user_app:home')
         else:
-            messages.error(request, 'Email or Password wrong!')
-            return render(request,'authentication_app/login.html',{'email' : email})
+            # If authentication fails
+            messages.error(request, "Email or Password is incorrect!")
+            return render(request, 'authentication_app/login.html', {'email': email})
     else:
-        return render(request,'authentication_app/login.html')
+        return render(request, 'authentication_app/login.html')
+    
+
+def social_login_error_view(request, exception):
+    messages.error(request, "An error occurred while attempting to login via your third-party account.")
+    return redirect('authentication_app:login')
+
 
 def logout_view(request):
     # if request.method == 'POST':
     logout(request)
         # del request.session['name']
-    return redirect('user_app:home')
+    return redirect('authentication_app:login')
 
 # Forgot password starts
 
@@ -529,164 +559,3 @@ def reset_password_view(request):
     else:
         return render(request,'authentication_app/reset_password_form.html')
 
-
-
-
-
-
-# def register_view(request):
-#     errors = {}
-#     if request.method == 'POST':
-        
-#         form = UserRegisterForm(request.POST)
-#         email = request.POST.get('email')  # Get email directly from POST data
-        
-#         # Check if the user already exists
-#         if CustomUser.objects.filter(email=email).exists():
-#             user_obj = CustomUser.objects.get(email=email)
-#             print(user_obj, 'this is the user')
-#             print(user_obj.is_active, 'User Active Status')  # Debugging print
-            
-#             if not user_obj.is_active:
-#                 # Check if the form is valid before accessing `cleaned_data`
-#                 if form.is_valid():
-#                     errors = validation_otp_email(request, form)
-
-#                     if not errors:
-#                         # Generating OTP
-#                         otp = send_otp(request)
-
-#                         # Save the OTP to session
-#                         request.session['registration_otp'] = otp
-#                         request.session['registered_email'] = email
-
-#                         # Send the OTP via email
-#                         mail_subject = 'Your OTP for email verification'
-#                         message = f'Your OTP is {otp}. Please enter it to verify your email.'
-#                         try:
-#                             email_message = EmailMessage(mail_subject, message, to=[email])
-#                             email_message.send()
-#                         except Exception as e:
-#                             messages.error(request, 'Error sending email. Please try again.')
-#                             return None
-
-#                         print('redirecting to the verify OTP page')
-#                         return redirect('verify_otp')  # Redirect to OTP verification page
-                
-#             else:
-#                 messages.error(request, 'Email already exists!')
-
-#         # If no user exists, validate the form and proceed
-#         elif form.is_valid():
-#             errors = validation_otp_email(request, form)
-            
-#             if not errors:
-#                 print('Saving the user and sending the email')
-#                 # Save the user but keep the account inactive until OTP verification
-#                 new_user = form.save(commit=False)
-#                 new_user.is_active = False
-#                 new_user.save()
-
-#                 # Generating OTP
-#                 otp = send_otp(request)
-
-#                 # Save the OTP to session
-#                 request.session['registration_otp'] = otp
-#                 request.session['registered_email'] = email
-
-#                 # Send the OTP via email
-#                 mail_subject = 'Your OTP for email verification'
-#                 message = f'Your OTP is {otp}. Please enter it to verify your email.'
-#                 try:
-#                     email_message = EmailMessage(mail_subject, message, to=[email])
-#                     email_message.send()
-#                 except Exception as e:
-#                     messages.error(request, 'Error sending email. Please try again.')
-#                     return None
-
-#                 print('redirecting to the verify OTP page')
-#                 return redirect('verify_otp')  # Redirect to OTP verification page
-
-#         else:
-#             messages.error(request, 'Form is invalid. Please correct the errors below.')
-
-#     else:
-#         form = UserRegisterForm()
-    
-#     context = {
-#         'form': form,
-#         'errors': errors
-#     }
-    
-#     return render(request, 'authentication_app/sign_up.html', context)
-
-
-
-
-#created object for user validation Authentication_check
-                # user_validation = Authentication_check()
-                
-                # email = form.cleaned_data.get('email')
-                # username = form.cleaned_data.get('username')
-                # first_name = form.cleaned_data.get('first_name')
-                # last_name = form.cleaned_data.get('last_name')
-                # password1 = form.cleaned_data.get('password1')
-                # password2 = form.cleaned_data.get('password2')
-                
-                # #email validation
-                # email_valid = user_validation.email_validator(email)
-                # if email_valid:
-                #     errors['email'] = email_valid
-                    
-                # #first_name validation
-                # first_name_valid = user_validation.first_name_validator(first_name)
-                # if first_name_valid:
-                #     errors['first_name'] = first_name_valid
-                
-                # #last_name validation
-                # last_name_valid = user_validation.last_name_validator(last_name)
-                # if last_name_valid:
-                #     errors['last_name'] = last_name_valid
-                    
-                # #password validation
-                # password_valid = user_validation.pass_validator(password1)
-                # if password_valid:
-                #     errors['password'] = password_valid
-                
-                # #password mismatch checking
-                # password_mismatch = user_validation.password_mismatch(password1, password2)
-                # if password_mismatch:
-                #     errors['password_mismatch'] = password_mismatch
-                
-                # if not errors:
-                #     # Save the user but keep the account inactive until OTP verification
-                #     new_user = form.save()  #commit=False
-                #     new_user.is_active = False
-                #     new_user.save()
-                    
-                #     # user_data = CustomUser.objects.get(email = email)
-                    
-                #     # Generating OTP
-                #     otp = send_otp(request)
-                    
-                #     # Save the OTP to session
-                #     request.session['registration_otp'] = otp
-                #     request.session['registered_email'] = email
-                #     # request.session['registered_user_id'] = user_data.id
-                    
-                #     # Send the OTP via email
-                #     mail_subject = 'Your OTP for email verification'
-                #     message = f'Your OTP is {otp}. Please enter it to verify your email.'
-                #     try:
-                #         email = EmailMessage(mail_subject, message, to=[email])
-                #         email.send()
-                #     except Exception as e:
-                #         messages.error(request, 'Error sending email. Please try again.')
-
-                    
-                #     # messages.success(request, "Registration successful! Please check your email for the OTP.")
-                #     return redirect('verify_otp')  # Redirect to OTP verification page
-                    
-                    
-                #     # messages.success(request, f'Hey {first_name}, Your account has been created.')
-                #     # return redirect('login')
