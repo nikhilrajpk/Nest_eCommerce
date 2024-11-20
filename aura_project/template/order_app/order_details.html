@@ -177,9 +177,11 @@ setTimeout (() => {
                 <button disabled class="btn btn-outline-danger mt-3 ms-auto">Order Canceled</button>
             {% else %}
             <!-- Cancel Order Button -->
-            <button type="button" class="btn btn-outline-danger mt-3 ms-auto" style="display: inline-block;width: fit-content;" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
-                Cancel Order
-            </button>
+             {% if order.order_status != 'pending' %}
+                <button type="button" class="btn btn-outline-danger mt-3 ms-auto" style="display: inline-block;width: fit-content;" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                    Cancel Order
+                </button>
+            {% endif %}
 
             <!-- Modal for cancel confirmation and reason input -->
             <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
