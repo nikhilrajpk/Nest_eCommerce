@@ -103,10 +103,10 @@ setTimeout (() => {
                             <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'increment' %}"><span class="input-number-increment" style="height: 1rem;!important"><i class="ti-angle-up"></i></span></a> -->
 
                           
-                              <button class="update-quantity btn-outline-primary" data-product-id="{{ item.product.id }}" data-action="increment" style="transform: translateX(18px);">+</button>
+                              <button class="update-quantity btn-outline-primary" data-product-id="{{ item.product.id }}" data-action="increment" style="transform: translateX(18px); border: none;">+</button>
                               <!-- Editable input for quantity -->
-                              <input class="quantity" type="number" min="1" max="{{ item.product.available_stock }}" value="{{ item.quantity }}" readonly>                       
-                              <button class="update-quantity btn-outline-primary" data-product-id="{{ item.product.id }}" data-action="decrement" style="transform: translateX(-48px);">-</button>
+                              <input class="quantity" type="number" min="1" max="{{ item.product.available_stock }}" value="{{ item.quantity }}" style="border: none;" readonly>                       
+                              <button class="update-quantity btn-outline-primary" data-product-id="{{ item.product.id }}" data-action="decrement" style="transform: translateX(-48px); border: none;">-</button>
                           
                           
                           </div>

@@ -197,12 +197,14 @@
 let activeInput;
 
 document.querySelectorAll('.image-input').forEach(input => {
-  input.addEventListener('change', function() {
+  input.addEventListener('change', function () {
     const file = this.files[0];
-    activeInput = this;  // Store reference to the active input
-    if (file) {
+    activeInput = this; // Store reference to the active input
+    
+    // Validate the file type
+    if (file && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         document.getElementById('cropperImage').src = e.target.result;
         $('#cropperModal').modal('show');
 
@@ -211,13 +213,17 @@ document.querySelectorAll('.image-input').forEach(input => {
         }
 
         cropper = new Cropper(document.getElementById('cropperImage'), {
-            aspectRatio: 3 / 4, // Width:Height
-            viewMode: 1,
-            autoCropArea: 1,
-            responsive: true,
+          aspectRatio: 16 / 9, // Width:Height
+          viewMode: 1,
+          autoCropArea: 1,
+          responsive: true,
         });
       };
       reader.readAsDataURL(file);
+    } else {
+      // Show an error message and reset the file input if invalid
+      alert('Please upload a valid image file (.jpg, .jpeg, .png, .gif).');
+      this.value = ''; // Reset the input value
     }
   });
 });

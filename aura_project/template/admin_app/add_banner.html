@@ -88,7 +88,7 @@
         </form>
     </div>
 <br><br>
-
+<!-- form validation -->
 <script>
     let bannerForm = document.getElementById('banner-form')
 
@@ -210,72 +210,57 @@
     });
 </script>
 
+<!-- cropper js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script>
         let cropper;
-        let activeInput;
-        
-        document.querySelectorAll('.image-input').forEach(input => {
-          input.addEventListener('change', function () {
-            const file = this.files[0];
-            activeInput = this; // Store reference to the active input
-        
-            if (file) {
-              const reader = new FileReader();
-        
-              reader.onload = function (e) {
-                const cropperImage = document.getElementById('cropperImage');
-                cropperImage.src = e.target.result;
-        
-                // Show the modal
-                $('#cropperModal').modal('show');
-        
-                // Destroy any previous instance of Cropper
-                if (cropper) {
-                  cropper.destroy();
-                }
-        
-                // Initialize Cropper.js
-                cropper = new Cropper(cropperImage, {
-                  aspectRatio: 16 / 9, // Width:Height
-                  viewMode: 1,
-                  autoCropArea: 1,
-                  responsive: true,
-                });
-              };
-        
-              reader.readAsDataURL(file);
-            }
-          });
-        });
-        
-        function cropImage() {
-          if (cropper && activeInput) {
-            const canvas = cropper.getCroppedCanvas();
-        
-            if (canvas) {
-              canvas.toBlob((blob) => {
-                const croppedFile = new File([blob], 'cropped_image.png', { type: 'image/png' });
-        
-                // Replace the original input file with the cropped image
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(croppedFile);
-                activeInput.files = dataTransfer.files;
-        
-                // Hide the modal
-                $('#cropperModal').modal('hide');
-              }, 'image/png');
-            }
-          }
+let activeInput;
+
+document.querySelectorAll('.image-input').forEach(input => {
+  input.addEventListener('change', function () {
+    const file = this.files[0];
+    activeInput = this; // Store reference to the active input
+    
+    // Validate the file type
+    if (file && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('cropperImage').src = e.target.result;
+        $('#cropperModal').modal('show');
+
+        if (cropper) {
+          cropper.destroy();
         }
-        
-        // Reset Cropper when the modal is closed
-        $('#cropperModal').on('hidden.bs.modal', function () {
-          if (cropper) {
-            cropper.destroy();
-            cropper = null;
-          }
+
+        cropper = new Cropper(document.getElementById('cropperImage'), {
+          aspectRatio: 16 / 9, // Width:Height
+          viewMode: 1,
+          autoCropArea: 1,
+          responsive: true,
         });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Show an error message and reset the file input if invalid
+      alert('Please upload a valid image file (.jpg, .jpeg, .png, .gif).');
+      this.value = ''; // Reset the input value
+    }
+  });
+});
+
+function cropImage() {
+  if (cropper && activeInput) {
+    const canvas = cropper.getCroppedCanvas();
+    canvas.toBlob((blob) => {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(new File([blob], 'cropped_image.png', { type: 'image/png' }));
+      activeInput.files = dataTransfer.files;
+
+      $('#cropperModal').modal('hide');
+    });
+  }
+}
+
         
     </script>
 {% endblock content %}
