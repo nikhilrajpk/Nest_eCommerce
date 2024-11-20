@@ -577,12 +577,13 @@ def return_confirm(request,item_id,order_id):
         except Exception as e:
             print('coupon does not exist on return confirm line 579',e)
         
+        item_count = order.items.count()
         if coupon_code:
-            item_count = order.items.count()
             if item_count:
                 amount = coupon_discount / item_count
-                shipping_amount = float(50) / item_count
-                total_price = float(total_price) - float(amount) + float(shipping_amount)
+                total_price = float(total_price) - float(amount)
+        shipping_amount = float(50) / item_count
+        total_price = float(total_price) + float(shipping_amount)
         
         wallet,created = Wallet.objects.get_or_create(user=user)
         wallet.balance = F('balance') + total_price

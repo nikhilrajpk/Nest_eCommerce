@@ -108,35 +108,55 @@ def cart_view(request):
 @login_required
 def update_cart_item_quantity(request, product_id, action):
     if request.user.is_authenticated and request.user.is_staff:
-        return redirect('admin_app:admin_home')
+        return JsonResponse({'error': 'Access denied'}, status=403)
     if request.user.is_authenticated and request.user.is_block:
-        return redirect('authentication_app:logout')
-    
+        return JsonResponse({'error': 'User blocked'}, status=403)
+
     user = request.user
     product = get_object_or_404(Product, id=product_id)
     
-    # Get the user's cart
     cart, created = Cart.objects.get_or_create(user=user)
-    
-    # Get the cart item for the specified product
     cart_item = get_object_or_404(Cart_item, cart=cart, product=product)
     
-    # Update quantity based on action
+    # Get the updated quantity from the request data
+    quantity = int(request.POST.get('quantity', cart_item.quantity))
+    
     if action == 'increment':
-        # Check if incrementing would exceed available stock
         if cart_item.quantity >= product.available_stock:
-            messages.error(request, f'Cannot add more {product.product_name}. Maximum available stock ({product.available_stock}) reached.')
-            return redirect('cart_app:cart')
+            return JsonResponse({'error': f'Cannot add more {product.product_name}. Stock limit ({product.available_stock}) reached.'}, status=400)
         cart_item.quantity += 1
     elif action == 'decrement':
         if cart_item.quantity > 1:
             cart_item.quantity -= 1
         else:
             cart_item.delete()
-            return redirect('cart_app:cart')
+            # Calculate the new total cart value after deletion
+            total_cart_price = sum(
+                item.product.discount_price * item.quantity if item.product.offer else item.product.price * item.quantity
+                for item in cart.items.all()
+            )
+            return JsonResponse({'success': 'Item removed', 'total_cart_price': total_cart_price})
+    elif action == 'update':
+        if quantity >= 1 and quantity <= product.available_stock:
+            cart_item.quantity = quantity
+        else:
+            return JsonResponse({'error': 'Invalid quantity'}, status=400)
     
     cart_item.save()
-    return redirect('cart_app:cart')
+    
+    # Calculate updated prices
+    item_total_price = cart_item.quantity * (cart_item.product.discount_price if cart_item.product.offer else cart_item.product.price)
+    total_cart_price = sum(
+        item.product.discount_price * item.quantity if item.product.offer else item.product.price * item.quantity
+        for item in cart.items.all()
+    )
+    
+    return JsonResponse({
+        'success': 'Cart updated',
+        'item_total_price': float(item_total_price),
+        'total_cart_price': float(total_cart_price),
+        'item_quantity': cart_item.quantity
+    })
 
 
 def remove_cart_item(request,cart_id):

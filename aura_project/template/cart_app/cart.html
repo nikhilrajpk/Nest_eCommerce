@@ -97,15 +97,24 @@ setTimeout (() => {
                     <h5>{{item.product.discount_price}}</h5>
                     </td>
                     <td>
-                        <div class="product_count">
-                            <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'decrement' %}"><span class="input-number-decrement"><i class="ti-angle-down"></i></span></a>
+                        <div class="product_count" style="width: 10rem;">
+                            <!-- <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'decrement' %}"><span class="input-number-decrement"><i class="ti-angle-down"></i></span></a>
                             <input class="input-number" type="text" value="{{ item.quantity }}" min="0" max="{{ item.product.available_stock }}">
-                            <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'increment' %}"><span class="input-number-increment" style="height: 1rem;!important"><i class="ti-angle-up"></i></span></a>
-                        </div>
+                            <a href="{% url 'cart_app:update_cart_item_quantity' item.product.id 'increment' %}"><span class="input-number-increment" style="height: 1rem;!important"><i class="ti-angle-up"></i></span></a> -->
+
+                          
+                              <button class="update-quantity btn-outline-primary" data-product-id="{{ item.product.id }}" data-action="increment" style="transform: translateX(18px);">+</button>
+                              <!-- Editable input for quantity -->
+                              <input class="quantity" type="number" min="1" max="{{ item.product.available_stock }}" value="{{ item.quantity }}" readonly>                       
+                              <button class="update-quantity btn-outline-primary" data-product-id="{{ item.product.id }}" data-action="decrement" style="transform: translateX(-48px);">-</button>
+                          
+                          
+                          </div>
                     </td>
                     
                     <td>
-                        <h5>{{item.total_price}} </h5>
+                        <!-- <h5>{{item.total_price}} </h5> -->
+                        <td class="item-price" id="item-price-{{ item.id }}" style="transform: translateX(-78px);">{{ item.total_price }}</td>
                     </td>
                     <td>
                         <form class="remove_item" action="{% url 'cart_app:remove_cart_item' item.id %}" method="post" >
@@ -199,7 +208,8 @@ setTimeout (() => {
                   <h5>Subtotal</h5>
                 </td>
                 <td>
-                  <h5>{{cart_total}}</h5>
+                  <!-- <h5>{{cart_total}}</h5> -->
+                  <div id="cart-total">{{ cart_total }}</div>
                 </td>
               </tr>
               <tr class="shipping_area">
@@ -308,5 +318,57 @@ setTimeout (() => {
   src="https://code.jquery.com/jquery-3.7.1.js"
   integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
   crossorigin="anonymous">
+</script>
+
+<!-- Ajax -->
+<script>
+  $(document).on('click', '.update-quantity', function () {
+    const productId = $(this).data('product-id');
+    const action = $(this).data('action');
+    const itemRow = $(this).closest('tr'); // Find the closest row to the button
+
+    // Get the current quantity from the input field
+    let quantityInput = itemRow.find('.quantity');
+    let currentQuantity = parseInt(quantityInput.val());
+
+    if (action === 'increment') {
+        if (currentQuantity < parseInt(quantityInput.attr('max'))) {
+            currentQuantity++;
+        }
+    } else if (action === 'decrement') {
+        if (currentQuantity > 1) {
+            currentQuantity--;
+        }
+    }
+
+    // Update the input field with the new quantity
+    quantityInput.val(currentQuantity);
+
+    // Send the updated quantity to the backend via AJAX
+    $.ajax({
+        url: `/cart/update-item/${productId}/${action}/`,
+        type: 'POST',
+        data: {
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+            quantity: currentQuantity
+        },
+        success: function (response) {
+            // Update the total price for the item
+            itemRow.find('.item-price').text(response.item_total_price.toFixed(2));
+
+            // Update the total cart price
+            $('#cart-total').text(response.total_cart_price.toFixed(2));
+
+            console.log('Response:', response); // Log response for debugging
+        },
+        error: function (xhr) {
+            console.error('Error:', xhr.responseText); // Log errors for debugging
+        }
+    });
+});
+
+
+
+
 </script>
   {% endblock content %}
