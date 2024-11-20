@@ -15,15 +15,31 @@
         <form id="banner-form" action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
+                
+    <!-- alert box  -->
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+            <strong>{{message}}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<script>
+    setTimeout (() => {
+        $(".alert").alert("close")
+    },3000)
+</script>
+
             <div class="mb-3">
                 <label for="banner-name" class="form-label">Banner Name:</label>
-                <input type="text" class="form-control" id="banner-name" name="banner_name" required>
+                <input type="text" class="form-control" id="banner-name" name="banner_name" value="{{banner_name}}" required>
                 <div id="banner-warning" style="display:none; color: red;">Please enter a valid banner name.</div>
             </div>
             
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label>
-                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                <textarea class="form-control" id="description" name="description" rows="4" required>{{description}}</textarea>
                 <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
             </div>
 
@@ -57,12 +73,12 @@
 
             <div class="mb-3">
                 <label for="start-date" class="form-label">Start Date:</label>
-                <input type="datetime-local" class="form-control" id="start-date" name="start_date" required>
+                <input type="datetime-local" class="form-control" id="start-date" name="start_date" value="{{start_date}}" required>
             </div>
 
             <div class="mb-3">
                 <label for="end-date" class="form-label">End Date:</label>
-                <input type="datetime-local" class="form-control" id="end-date" name="end_date" required>
+                <input type="datetime-local" class="form-control" id="end-date" name="end_date" value="{{end_date}}" required>
                 <div id="end-date-warning-past" style="display:none; color: red;">End date cannot be set in the past. Please select a future date.</div>
                 <div id="end-date-warning-start" style="display:none; color: red;">End date cannot be earlier than the start date. Please select a valid end date.</div>
             </div>

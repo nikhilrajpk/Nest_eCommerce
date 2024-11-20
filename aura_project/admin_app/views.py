@@ -157,14 +157,18 @@ def category_listed(request, id):
 
 def add_category(request):
     if request.user.is_authenticated and request.user.is_staff:
-
+        context = {
+            'category_name': ''
+        }
         if request.method == 'POST':
 
             category_name = request.POST.get('category_name')
 
+            context['category_name'] = category_name
+            
             category_exist = Category.objects.filter(category_name__iexact = category_name).exists()
 
-            print('Category already exist or not : ',category_exist)
+            print(category_name,'Category already exist or not : ',category_exist)
 
             if category_exist:
                 messages.error(request,'This category already exist!')
@@ -192,8 +196,8 @@ def add_category(request):
                 return redirect('admin_app:admin_category')
 
         offers = Offer.objects.exclude(end_date__lt = timezone.now())
-
-        return render(request,'admin_app/add_category.html',{'offers':offers})
+        context['offers'] = offers
+        return render(request,'admin_app/add_category.html',context)
 
     else:
 
@@ -303,28 +307,56 @@ def product_listed(request, id):
 @never_cache
 def add_product(request):
     if request.user.is_authenticated and request.user.is_staff:
+        context = {
+            'product_name':'',
+            'description':'',
+            'price':'',
+            'available_stock':'',
+            'image_1':'',
+            'image_2':'',
+            'image_3':'',
+            'material':'',
+            'color':'',
+            'width':'',
+            'height':'',
+            'length':'',
+        }
         if request.method == 'POST':
             product_name = request.POST.get('product_name')
+            product_description = request.POST.get('description')
+            price = request.POST.get('price')
+            offer_id = request.POST.get('offer')
+            category_id = request.POST.get('category')
+            available_stock = request.POST.get('available_stock')
+            image_1 = request.FILES.get('image_1')
+            image_2 = request.FILES.get('image_2')
+            image_3 = request.FILES.get('image_3')
+            is_listed = request.POST.get('is_listed')
+            in_stock = request.POST.get('in_stock')
+            material = request.POST.get('material')
+            color = request.POST.get('color')
+            width = request.POST.get('width')
+            height = request.POST.get('height')
+            length = request.POST.get('length')
+            
+            context['product_name'] = product_name
+            context['description'] = product_description
+            context['price'] = price
+            context['available_stock'] = available_stock
+            context['image_1'] = image_1
+            context['image_2'] = image_2
+            context['image_3'] = image_3
+            context['material'] = material
+            context['color'] = color
+            context['width'] = width
+            context['height'] = height
+            context['length'] = length
+                
+            
             product_exist = Product.objects.filter(product_name__iexact = product_name).exists()
             if product_exist:
                 messages.error(request,'Product name already exist.')
             else:
-                product_description = request.POST.get('description')
-                price = request.POST.get('price')
-                offer_id = request.POST.get('offer')
-                category_id = request.POST.get('category')
-                available_stock = request.POST.get('available_stock')
-                image_1 = request.FILES.get('image_1')
-                image_2 = request.FILES.get('image_2')
-                image_3 = request.FILES.get('image_3')
-                is_listed = request.POST.get('is_listed')
-                in_stock = request.POST.get('in_stock')
-                material = request.POST.get('material')
-                color = request.POST.get('color')
-                width = request.POST.get('width')
-                height = request.POST.get('height')
-                length = request.POST.get('length')
-                    
                 category = Category.objects.get(id = category_id)
                 
                 new_product = Product(
@@ -353,10 +385,10 @@ def add_product(request):
                 return redirect('admin_app:admin_product')
         categories = Category.objects.all()
         offers = Offer.objects.exclude(end_date__lt = timezone.now())
-        context = {
-            'categories' : categories,
-            'offers' : offers
-        }
+       
+        context['categories'] = categories
+        context['offers'] = offers
+        
         return render(request,'admin_app/add_product.html',context)
     else:
         return redirect('user_app:home')
@@ -576,6 +608,12 @@ def admin_banner(request):
     
 def add_banner(request):
     if request.user.is_authenticated and request.user.is_staff:
+        context = {
+            'banner_name':'',
+            'description':'',
+            'start_date':'',
+            'end_date':'',
+        }
         if request.method == 'POST':
             banner_name = request.POST.get('banner_name')
             description = request.POST.get('description')
@@ -583,20 +621,31 @@ def add_banner(request):
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
             
-            new_banner = Banner(
-                banner_name = banner_name,
-                banner_description = description,
-                banner_image = banner_image,
-                start_date = start_date,
-                end_date = end_date,
-            )
+            context['banner_name'] = banner_name
+            context['description'] = description
+            context['start_date'] = start_date
+            context['end_date'] = end_date
+            print('startdate and end date',start_date,end_date)
             
-            new_banner.save()
-            messages.success(request,f'New banner {banner_name} added.')
-            return redirect('admin_app:admin_banner')
+            banner_exist = Banner.objects.filter(banner_name__iexact = banner_name).exists()
+            
+            if banner_exist:
+                messages.error(request,'Banner already exists.')
+            else:
+                new_banner = Banner(
+                    banner_name = banner_name,
+                    banner_description = description,
+                    banner_image = banner_image,
+                    start_date = start_date,
+                    end_date = end_date,
+                )
+                
+                new_banner.save()
+                messages.success(request,f'New banner {banner_name} added.')
+                return redirect('admin_app:admin_banner')
         
         
-        return render(request,'admin_app/add_banner.html')
+        return render(request,'admin_app/add_banner.html',context)
     else:
         return redirect('user_app:home')
 

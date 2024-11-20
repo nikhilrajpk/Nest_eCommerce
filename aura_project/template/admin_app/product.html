@@ -114,6 +114,8 @@
                     <td>
                         {% if product.offer %}
                             {{ product.offer.offer_title }}
+                        {% elif product.category.offer %}
+                            {{product.category.offer.offer_title}}
                         {% else %}
                             No offer
                         {% endif %}

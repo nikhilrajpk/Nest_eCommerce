@@ -31,19 +31,19 @@
 
         <div class="mb-3">
             <label for="product-name" class="form-label">Product Name*</label>
-            <input type="text" class="form-control" id="product-name" name="product_name" required>
+            <input type="text" class="form-control" id="product-name" name="product_name" value="{{product_name}}" required>
             <div id="product-name-warning" style="display:none; color: red;">Please enter a valid product name.</div>
         </div>
 
         <div class="mb-3">
             <label for="description" class="form-label">Description*</label>
-            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            <textarea class="form-control" id="description" name="description" rows="4" required>{{description}}</textarea>
             <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
         </div>
 
         <div class="mb-3">
             <label for="price" class="form-label">Price*</label>
-            <input type="number" step="0.01" class="form-control" id="price" name="price" min="0" max="9999999" required>
+            <input type="number" step="0.01" class="form-control" id="price" name="price" min="0" max="9999999" value="{{price}}" required>
             <div id="price-warning" style="display:none; color: red;">Price cannot be 0.</div>
         </div>
         
@@ -70,24 +70,24 @@
 
         <div class="mb-3">
             <label for="available-stock" class="form-label">Available Stock*</label>
-            <input type="number" class="form-control" id="available-stock" name="available_stock" min="0" required>
+            <input type="number" class="form-control" id="available-stock" name="available_stock" min="0" value="{{available_stock}}" required>
         </div>
 
         <div class="mb-3">
             <label for="image-1" class="form-label">Image 1*</label>
-            <input type="file" class="form-control image-input" id="image-1" name="image_1" accept=".jpg, .jpeg, .png, .gif" required>
+            <input type="file" class="form-control image-input" id="image-1" name="image_1" accept=".jpg, .jpeg, .png, .gif" value="{{image_1}}" required>
             <div id="image1-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
         </div>
 
         <div class="mb-3">
             <label for="image-2" class="form-label">Image 2*</label>
-            <input type="file" class="form-control image-input" id="image-2" name="image_2" accept=".jpg, .jpeg, .png, .gif" required>
+            <input type="file" class="form-control image-input" id="image-2" name="image_2" accept=".jpg, .jpeg, .png, .gif" value="{{image_2}}" required>
             <div id="image2-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
         </div>
 
         <div class="mb-3">
             <label for="image-3" class="form-label">Image 3*</label>
-            <input type="file" class="form-control image-input" id="image-3" name="image_3" accept=".jpg, .jpeg, .png, .gif" required>
+            <input type="file" class="form-control image-input" id="image-3" name="image_3" accept=".jpg, .jpeg, .png, .gif" value="{{image_3}}" required>
             <div id="image3-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
         </div>
 
@@ -130,26 +130,26 @@
 
         <div class="mb-3">
             <label for="material" class="form-label">Material*</label>
-            <input type="text" class="form-control" id="material" name="material" required>
+            <input type="text" class="form-control" id="material" name="material" value="{{material}}" required>
             <div id="material-warning" style="display:none; color: red;">Please enter a valid material.</div>
         </div>
 
         <div class="mb-3">
             <label for="color" class="form-label">Color*</label>
-            <input type="text" class="form-control" id="color" name="color" required>
+            <input type="text" class="form-control" id="color" name="color" value="{{color}}" required>
             <div id="color-warning" style="display:none; color: red;">Please enter a valid color.</div>
         </div>
         <div class="mb-3">
             <label for="width" class="form-label">Width*</label>
-            <input type="number" class="form-control" id="width" name="width" min="1" required>
+            <input type="number" class="form-control" id="width" name="width" min="1" value="{{width}}" required>
         </div>
         <div class="mb-3">
             <label for="length" class="form-label">Length*</label>
-            <input type="number" class="form-control" id="length" name="length" min="1" required>
+            <input type="number" class="form-control" id="length" name="length" min="1" value="{{length}}" required>
         </div>
         <div class="mb-3">
             <label for="height" class="form-label">Height*</label>
-            <input type="number" class="form-control" id="height" name="height" min="1" required>
+            <input type="number" class="form-control" id="height" name="height" min="1" value="{{height}}" required>
         </div>
 
         <!-- Submit Button -->
