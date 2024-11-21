@@ -19,7 +19,7 @@ def home(request):
     if request.user.is_authenticated and request.user.is_block:
         return redirect('authentication_app:logout')
     
-    print(timezone.localtime(timezone.now()))
+    
     now = timezone.now()
     banners = Banner.objects.exclude(end_date__lt = now)
     
@@ -64,19 +64,7 @@ def home(request):
     product_paginator = Paginator(products, 12)
     products = product_paginator.get_page(page)
     
-    # # Get the user's cart
-    # cart, created = Cart.objects.get_or_create(user=request.user)
-    # cart_items = cart.items.all()
     
-    # # Get the user's wishlist
-    # wishlist, created = Wishlist.objects.get_or_create(user=request.user)
-    # wishlist_items = wishlist.wishlist_items_set.all()
-    
-    # # Create lists of product IDs for the cart and wishlist
-    # cart_product_ids = cart_items.values_list('product__id', flat=True)
-    # wishlist_product_ids = wishlist_items.values_list('product__id', flat=True)
-    
-    # print(cart_product_ids)
     
     context = {
         'banners': banners,
@@ -84,8 +72,6 @@ def home(request):
         'products': products,
         'best_sellers': best_sellers,
         'query': query,
-        # 'cart_product_ids': list(cart_product_ids),  # Convert to a list
-        # 'wishlist_product_ids': list(wishlist_product_ids),  # Convert to a list
     }
     if sort_with:
         context['sort_with']=sort_with
@@ -135,8 +121,6 @@ def address_validation(request,address_type,street_address,landmark,state,countr
     phone = phone.strip()
     alternative_phone = alternative_phone.strip()
     
-    print(f"Raw phone: '{phone}' (Length: {len(phone)})")
-    print(f"Raw alternative phone: '{alternative_phone}' (Length: {len(alternative_phone)})")
 
     if len(phone) != 10 or not phone.isdigit():
         messages.error(request, 'Phone number must be exactly 10 digits.')
@@ -227,7 +211,7 @@ def add_address(request):
             'alternative_phone' : alternative_phone,
             'address' : address_input
         }
-        print(user_details.email)
+        
         
         # Validating the address details
         validation_result = address_validation(
@@ -263,16 +247,13 @@ def add_address(request):
         messages.success(request,'New address added.')
         
         checkout_add_address = request.POST.get('checkout_add_address',None)
-        print("checkout_add_address status from add_address line 266: ",checkout_add_address)
+       
         if checkout_add_address and checkout_add_address.isdigit():
-            print('inside if checkout add address line268')
             return redirect('cart_app:checkout',cart_id = checkout_add_address)
         else:
-            print('redirecting to the account. from add address line 271')
             return redirect('user_app:account')
     
     checkout_add_address = request.GET.get('from',None)
-    print("checkout_add_address status from add_address line 273: ",checkout_add_address)
     
     return render(request,'user_app/add_address.html',{'checkout_add_address':checkout_add_address})
 

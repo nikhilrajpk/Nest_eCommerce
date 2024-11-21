@@ -181,7 +181,7 @@ def verify_otp(request):
         session_email = request.session.get('registered_email')
         otp_secret_key = request.session['otp_secret_key']
         otp_valid_until = request.session['otp_valid_date']
-        referral_code = request.session['referral_code']
+        referral_code = request.session.get('referral_code')
         
         
         
@@ -251,7 +251,9 @@ def verify_otp(request):
             del request.session['registered_email']
             del request.session['otp_secret_key']
             del request.session['otp_valid_date']
-            del request.session['referral_code']
+            
+            if 'referral_code' in request.session:
+                del request.session['referral_code']
             
             # Clearing the otp_verification_allowed 
             del request.session['otp_verification_allowed']
@@ -306,7 +308,6 @@ def resend_otp_view(request):
             messages.error(request, 'Error sending email. Please try again.')
             return redirect('authentication_app:verify_otp')
 
-        print('redirecting to the verify OTP page')
         return redirect('authentication_app:verify_otp')  # Redirect to OTP verification page
 
     else:

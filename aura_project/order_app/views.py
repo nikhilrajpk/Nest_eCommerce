@@ -41,8 +41,7 @@ def confirm_order(request):
         
         discount = request.POST.get('discount',0)
         coupon_code = request.POST.get('coupon_code',None)
-        print('discount amount of coupon if applied . confirm order line 42',discount)
-        print('coupon_code  applied . confirm order line 42:',coupon_code)
+        
         
         if request.POST.get('payment_retry') == 1:
             order = Order.objects.get(id = order_id)
@@ -87,10 +86,10 @@ def confirm_order(request):
     if cart_total_with_discount == 50:
         total_amount = request.POST.get('total_amount')
         cart_total_with_discount = total_amount
-        print(cart_total_with_discount,'this is when retrying payment*********** line 90 cofirm order')
+        
         
     request.session['cart_total_with_discount'] = cart_total_with_discount
-    print('from confirm order line 93.  session cart_total_with_discount=',request.session['cart_total_with_discount'])
+    
     
     context = {
         'cart_id':cart.id,
@@ -134,7 +133,7 @@ def confirm_order(request):
             #****************
             context['payment'] = payment
             context['payment_retry'] = request.POST.get('payment_retry')
-            print('first continue payment value line 137 :',context['payment_retry'])
+            
         except Exception as e:
             messages.error(request,'Razor pay server is currently down.',e)
     else:
@@ -165,8 +164,7 @@ def order_view(request):
         
         discount = request.POST.get('discount',0)
         coupon_code = request.POST.get('coupon_code',None)
-        print('discount amount getting on : order view line 156 : ', discount)
-        print('coupon_code getting on : order view line 157 : ', coupon_code)
+        
         
         
         # Creating and saving the order
@@ -227,8 +225,7 @@ def order_view(request):
             
             
             
-            # order.total_price = total_price
-            print('order_total saving in order table is :',total_price, 'from order view line 206')
+            
             
             
             
@@ -264,8 +261,7 @@ def order_view(request):
             wallet.balance = float(wallet.balance) - cart_total_with_discount
             wallet.save()
             
-            print(cart_total_with_discount)
-            print(wallet.balance)
+            
             
             wallet_transaction = WalletTransation.objects.create(
                 wallet = wallet,
@@ -281,8 +277,7 @@ def order_view(request):
         elif payment_method == 'razorpay':
             payment_id = request.session.get('razor_payment')
             payment_status = request.POST.get('payment_status','success')
-            print('payment status is :',payment_status)
-            print(request.POST.get('payment_retry'),"payment retry on order view line 269")
+            
             
             if payment_status == 'failed' and request.POST.get('payment_retry') != '1':
                 order.order_status = 'pending'
@@ -290,7 +285,7 @@ def order_view(request):
                 
                 messages.error(request,'Payment is failed! You can continue the payment from here :)')
             elif request.POST.get('payment_retry') == '1' and payment_status == 'failed':
-                print('payment failed 2nd time of order line 262:',order_id,request.POST.get('payment_failed'),)    
+                   
                 messages.error(request,'Your order is canceled because payment failure!')
                 order_obj.order_status = 'canceled'
                 order_obj.save()
@@ -326,9 +321,7 @@ def order_view(request):
         if coupon_code:
             try:
                 coupon = Coupons.objects.get(code=coupon_code)
-                print(coupon.used_limit)
                 coupon.used_limit = F('used_limit') - 1
-                print('after',coupon.used_limit)
                 cart_total_with_discount -= float(coupon.discount_amount)
                 coupon.save()
             except Coupons.DoesNotExist:
@@ -380,7 +373,7 @@ def order_details(request,order_id):
         payment = Payment.objects.get(order = order)
         if payment:
             payment_method = payment.payment_method
-            print(payment_method)
+            
     except Exception as e:
             payment_method = 'COD'
             
@@ -400,7 +393,6 @@ def order_details(request,order_id):
     coupon_code = None
     try:
         coupon_code = order.checkout.coupons.code
-        print('coupon code getting from order details line 369:',coupon_code)
         coupon = None
         if coupon_code:
             try:
@@ -413,7 +405,7 @@ def order_details(request,order_id):
                 coupon = None
                 messages.error(request, "Coupon not found or expired.")
     except Exception as e:
-        print('coupon does not exist on order details line 416',e)
+        pass
         
     address = order.orderAddress.first()    
     context = {
@@ -504,7 +496,7 @@ def cancel_order(request, order_id):
                 wallet = Wallet.objects.get(user=request.user)
                 wallet.balance = F('balance') + total_price
                 wallet.save()
-                print(wallet.balance)
+                
                 
                 wallet_transaction = WalletTransation.objects.create(
                     wallet = wallet,
@@ -554,7 +546,7 @@ def return_confirm(request,item_id,order_id):
         
         # Adding money to wallet when returning the item.
         total_price = order_item.total_price
-        print('total price of order item from return confirm line 557: ',total_price)
+       
         
         # getting the user of the order.
         order = Order.objects.get(id = order_id)
@@ -565,7 +557,7 @@ def return_confirm(request,item_id,order_id):
         coupon_code = None
         try:
             coupon_code = order.checkout.coupons.code
-            print('coupon code getting from return confirm line 568:',coupon_code)
+    
             coupon = None
             if coupon_code:
                 try:
@@ -575,7 +567,7 @@ def return_confirm(request,item_id,order_id):
                     coupon = None
                     messages.error(request, "Coupon not found or expired.")
         except Exception as e:
-            print('coupon does not exist on return confirm line 579',e)
+            pass
         
         item_count = order.items.count()
         if coupon_code:
@@ -588,7 +580,7 @@ def return_confirm(request,item_id,order_id):
         wallet,created = Wallet.objects.get_or_create(user=user)
         wallet.balance = F('balance') + total_price
         wallet.save()
-        print('wallet balance after returning the order item line 566 : ',wallet.balance)
+        
         
         wallet_transaction = WalletTransation.objects.create(
             wallet = wallet,
@@ -622,7 +614,7 @@ def download_invoice_pdf(request, order_id):
         payment = Payment.objects.get(order = order)
         if payment:
             payment_method = payment.payment_method
-            print(payment_method)
+            
     except Exception as e:
             payment_method = 'cod'
             
@@ -643,7 +635,7 @@ def download_invoice_pdf(request, order_id):
     coupon_code = None
     try:
         coupon_code = order.checkout.coupons.code
-        print('coupon code getting from download invoice  line 619:',coupon_code)
+        
         coupon = None
         if coupon_code:
             try:
@@ -654,7 +646,7 @@ def download_invoice_pdf(request, order_id):
                 coupon = None
                 messages.error(request, "Coupon not found or expired.")
     except Exception as e:
-        print('coupon does not exist on order details line 388',e)
+        pass
         
     # Context for rendering the PDF template
     sub_total = order.total_price-50 + coupon_discount

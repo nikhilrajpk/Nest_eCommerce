@@ -221,7 +221,7 @@ def checkout(request,cart_id):
     
     # Apply coupon discount if applicable
     discount = Decimal(request.session.pop('discount_amount', 0))
-    print('discount amount from coupon: ',discount,': from checkout line 207')
+    
     cart_total_with_discount = float(cart_total) - float(discount)
     cart_total_with_discount += 50
     

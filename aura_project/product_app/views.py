@@ -72,7 +72,7 @@ def single_product_view(request,id):
     total_reviews = review_data['total_reviews'] or 0
     total_stars = review_data['total_stars'] or 0
     
-    print(total_reviews)
+    
 
     # Calculating the average rating
     if total_reviews > 0:

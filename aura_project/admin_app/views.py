@@ -1307,11 +1307,7 @@ class SalesReportView(TemplateView):
                     output_field=DecimalField(max_digits=10, decimal_places=2)
                 )
             ).order_by('period')
-            #printing discount amount
-            for i in discount_data:
-                print('############')
-                print(i['total_discount'])
-                print('############')
+            
             # Combine sales and discount data
             discount_dict = {item['period']: item['total_discount'] for item in discount_data}
             processed_data = []
@@ -1319,7 +1315,6 @@ class SalesReportView(TemplateView):
             for item in sales_data:
                 period = item['period']
                 period_discount = discount_dict.get(period, Decimal('0.00'))
-                print(f' discount is = {period_discount}')
                 processed_item = {
                     'period': period,
                     'orders': item['orders'],
