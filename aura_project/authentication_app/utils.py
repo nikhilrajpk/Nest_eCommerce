@@ -7,5 +7,5 @@ def send_otp(request):
     request.session['otp_secret_key'] = totp.secret
     valid_date = datetime.now() + timedelta(minutes=3)
     request.session['otp_valid_date'] = str(valid_date)
-    print(otp)
+    print('OTP : ',otp)
     return otp

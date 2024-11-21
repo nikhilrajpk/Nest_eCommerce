@@ -64,22 +64,19 @@ def cart_view(request):
     
     # Loop through cart items and remove those that are not listed
     for item in cart_items:
-        # if not item.product.is_listed or not item.product.category.is_listed:
-        #     item.delete()
-        # else:
-            # removing offers if it expires 
-            if item.product.offer and item.product.offer.end_date < timezone.now():
-                messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
-                item.product.offer = None
-                item.product.category.offer = None
-                item.save()
-                
-            # Check if quantity exceeds available stock
-            if item.quantity > item.product.available_stock:
-                item.quantity = item.product.available_stock
-                item.save()
-                messages.warning(request, f'Quantity for {item.product.product_name} has been adjusted to match available stock ({item.product.available_stock}).')
-            filtered_cart_items.append(item)
+        # removing offers if it expires 
+        if item.product.offer and item.product.offer.end_date < timezone.now():
+            messages.error(request,f'Offer {item.product.offer.offer_title} is expired.')
+            item.product.offer = None
+            item.product.category.offer = None
+            item.save()
+            
+        # Check if quantity exceeds available stock
+        if item.quantity > item.product.available_stock:
+            item.quantity = item.product.available_stock
+            item.save()
+            messages.warning(request, f'Quantity for {item.product.product_name} has been adjusted to match available stock ({item.product.available_stock}).')
+        filtered_cart_items.append(item)
     
     cart_items_with_prices = []
     

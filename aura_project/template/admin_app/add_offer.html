@@ -31,14 +31,18 @@
         <!-- Offer Title -->
         <div class="mb-3">
             <label for="offer-title" class="form-label">Offer Title:</label>
-            <input type="text" class="form-control" id="offer-title" name="offer_title" required>
+            <input type="text" class="form-control" id="offer-title" name="offer_title" {% if offer_title %} value="{{offer_title}} {% endif %}" required>
             <div id="offer-warning" style="display:none; color: red;">Please enter a valid offer title.</div>
         </div>
 
         <!-- Offer Description -->
         <div class="mb-3">
             <label for="offer-description" class="form-label">Offer Description:</label>
-            <textarea class="form-control" id="offer-description" name="offer_description" rows="4" required></textarea>
+            <textarea class="form-control" id="offer-description" name="offer_description" rows="4" required>
+                {% if description %}
+                    {{description}}
+                {% endif %}
+            </textarea>
             <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
         </div>
 

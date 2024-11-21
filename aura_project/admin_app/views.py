@@ -19,6 +19,7 @@ from django.db.models.functions import ExtractMonth,ExtractDay,ExtractYear,Extra
 
 # Create your views here.
 
+# Admin dashboard
 @never_cache
 def admin_home(request):
     if request.user.is_authenticated and request.user.is_staff: 
@@ -28,22 +29,18 @@ def admin_home(request):
         # Initializing count array (0=Monday to 6=Sunday as per Python's weekday())
         days_count = [0] * 7
         
-        # Count orders by weekday using Python's date.weekday()
+        # Counting orders by weekday using Python's date.weekday()
         for order in orders:
-            # Convert UTC to local time
+            # Converting UTC to local time
             local_date = timezone.localtime(order.order_date)
             weekday = local_date.weekday()  # Monday = 0, Sunday = 6
             days_count[weekday] += 1
         
-        # Create day names starting with Monday
+        # Creating day names starting with Monday
         day_names = [calendar.day_name[i] for i in range(7)]  # Monday to Sunday
 
-        # Debug information
-        print("Raw order counts by day:", days_count)
-        print("Day names:", day_names)
-        print("Total orders:", sum(days_count))
         
-        # Process monthly data
+        # Processing monthly data
         orders_monthly = Order.objects.annotate(
             month=ExtractMonth('order_date', tzinfo=timezone.get_current_timezone())
         ).values('month').annotate(
@@ -52,7 +49,7 @@ def admin_home(request):
             order_status='canceled'
         )
         
-        # Process yearly data
+        # Processing yearly data
         orders_yearly = Order.objects.annotate(
             year=ExtractYear('order_date', tzinfo=timezone.get_current_timezone())
         ).values('year').annotate(
@@ -61,7 +58,7 @@ def admin_home(request):
             order_status='canceled'
         )
 
-        # Process monthly and yearly data
+        # Processing monthly and yearly data
         month = []
         year = []
         total_order_month = []
@@ -75,7 +72,6 @@ def admin_home(request):
             year.append(str(i['year']))
             total_order_year.append(i['count_year'])
 
-        # Let's also print a detailed breakdown
         weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         print("\nDetailed daily breakdown:")
         for i, count in enumerate(days_count):
@@ -93,6 +89,7 @@ def admin_home(request):
     else:
         return redirect('user_app:home')
 
+# User management
 @never_cache    
 def users(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -119,7 +116,7 @@ def user_block(request, id):
     return JsonResponse({"is_block": user.is_block})
   
 
-# Category Details
+# Category management
 
 @never_cache
 def admin_category(request):
@@ -168,8 +165,6 @@ def add_category(request):
             
             category_exist = Category.objects.filter(category_name__iexact = category_name).exists()
 
-            print(category_name,'Category already exist or not : ',category_exist)
-
             if category_exist:
                 messages.error(request,'This category already exist!')
 
@@ -179,7 +174,15 @@ def add_category(request):
                 is_listed = request.POST.get('available')
 
                 offer = None
-
+                
+                # Validation checking
+                name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+                
+                if not re.match(name_regex,category_name):
+                    messages.error(request,'Invalid category name. Please use alphabets, spaces or hyphens.')
+                    return render(request,'admin_app/add_category.html',context)
+                
+                # Creating new category object
                 new_category = Category(
 
                     category_name = category_name,
@@ -210,14 +213,14 @@ def edit_category(request,id):
 
     if request.user.is_authenticated and request.user.is_staff:
 
-        category = Category.objects.get(id = id)# Retrive data of the catgory
+        category = Category.objects.get(id = id)# Retriving data of the catgory
 
         if request.method == 'POST':
 
             category_name = request.POST.get('category_name')
 
             offer_id = request.POST.get('offer')
-            print('offer_id : ',offer_id)
+            
             category_image = request.FILES.get('category_image')
             is_listed = request.POST.get('available')
 
@@ -225,39 +228,47 @@ def edit_category(request,id):
                 offer = None  # No offer selected
             else:
                 offer = get_object_or_404(Offer, id=offer_id)
-
-            print('offer object:', offer)
-            category.offer = offer 
-
-
-            category.category_name = category_name
-
-            category.is_listed = is_listed
-
-            if category_image:
-                category.cat_image = category_image
-
-            category.save()
-
-           
-
-            # Update products without an individual offer
-            if offer is None:  
-                products = category.product.all()  
-                for product in products:
-                    product.offer = None 
-                    product.save()
-
-            else:
-                products = category.product.filter(offer__isnull=True)  # products with no offer
-                for product in products:
-                    product.offer = offer  
-                    product.save()
                 
+            
+            # Validation checking
+            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+            
+            if not re.match(name_regex,category_name):
+                messages.error(request,'Invalid category name. Please use alphabets, spaces or hyphens.')
+            
+            else:
+                # Updating category object
+                category.offer = offer 
 
-            messages.success(request,f'Category {category_name} edited.')
 
-            return redirect('admin_app:admin_category')
+                category.category_name = category_name
+
+                category.is_listed = is_listed
+
+                if category_image:
+                    category.cat_image = category_image
+
+                category.save()
+
+            
+
+                # Updating products without an individual offer
+                if offer is None:  
+                    products = category.product.all()  
+                    for product in products:
+                        product.offer = None 
+                        product.save()
+
+                else:
+                    products = category.product.filter(offer__isnull=True)  # products with no offer
+                    for product in products:
+                        product.offer = offer  
+                        product.save()
+                    
+
+                messages.success(request,f'Category {category_name} edited.')
+
+                return redirect('admin_app:admin_category')
 
         if category.offer:
             offers = Offer.objects.exclude(id = category.offer.id)
@@ -271,7 +282,7 @@ def edit_category(request,id):
 
         return redirect('user_app:home')
 
-
+# Product management
 @never_cache
 def admin_product(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -280,7 +291,8 @@ def admin_product(request):
             products = Product.objects.all().filter(Q(product_name__icontains = query)| Q(category__category_name__icontains = query))
         else:
             products = Product.objects.all().order_by('category__category_name')
-            
+        
+        # checking the offer
         for i in products:
             if i.offer and i.offer.end_date < timezone.now():
                 i.offer = None
@@ -357,6 +369,30 @@ def add_product(request):
             if product_exist:
                 messages.error(request,'Product name already exist.')
             else:
+                
+                # Validation checking
+                name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+                description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
+                
+                if not re.match(name_regex,product_name):
+                    messages.error(request,'Invalid product name. Please use alphabets, spaces or hyphens.')
+                    return render(request,'admin_app/add_product.html',context)
+                
+                elif not re.match(description_regex,product_description):
+                    messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                    return render(request,'admin_app/add_product.html',context)
+                    
+                
+                elif not re.match(name_regex,material):
+                    messages.error(request,'Invalid material. Please use alphabets, spaces or hyphens.')
+                    return render(request,'admin_app/add_product.html',context)
+                
+                elif not re.match(name_regex,color):
+                    messages.error(request,'Invalid color. Please use alphabets, spaces or hyphens.')
+                    return render(request,'admin_app/add_product.html',context)
+
+                
+                
                 category = Category.objects.get(id = category_id)
                 
                 new_product = Product(
@@ -404,7 +440,6 @@ def edit_product(request,id):
             offer_id = request.POST.get('offer')
             category_id = request.POST.get('category')
             available_stock = request.POST.get('available_stock')
-            print('Edited stock : ',available_stock)
             image_1 = request.FILES.get('image_1')
             image_2 = request.FILES.get('image_2')
             image_3 = request.FILES.get('image_3')
@@ -416,40 +451,58 @@ def edit_product(request,id):
             height = request.POST.get('height')
             length = request.POST.get('length')
             
-            product.product_name = product_name
-            product.description = product_description
-            product.price = price
+            # Validation checking
+            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+            description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
+                        
+            if not re.match(name_regex,product_name):
+                messages.error(request,'Invalid product name. Please use alphabets, spaces or hyphens.')
             
-            if offer_id == '0':
-                product.offer = None
-            elif offer_id:
-                offer = Offer.objects.get(id = offer_id)
-                product.offer = offer
+            elif not re.match(description_regex,product_description):
+                messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
             
-            category = Category.objects.get(id = category_id)
-            product.category = category
+            elif not re.match(name_regex,material):
+                messages.error(request,'Invalid material. Please use alphabets, spaces or hyphens.')
             
-            product.available_stock = available_stock
-            
-            if image_1:
-                product.image_1 = image_1
-            if image_2:
-                product.image_2 = image_2
-            if image_3:
-                product.image_3 = image_3
+            elif not re.match(name_regex,color):
+                messages.error(request,'Invalid color. Please use alphabets, spaces or hyphens.')
+
+            else:
+                # product object updating
+                product.product_name = product_name
+                product.description = product_description
+                product.price = price
                 
-            product.is_listed = is_listed
-            product.in_stock = in_stock
-            product.material = material
-            product.color = color
-            product.width = width
-            product.length = length
-            product.height = height
-            
-            product.save()
-            
-            messages.success(request,f'Product {product_name} edited.')
-            return redirect('admin_app:admin_product')
+                if offer_id == '0':
+                    product.offer = None
+                elif offer_id:
+                    offer = Offer.objects.get(id = offer_id)
+                    product.offer = offer
+                
+                category = Category.objects.get(id = category_id)
+                product.category = category
+                
+                product.available_stock = available_stock
+                
+                if image_1:
+                    product.image_1 = image_1
+                if image_2:
+                    product.image_2 = image_2
+                if image_3:
+                    product.image_3 = image_3
+                    
+                product.is_listed = is_listed
+                product.in_stock = in_stock
+                product.material = material
+                product.color = color
+                product.width = width
+                product.length = length
+                product.height = height
+                
+                product.save()
+                
+                messages.success(request,f'Product {product_name} edited.')
+                return redirect('admin_app:admin_product')
         categories = Category.objects.all().exclude(id = product.category.id)
         if product.offer:
             offers = Offer.objects.all().exclude(id = product.offer.id)
@@ -485,7 +538,7 @@ def add_stock(request,product_id):
     else:
         return redirect('user_app:home')
     
-# Offer Details
+# Offer management
 
 def admin_offer(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -508,6 +561,19 @@ def add_offer(request):
             offer_percentage = request.POST.get('offer_percentage')
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
+            
+            # Validation checking
+            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+            description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
+            
+            if not re.match(name_regex,offer_title):
+                messages.error(request,'Invalid offer title. Please use alphabets, spaces or hyphens.')
+                return render(request,'admin_app/add_offer.html',{'offer_title':offer_title})
+            
+            elif not re.match(description_regex,offer_description):
+                messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                return render(request,'admin_app/add_offer.html',{'description':offer_description})
+
             
             offer = Offer(
                 offer_title = offer_title,
@@ -536,46 +602,32 @@ def edit_offer(request,id):
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
             
-            offer.offer_title = offer_title
-            offer.offer_description = offer_description
-            offer.offer_percentage = offer_percentage
-            offer.start_date = start_date
-            offer.end_date = end_date
+            # Validation checking
+            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+            description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
             
+            if not re.match(name_regex,offer_title):
+                messages.error(request,'Invalid offer title. Please use alphabets, spaces or hyphens.')
             
-            offer.save()
+            elif not re.match(description_regex,offer_description):
+                messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
             
-            messages.success(request,f'Offer {offer_title} edited.')
-            return redirect('admin_app:admin_offer')
+            else:            
+                offer.offer_title = offer_title
+                offer.offer_description = offer_description
+                offer.offer_percentage = offer_percentage
+                offer.start_date = start_date
+                offer.end_date = end_date
+                
+                
+                offer.save()
+                
+                messages.success(request,f'Offer {offer_title} edited.')
+                return redirect('admin_app:admin_offer')
         return render(request,'admin_app/edit_offer.html',{'offer':offer})
     else:
         return redirect('user_app:home')
     
-@never_cache
-def edit_offer(request,id):
-    if request.user.is_authenticated and request.user.is_staff:
-        offer = Offer.objects.get(id = id)    # Retrive data of the offer
-        if request.method == 'POST':
-            offer_title = request.POST.get('offer_title')
-            offer_description = request.POST.get('offer_description')
-            offer_percentage = request.POST.get('offer_percentage')
-            start_date = request.POST.get('start_date')
-            end_date = request.POST.get('end_date')
-            
-            offer.offer_title = offer_title
-            offer.offer_description = offer_description
-            offer.offer_percentage = offer_percentage
-            offer.start_date = start_date
-            offer.end_date = end_date
-            
-            
-            offer.save()
-            
-            messages.success(request,f'Offer {offer_title} edited.')
-            return redirect('admin_app:admin_offer')
-        return render(request,'admin_app/edit_offer.html',{'offer':offer})
-    else:
-        return redirect('user_app:home')
     
 @never_cache
 def remove_offer(request,id):
@@ -591,7 +643,7 @@ def remove_offer(request,id):
     else:
         return redirect('user_app:home')
     
-    
+# Banner management 
 @never_cache
 def admin_banner(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -625,13 +677,27 @@ def add_banner(request):
             context['description'] = description
             context['start_date'] = start_date
             context['end_date'] = end_date
-            print('startdate and end date',start_date,end_date)
+            
             
             banner_exist = Banner.objects.filter(banner_name__iexact = banner_name).exists()
             
             if banner_exist:
                 messages.error(request,'Banner already exists.')
             else:
+                
+                # Validation checking
+                name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+                description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
+                
+                if not re.match(name_regex,banner_name):
+                    messages.error(request,'Invalid banner name. Please use alphabets, spaces or hyphens.')
+                    return render(request,'admin_app/add_banner.html',context)
+                
+                elif not re.match(description_regex,description):
+                    messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                    return render(request,'admin_app/add_banner.html',context)
+                
+                
                 new_banner = Banner(
                     banner_name = banner_name,
                     banner_description = description,
@@ -660,20 +726,32 @@ def edit_banner(request,id):
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
             
+            # Validation checking
+            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+            description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
             
-            banner.banner_name = banner_name
-            banner.banner_description = description
-            banner.start_date = start_date
-            banner.end_date = end_date
-            
-            if banner_image:
-                banner.banner_image = banner_image
+            if not re.match(name_regex,banner_name):
+                messages.error(request,'Invalid banner name. Please use alphabets, spaces or hyphens.')
                 
-            banner.save()
             
-            messages.success(request,f' banner {banner_name} edited.')
-            return redirect('admin_app:admin_banner')
-        
+            elif not re.match(description_regex,description):
+                messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                
+                
+            else:
+                banner.banner_name = banner_name
+                banner.banner_description = description
+                banner.start_date = start_date
+                banner.end_date = end_date
+                
+                if banner_image:
+                    banner.banner_image = banner_image
+                    
+                banner.save()
+                
+                messages.success(request,f' banner {banner_name} edited.')
+                return redirect('admin_app:admin_banner')
+            
         
         context = {
             'banner':banner,
@@ -696,7 +774,7 @@ def remove_banner(request,id):
     else:
         return redirect('user_app:home')
     
-    
+# coupon management 
 def admin_coupon(request):
     if request.user.is_authenticated and request.user.is_staff:
         query = request.GET.get('search_query')
@@ -835,7 +913,7 @@ def remove_coupon(request,coupon_id):
     else:
         return redirect('user_app:home')
     
-    
+# Order management 
 def admin_orders(request):
     if request.user.is_authenticated and request.user.is_staff:
         query = request.GET.get('search_query')
@@ -894,7 +972,6 @@ def show_order(request,order_id):
         coupon_code = None
         try:
             coupon_code = order.checkout.coupons.code
-            print('coupon code getting from show order  line 847:',coupon_code)
             coupon = None
             if coupon_code:
                 try:
@@ -905,7 +982,7 @@ def show_order(request,order_id):
                     coupon = None
                     messages.error(request, "Coupon not found or expired.")
         except Exception as e:
-            print('coupon does not exist on order details line 388',e)
+            pass
             
         context = {
             'order': order,
@@ -922,7 +999,7 @@ def show_order(request,order_id):
     else:
         return redirect('user_app:home')
     
-    # {% url 'admin_app:edit_order' order.id %}
+
     
     
     

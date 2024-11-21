@@ -12,6 +12,7 @@ from allauth.socialaccount.models import SocialAccount
 
 from django.views.decorators.cache import never_cache
 
+# Email sending and OTP
 from .utils import send_otp
 from django.core.mail import EmailMessage
 from datetime import datetime,timedelta
@@ -122,7 +123,7 @@ def register_view(request):
                     messages.error(request, 'Error sending email. Please try again.')
                     return None
 
-                print('redirecting to the verify OTP page')
+                
                 return redirect('authentication_app:verify_otp')  # Redirect to OTP verification page
             else:
                 messages.error(request, 'Email already exists!')
@@ -152,7 +153,7 @@ def register_view(request):
                 messages.error(request, 'Error sending email. Please try again.')
                 return None
 
-            print('redirecting to the verify OTP page')
+            
             return redirect('authentication_app:verify_otp')  # Redirect to OTP verification page
 
     else:
@@ -181,11 +182,7 @@ def verify_otp(request):
         otp_secret_key = request.session['otp_secret_key']
         otp_valid_until = request.session['otp_valid_date']
         referral_code = request.session['referral_code']
-        print(session_otp)
-        print(session_email)
-        print(otp_secret_key)
-        print(otp_valid_until)
-        print(referral_code)
+        
         
         
         # Ensure all necessary session data exists
@@ -215,7 +212,7 @@ def verify_otp(request):
             
             # Creating referral code for the new user.
             new_referral_code = generate_referral_code(user.id)
-            print('New user referral code: ',new_referral_code)
+            
             UserReferral.objects.create(
                 user=user,
                 referral_code = new_referral_code,
@@ -385,9 +382,8 @@ def social_login_error_view(request, exception):
 
 
 def logout_view(request):
-    # if request.method == 'POST':
     logout(request)
-        # del request.session['name']
+    
     return redirect('authentication_app:login')
 
 # Forgot password starts
@@ -445,10 +441,7 @@ def verify_otp_reset_password(request):
         email = request.session.get('reset_pass_email')
         otp_secret_key = request.session['otp_secret_key']
         otp_valid_until = request.session['otp_valid_date']
-        print(session_otp)
-        print(email)
-        print(otp_secret_key)
-        print(otp_valid_until)
+        
         
         
         # Ensure all necessary session data exists
@@ -474,7 +467,7 @@ def verify_otp_reset_password(request):
             
             # Clear the OTP session
             del request.session['registration_otp']
-            # del request.session['reset_pass_email']
+            
             del request.session['otp_secret_key']
             del request.session['otp_valid_date']
             
@@ -519,7 +512,7 @@ def reset_pass_resend_otp(request):
             messages.error(request, 'Error sending email. Please try again.')
             return redirect('authentication_app:forgot_password')
 
-        print('redirecting to the verify OTP page')
+        
         return redirect('authentication_app:reset_password_otp')  # Redirect to OTP verification page
 
     else:
