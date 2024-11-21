@@ -7,9 +7,11 @@
         color: white;
         border-radius: 1rem;
     }
+
     .btn-custom:hover {
         background-color: #d4a373;
     }
+
     .order-summary-box {
         border: 1px solid #e9ecef;
         padding: 20px;
@@ -21,30 +23,26 @@
 <!-- breadcrumbs start-->
 <nav id="bread-nav" aria-label="breadcrumb">
     <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'cart_app:cart' %}">Cart</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'cart_app:checkout' cart_id %}">Checkout</a></li>
-    <li class="breadcrumb-item active" aria-current="page"><a href="">Order confirmation</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cart_app:cart' %}">Cart</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cart_app:checkout' cart_id %}">Checkout</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><a href="">Order confirmation</a></li>
     </ol>
-  </nav>
+</nav>
 <section class="order_confirmation_area section_padding">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <h2 id="main-heading" class="text-center">Order Confirmation</h2>
                 <!-- alert box  -->
-        {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{message.tags}}">
-                <strong>{{message}}</strong>
-            </div>
-        {% endfor %}
-        {% endif %}
-        <script>
-            setTimeout (() => {
-                $(".alert").alert("close")
-            },5000)
-            </script>
-            
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{message.tags}}">
+                    <strong>{{message}}</strong>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+
                 <!-- Billing Address -->
                 <div class="order-summary-box">
                     <h4>Billing Address</h4>
@@ -95,30 +93,30 @@
                     <h4>Payment Method</h4>
                     <p>{{ payment_method }}</p>
                 </div>
-                
+
                 <br>
 
                 <!-- Confirm Order Button -->
-                 {% if payment_method != 'razorpay' %}
+                {% if payment_method != 'razorpay' %}
                 <form action="{% url 'order_app:order_view' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="payment_method" value="{{payment_method}}">
-                        <input type="hidden" name="discount" value="{{discount}}">
-                        <input type="hidden" name="coupon_code" value="{{coupon_code}}">
-                        <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
-                    </form>
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="{{payment_method}}">
+                    <input type="hidden" name="discount" value="{{discount}}">
+                    <input type="hidden" name="coupon_code" value="{{coupon_code}}">
+                    <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
+                </form>
                 {% else %}
-                    <!-- Confirm order button for razorpay -->
-                    <form id="paymentForm" action="{% url 'order_app:order_view' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="payment_method" value="{{payment_method}}">
-                        <input type="hidden" id="payment-retry" name="payment_retry" value="{{payment_retry|default:0}}">
-                        <input type="hidden" name="total_amount" value="{{cart_total_with_discount}}">
-                        <input type="hidden" name="order_id" value="{{order_id}}">
-                        <input type="hidden" name="discount" value="{{discount}}">
-                        <input type="hidden" name="coupon_code" value="{{coupon_code}}">
-                        <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
-                    </form>
+                <!-- Confirm order button for razorpay -->
+                <form id="paymentForm" action="{% url 'order_app:order_view' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_method" value="{{payment_method}}">
+                    <input type="hidden" id="payment-retry" name="payment_retry" value="{{payment_retry|default:0}}">
+                    <input type="hidden" name="total_amount" value="{{cart_total_with_discount}}">
+                    <input type="hidden" name="order_id" value="{{order_id}}">
+                    <input type="hidden" name="discount" value="{{discount}}">
+                    <input type="hidden" name="coupon_code" value="{{coupon_code}}">
+                    <button type="submit" class="btn btn-custom float-right">Confirm Order</button>
+                </form>
                 {% endif %}
             </div>
         </div>
@@ -126,6 +124,7 @@
 </section>
 <!--================End Order Confirmation Area =================-->
 <!-- <button id="rzp-button1">Pay with Razorpay</button> -->
+<!-- changin the order page details -->
 <script>
     var paymentRetry = document.getElementById('payment-retry')
     var mainHeading = document.getElementById('main-heading')
@@ -133,7 +132,7 @@
     var subtotal = document.getElementById('subtotal')
     var discount = document.getElementById('discount')
     var shipping = document.getElementById('shipping')
-    if(paymentRetry.value == 1){
+    if (paymentRetry.value == 1) {
         mainHeading.textContent = "Continue Payment";
         breadNav.style.display = "none";
         subtotal.style.display = "none";
@@ -141,6 +140,7 @@
         shipping.style.display = "none";
     };
 </script>
+<!-- Razorpay -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     var options = {
@@ -158,7 +158,7 @@
             form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_order_id" value="${response.razorpay_order_id}">`);
             form.insertAdjacentHTML('beforeend', `<input type="hidden" name="razorpay_signature" value="${response.razorpay_signature}">`);
             form.insertAdjacentHTML('beforeend', `<input type="hidden" name="payment_status" value="success">`);
-            
+
             // Submit the form after payment success
             form.submit();
         },
@@ -183,10 +183,10 @@
         form.insertAdjacentHTML('beforeend', `<input type="hidden" name="payment_status" value="failed">`);
         // Use the paymentRetry variable set by Django
         //form.insertAdjacentHTML('beforeend', `<input type="hidden" name="payment_failed" value="${paymentRetry}">`);
-        
+
         // Optionally, add error details for debugging/logging purposes
         form.insertAdjacentHTML('beforeend', `<input type="hidden" name="error_description" value="${response.error.description}">`);
-        
+
         // Submit the form to log the failed payment and continue to the order page
         form.submit();
     });
@@ -196,5 +196,11 @@
         e.preventDefault(); // Prevent default form submission
         rzp1.open(); // Open Razorpay checkout
     };
+</script>
+
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 5000)
 </script>
 {% endblock content %}

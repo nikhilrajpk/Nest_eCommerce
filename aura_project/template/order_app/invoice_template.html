@@ -1,6 +1,7 @@
 {% load custom_tags %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Invoice - Order #{{ order.id }}</title>
@@ -11,42 +12,54 @@
             padding: 20px;
             color: #333;
         }
+
         .header {
             text-align: center;
             margin-bottom: 20px;
         }
+
         .header h1 {
             margin: 0;
         }
+
         .header p {
             margin: 5px 0;
         }
-        .invoice-details, .order-details {
+
+        .invoice-details,
+        .order-details {
             width: 100%;
             margin-bottom: 20px;
             border-collapse: collapse;
         }
-        .invoice-details th, .invoice-details td,
-        .order-details th, .order-details td {
+
+        .invoice-details th,
+        .invoice-details td,
+        .order-details th,
+        .order-details td {
             padding: 10px;
             border: 1px solid #ddd;
             text-align: left;
         }
+
         .order-details th {
             background-color: #f5f5f5;
         }
+
         .footer {
             text-align: center;
             margin-top: 20px;
             font-size: 0.9em;
             color: #555;
         }
+
         .total {
             font-weight: bold;
             text-align: right;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Invoice</h1>
@@ -61,7 +74,8 @@
         </tr>
         <tr>
             <th>Shipping Address</th>
-            <td>{{ address.street_address }}, {{ address.address_type }}, {{ address.state }}, {{ address.postal_code }}, {{ address.phone }}</td>
+            <td>{{ address.street_address }}, {{ address.address_type }}, {{ address.state }}, {{ address.postal_code
+                }}, {{ address.phone }}</td>
         </tr>
         <tr>
             <th>Payment Method</th>
@@ -115,4 +129,5 @@
         <p>If you have any questions, please contact our support team.</p>
     </div>
 </body>
+
 </html>

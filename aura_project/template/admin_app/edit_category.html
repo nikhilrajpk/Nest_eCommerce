@@ -5,207 +5,208 @@
 <br><br>
 <!-- breadcrumbs start-->
 <nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-  <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_category' %}">Category</a></li>
-  <li class="breadcrumb-item"><a href="">Edit category</a></li>
-  </ol>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_category' %}">Category</a></li>
+        <li class="breadcrumb-item"><a href="">Edit category</a></li>
+    </ol>
 </nav>
-    <div class="container mt-5">
-      <!-- alert box  -->
+<div class="container mt-5">
+    <!-- alert box  -->
     {% if messages %}
     {% for message in messages %}
-        <div class="alert alert-{{message.tags}}">
-            <strong>{{message}}</strong>
-        </div>
+    <div class="alert alert-{{message.tags}}">
+        <strong>{{message}}</strong>
+    </div>
     {% endfor %}
-{% endif %}
+    {% endif %}
 
-<script>
-    setTimeout(() => {
-        $(".alert").alert("close")
-    }, 3000)
-</script>
-        <h2 class="mb-4">Edit Category</h2>
-        <form id="category-form" action="" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
 
-            <div class="mb-3">
-                <label for="category-name" class="form-label">Category Name:</label>
-                <p id="category-warning" class="text-danger" style="display: none;">Category name should only contain letters!</p>
-                <input type="text" class="form-control" id="category-name" name="category_name" value="{{category.category_name}}" required>
+    <h2 class="mb-4">Edit Category</h2>
+    <form id="category-form" action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="category-name" class="form-label">Category Name:</label>
+            <p id="category-warning" class="text-danger" style="display: none;">Category name should only contain
+                letters!</p>
+            <input type="text" class="form-control" id="category-name" name="category_name"
+                value="{{category.category_name}}" required>
+        </div>
+
+
+        <div class="mb-3">
+            <label for="category-image" class="form-label">Category Image:</label>
+
+            <!-- Image Preview -->
+            {% if category.cat_image %}
+            <div class="mb-2">
+                <img src="{{ category.cat_image.url }}" alt="{{ category.category_name }}" width="100" height="100">
             </div>
+            {% endif %}
 
+            <input type="file" class="form-control image-input" id="category-image" name="category_image"
+                accept=".jpg, .jpeg, .png, .gif*">
+            <div id="image-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg,
+                .png, .gif).</div>
+        </div>
 
-            <div class="mb-3">
-                <label for="category-image" class="form-label">Category Image:</label>
-
-                <!-- Image Preview -->
-                {% if category.cat_image %}
-                    <div class="mb-2">
-                        <img src="{{ category.cat_image.url }}" alt="{{ category.category_name }}" width="100" height="100">
-                    </div>
-                {% endif %}
-
-                <input type="file" class="form-control image-input" id="category-image" name="category_image" accept=".jpg, .jpeg, .png, .gif*">
-                <div id="image-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
-            </div>
-
-            <!-- Modal for cropping -->
-            <div id="cropperModal" class="modal" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
+        <!-- Modal for cropping -->
+        <div id="cropperModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h5 class="modal-title">Crop Image</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                        <h5 class="modal-title">Crop Image</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
-                    <img id="cropperImage" src="" alt="Crop Image Preview" style="max-width: 100%;">
+                        <img id="cropperImage" src="" alt="Crop Image Preview" style="max-width: 100%;">
                     </div>
                     <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
-                </div>
             </div>
+        </div>
 
 
-            <div class="mb-3">
-                <label for="offer" class="form-label">Offer:</label>
-                <select class="form-select" id="offer" name="offer">
-                    {% if category.offer %}
-                        <option value="{{ category.offer.id }}">{{category.offer.offer_title}}</option>
-                        <option value="0">None</option>
-                        {% for offer in offers %}
-                            <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="">None</option>
-                        {% for offer in offers %}
-                            <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
-                        {% endfor %}
-                    {% endif %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="available" class="form-label">Available:</label>
-                {% if category.is_listed %}
-                    <select class="form-select" id="available" name="available" required>
-                        <option value="True">Yes</option>
-                        <option value="False">No</option>
-                    </select>
+        <div class="mb-3">
+            <label for="offer" class="form-label">Offer:</label>
+            <select class="form-select" id="offer" name="offer">
+                {% if category.offer %}
+                <option value="{{ category.offer.id }}">{{category.offer.offer_title}}</option>
+                <option value="0">None</option>
+                {% for offer in offers %}
+                <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
+                {% endfor %}
                 {% else %}
-                    <select class="form-select" id="available" name="available" required>
-                        <option value="False">No</option>
-                        <option value="True">Yes</option>
-                    </select>
+                <option value="">None</option>
+                {% for offer in offers %}
+                <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
+                {% endfor %}
                 {% endif %}
-            </div>
+            </select>
+        </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary">Edit Category</button>
-        </form>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <script>
-        let cropper;
-let activeInput;
+        <div class="mb-3">
+            <label for="available" class="form-label">Available:</label>
+            {% if category.is_listed %}
+            <select class="form-select" id="available" name="available" required>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+            {% else %}
+            <select class="form-select" id="available" name="available" required>
+                <option value="False">No</option>
+                <option value="True">Yes</option>
+            </select>
+            {% endif %}
+        </div>
 
-document.querySelectorAll('.image-input').forEach(input => {
-  input.addEventListener('change', function () {
-    const file = this.files[0];
-    activeInput = this; // Store reference to the active input
-    
-    // Validate the file type
-    if (file && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        document.getElementById('cropperImage').src = e.target.result;
-        $('#cropperModal').modal('show');
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Edit Category</button>
+    </form>
+</div>
+<!-- cropper js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+    let cropper;
+    let activeInput;
 
-        if (cropper) {
-          cropper.destroy();
-        }
+    document.querySelectorAll('.image-input').forEach(input => {
+        input.addEventListener('change', function () {
+            const file = this.files[0];
+            activeInput = this; // Store reference to the active input
 
-        cropper = new Cropper(document.getElementById('cropperImage'), {
-          aspectRatio: 1,
-          viewMode: 1,
+            // Validate the file type
+            if (file && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('cropperImage').src = e.target.result;
+                    $('#cropperModal').modal('show');
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(document.getElementById('cropperImage'), {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Show an error message and reset the file input if invalid
+                alert('Please upload a valid image file (.jpg, .jpeg, .png, .gif).');
+                this.value = ''; // Reset the input value
+            }
         });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // Show an error message and reset the file input if invalid
-      alert('Please upload a valid image file (.jpg, .jpeg, .png, .gif).');
-      this.value = ''; // Reset the input value
-    }
-  });
-});
-
-function cropImage() {
-  if (cropper && activeInput) {
-    const canvas = cropper.getCroppedCanvas();
-    canvas.toBlob((blob) => {
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(new File([blob], 'cropped_image.png', { type: 'image/png' }));
-      activeInput.files = dataTransfer.files;
-
-      $('#cropperModal').modal('hide');
     });
-  }
-}
 
-    
-    </script>
+    function cropImage() {
+        if (cropper && activeInput) {
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob((blob) => {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(new File([blob], 'cropped_image.png', { type: 'image/png' }));
+                activeInput.files = dataTransfer.files;
 
-    <!-- Script for form validation -->
-    <script>
-      // Real-time validation on input
-      document.getElementById('category-name').addEventListener('input', function() {
-          let categoryName = this.value.trim(); // Trim leading and trailing whitespace
-          let categoryWarning = document.getElementById('category-warning');
-          console.log("Input value:", categoryName);  // Debugging output
-  
-          let regex = /^[a-zA-Z ]+$/;
-  
-          if (!regex.test(categoryName) || categoryName === "") {
-              categoryWarning.style.display = "block";
-          } else {
-              categoryWarning.style.display = "none";
-          }
-      });
-  
-      // Prevent form submission on submit event if input is invalid
-      document.getElementById('category-form').addEventListener('submit', function(event) {
-          let categoryName = document.getElementById('category-name').value.trim();
-          let categoryWarning = document.getElementById('category-warning');
-          
-          console.log("Form submitted with value:", categoryName);  // Debugging output
-          
-          // Final validation check
-          if (categoryName === "" || !/^[a-zA-Z ]+$/.test(categoryName)) {
-              event.preventDefault(); // Prevent form submission
-              categoryWarning.style.display = "block";
-              console.log("Form submission prevented: Invalid input.");  // Debugging output
-              return false;
-          } else {
-              categoryWarning.style.display = "none";
-              console.log("Form submission allowed: Valid input.");  // Debugging output
-          }
-      });
+                $('#cropperModal').modal('hide');
+            });
+        }
+    }
 
-      // Image validation
-      document.getElementById('category-form').addEventListener('submit', function(event) {
+
+</script>
+
+<!-- Script for form validation -->
+<script>
+    // Real-time validation on input
+    document.getElementById('category-name').addEventListener('input', function () {
+        let categoryName = this.value.trim(); // Trim leading and trailing whitespace
+        let categoryWarning = document.getElementById('category-warning');
+        console.log("Input value:", categoryName);  // Debugging output
+
+        let regex = /^[a-zA-Z ]+$/;
+
+        if (!regex.test(categoryName) || categoryName === "") {
+            categoryWarning.style.display = "block";
+        } else {
+            categoryWarning.style.display = "none";
+        }
+    });
+
+    // Prevent form submission on submit event if input is invalid
+    document.getElementById('category-form').addEventListener('submit', function (event) {
+        let categoryName = document.getElementById('category-name').value.trim();
+        let categoryWarning = document.getElementById('category-warning');
+
+        console.log("Form submitted with value:", categoryName);  // Debugging output
+
+        // Final validation check
+        if (categoryName === "" || !/^[a-zA-Z ]+$/.test(categoryName)) {
+            event.preventDefault(); // Prevent form submission
+            categoryWarning.style.display = "block";
+            console.log("Form submission prevented: Invalid input.");  // Debugging output
+            return false;
+        } else {
+            categoryWarning.style.display = "none";
+            console.log("Form submission allowed: Valid input.");  // Debugging output
+        }
+    });
+
+    // Image validation
+    document.getElementById('category-form').addEventListener('submit', function (event) {
         let categoryImage = document.getElementById('category-image').value;
         let imageWarning = document.getElementById('image-warning');
-        
+
         // Regex to match valid image extensions
         let validImageRegex = /\.(jpg|jpeg|png|gif)$/i;
-    
+
         // Check if the selected file is a valid image
-        if(categoryImage === ""){
+        if (categoryImage === "") {
             imageWarning.style.display = "none";
         }
         else if (!validImageRegex.test(categoryImage)) {
@@ -218,5 +219,11 @@ function cropImage() {
             console.log("Form submission allowed: Valid image file."); // Debugging output
         }
     });
-  </script>
+</script>
+
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 3000)
+</script>
 {% endblock content %}

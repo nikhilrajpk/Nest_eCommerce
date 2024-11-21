@@ -2,36 +2,34 @@
 {% load static %}
 {% block content %}
 <style>
-        .order-table {
-            margin-top: 2rem;
-        }
-        .table th, .table td {
-            vertical-align: middle;
-        }
-        .btn-custom {
-            background-color: #ff7d00;
-            color: white;
-            border-radius: 1rem;
-        }
-        .btn-custom:hover {
-            background-color: #d4a373;
-        }
-    </style>
+    .order-table {
+        margin-top: 2rem;
+    }
+
+    .table th,
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-custom {
+        background-color: #ff7d00;
+        color: white;
+        border-radius: 1rem;
+    }
+
+    .btn-custom:hover {
+        background-color: #d4a373;
+    }
+</style>
 
 <div class="container">
-    
-    <script>
-    setTimeout (() => {
-        $(".alert").alert("close")
-    },5000)
-    </script>
-    
+
     <!-- alert box  -->
     {% if messages %}
     {% for message in messages %}
-        <div class="alert alert-{{message.tags}}">
-            <strong>{{message}}</strong>
-        </div>
+    <div class="alert alert-{{message.tags}}">
+        <strong>{{message}}</strong>
+    </div>
     {% endfor %}
     {% endif %}
 
@@ -65,29 +63,32 @@
                         <a href="{% url 'order_app:order_details' order.id %}" class="btn btn-custom">view details</a>
                     </td>
                     {% for payment in order.payments.all %}
-                        {% if payment.payment_status == 'failed' and order.order_status == 'pending' %}
-                            <td id="failed-field" data-status="failed">
-                                <form action="{% url 'order_app:confirm_order' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="address_id" value="{{order.address.id}}">
-                                    <input type="hidden" name="payment_method" value="razorpay">
-                                    <input type="hidden" name="payment_retry" value="1">
-                                    <input type="hidden" name="total_amount" value="{{payment.total_price}}">
-                                    <input type="hidden" name="order_id" value="{{order.id}}">
-                                    <button class="btn btn-outline-danger">Continue Payment</button>
-                                </form>
-                            </td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
+                    {% if payment.payment_status == 'failed' and order.order_status == 'pending' %}
+                    <td id="failed-field" data-status="failed">
+                        <form action="{% url 'order_app:confirm_order' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="address_id" value="{{order.address.id}}">
+                            <input type="hidden" name="payment_method" value="razorpay">
+                            <input type="hidden" name="payment_retry" value="1">
+                            <input type="hidden" name="total_amount" value="{{payment.total_price}}">
+                            <input type="hidden" name="order_id" value="{{order.id}}">
+                            <button class="btn btn-outline-danger">Continue Payment</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% else %}
     <br><br>
-    <div style="background-image: url({% static 'img/order.jpg' %}); height: 20rem;display: flex; align-items: center; justify-content:center;">
-        <h2 style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">No Orders Yet. Continue Your Shopping From Home.</h2>
+    <div
+        style="background-image: url({% static 'img/order.jpg' %}); height: 20rem;display: flex; align-items: center; justify-content:center;">
+        <h2
+            style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+            No Orders Yet. Continue Your Shopping From Home.</h2>
     </div>
     {% endif %}
 </div>
@@ -95,14 +96,17 @@
     var td = document.getElementById('continue-payment')
     var failedField = document.getElementById('failed-field')
     document.addEventListener('DOMContentLoaded', function () {
-    if(failedField && failedField.getAttribute('data-status') === 'failed'){
-        td.style.display = "block";
-    };
+        if (failedField && failedField.getAttribute('data-status') === 'failed') {
+            td.style.display = "block";
+        };
     });
 </script>
-<script
-  src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous">
+    </script>
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 5000)
 </script>
 {% endblock content %}

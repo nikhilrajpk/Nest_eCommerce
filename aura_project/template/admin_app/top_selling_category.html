@@ -2,48 +2,54 @@
 {% load static %}
 {% block content %}
 <style>
-    .unlist-btn{
+    .unlist-btn {
         width: 4rem;
         background-color: #d4a373;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    .unlist-btn:hover{
+
+    .unlist-btn:hover {
         background-color: #ff7d00;
     }
-    .list-btn{
+
+    .list-btn {
         width: 4rem;
         background-color: #ff7d00;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    .list-btn:hover{
+
+    .list-btn:hover {
         background-color: #d4a373;
     }
-    #search{
-		color: black;
-		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-		font-weight: 500;
-		border-radius: 10px;
+
+    #search {
+        color: black;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-weight: 500;
+        border-radius: 10px;
         border: 1px solid #666;
-		padding-left: 13px;
-		width: 12rem;
-		height: 30px;
-		
-	}
-	#search_btn{
-		color: #000;
-		background-color: violet;
-		height: 30px;
+        padding-left: 13px;
+        width: 12rem;
+        height: 30px;
+
+    }
+
+    #search_btn {
+        color: #000;
+        background-color: violet;
+        height: 30px;
         width: 5rem;
-		border-radius: 15px;
-		border: #666;
-		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-		font-weight: 500;
-	}
-    #tdiv{
+        border-radius: 15px;
+        border: #666;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-weight: 500;
+    }
+
+    #tdiv {
         position: sticky;
         z-index: 1;
         top: 4.2rem;
@@ -60,8 +66,8 @@
         <!-- breadcrumbs start-->
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_category' %}">Category</a></li>
-            <li class="breadcrumb-item"><a href="">Top selling category</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_category' %}">Category</a></li>
+                <li class="breadcrumb-item"><a href="">Top selling category</a></li>
             </ol>
         </nav><br>
     </div><br>

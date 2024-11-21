@@ -2,500 +2,306 @@
 {% load static %}
 {% block content %}
 <style>
-    #wishlistLogoProduct{
+    #wishlistLogoProduct {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    .page-btn{
+
+    .page-btn {
         margin-top: 2rem;
-        background-color:#ebebeb;
+        background-color: #ebebeb;
         display: flex;
         justify-content: center;
     }
-    .page-btn a{
+
+    .page-btn a {
         display: inline-block;
         text-decoration: none;
         color: #ff3368;
         font-size: 1.5rem;
     }
+
     .active-page {
         font-weight: bold;
-        color: #ff6600; /* Customize as needed */
+        color: #ff6600;
+        /* Customize as needed */
         text-decoration: underline;
     }
-    #search{
-		color: black;
-		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-		font-weight: 500;
-		border-radius: 10px;
+
+    #search {
+        color: black;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-weight: 500;
+        border-radius: 10px;
         border: 1px solid #666;
-		padding-left: 13px;
-		width: 12rem;
-		height: 30px;
+        padding-left: 13px;
+        width: 12rem;
+        height: 30px;
         transform: translateY(.1rem);
         margin-left: 20rem;
-	}
+    }
 </style>
-    <!-- banner part start-->
-    <section class="banner_part" style="height: 100svh;">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12">
-                    <div class="banner_slider owl-carousel">
-                        {% for banner in banners %}
-                        <div class="single_banner_slider">
-                            <div class="row">
-                                <div class="col-lg-5 col-md-8" style="transform: translateY(-12rem);">
-                                    <div class="banner_text">
-                                        <div class="banner_text_iner">
-                                            <h1>{{banner.banner_name}}</h1>
-                                            <p>{{banner.banner_description}}</p>
-                                        </div>
+<!-- banner part start-->
+<section class="banner_part" style="height: 100svh;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-12">
+                <div class="banner_slider owl-carousel">
+                    {% for banner in banners %}
+                    <div class="single_banner_slider">
+                        <div class="row">
+                            <div class="col-lg-5 col-md-8" style="transform: translateY(-12rem);">
+                                <div class="banner_text">
+                                    <div class="banner_text_iner">
+                                        <h1>{{banner.banner_name}}</h1>
+                                        <p>{{banner.banner_description}}</p>
                                     </div>
                                 </div>
-                                <div class="banner_img d-none d-lg-block col-lg-7 col-md-4" style="transform: translateY(-12rem);">
-                                    <img src="{{banner.banner_image.url}}" alt="{{banner.banner_name}}">
-                                </div>
+                            </div>
+                            <div class="banner_img d-none d-lg-block col-lg-7 col-md-4"
+                                style="transform: translateY(-12rem);">
+                                <img src="{{banner.banner_image.url}}" alt="{{banner.banner_name}}">
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
-                    <div class="slider-counter"></div>
+                    {% endfor %}
+                </div>
+                <div class="slider-counter"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- banner part End-->
+
+<!-- Latest product start-->
+<section class="feature_part padding_top">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="section_tittle text-center">
+                    <h2>Latest Products</h2>
                 </div>
             </div>
         </div>
-    </section>
-    
-    <!-- banner part End-->
+        <div class="row align-items-center justify-content-between">
+            {% for latest_product in latest_products %}
+            <div class="col-lg-5 col-sm-6">
+                <div class="single_feature_post_text" style="height: 30rem;">
+                    <p>Premium Quality</p>
+                    <h3>{{latest_product.product_name}}</h3>
 
-    <!-- Latest product start-->
-    <section class="feature_part padding_top">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="section_tittle text-center">
-                        <h2>Latest Products</h2>
-                    </div>
+                    {% if latest_product.is_listed and latest_product.category.is_listed and latest_product.available_stock > 0 %}
+                    <a href="{% url 'product_app:single_product' latest_product.id %}" class="feature_btn">EXPLORE NOW
+                        <i class="fas fa-play"></i></a>
+                    {% else %}
+                    <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3>
+                    {% endif %}
+
+                    <img src="{{latest_product.image_1.url}}" alt="{{latest_product.product_name}}" width="400"
+                        height="350">
+                </div>
+                {% if latest_product.offer %}
+                <h5><del>Price : {{latest_product.price}} Rs</del></h5>
+                <h5>Deal Price : {{latest_product.discount_price}} Rs</h5>
+                {% else %}
+                <h5>Price : {{latest_product.price}} Rs</h5>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- upcoming_event part start-->
+
+<!-- product_list start-->
+<section id="products-section" class="product_list section_padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="section_tittle text-center">
+                    <h2>awesome <span>shop</span></h2>
                 </div>
             </div>
-            <div class="row align-items-center justify-content-between">
-                {% for latest_product in latest_products %}
-                    <div class="col-lg-5 col-sm-6">
-                        <div class="single_feature_post_text" style="height: 30rem;">
-                            <p>Premium Quality</p>
-                            <h3>{{latest_product.product_name}}</h3>
-                    
-                            {% if latest_product.is_listed and latest_product.category.is_listed and latest_product.available_stock > 0 %}
-                                <a href="{% url 'product_app:single_product' latest_product.id %}" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
+        </div>
+
+        <!-- Sorting and search section -->
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <a href="{% url 'user_app:home' %}#products-section">
+                    <button type="button" class="btn btn-sm btn-outline-danger">
+                        All
+                    </button>
+                </a>
+                <a
+                    href="{% url 'user_app:home' %}?sort_with=price{% if query %}&search_query={{query}}{% endif %}#products-section">
+                    <button type="button" class="btn btn-sm btn-outline-danger">
+                        Price Low To High
+                    </button>
+                </a>
+                <a
+                    href="{% url 'user_app:home' %}?sort_with=-price{% if query %}&search_query={{query}}{% endif %}#products-section">
+                    <button type="button" class="btn btn-sm btn-outline-danger">
+                        Price High To Low
+                    </button>
+                </a>
+                <a
+                    href="{% url 'user_app:home' %}?sort_with=product_name{% if query %}&search_query={{query}}{% endif %}#products-section">
+                    <button type="button" class="btn btn-sm btn-outline-danger">
+                        Name Aa-Zz
+                    </button>
+                </a>
+                <a
+                    href="{% url 'user_app:home' %}?sort_with=-product_name{% if query %}&search_query={{query}}{% endif %}#products-section">
+                    <button type="button" class="btn btn-sm btn-outline-danger">
+                        Name Zz-Aa
+                    </button>
+                </a>
+                <form action="{% url 'user_app:home' %}#products-section" method="get" style="display: inline-block;">
+                    {% if sort_with %}
+                    <input type="hidden" name="sort_with" value="{{sort_with}}">
+                    {% endif %}
+                    <input id="search" type="search" name="search_query" placeholder="Search category..." {% if query %}
+                        value="{{query}}" {% endif %}>
+                    <button class="btn btn-md btn-outline-danger" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="product_list_slider owl-carousel">
+                    <div class="single_product_list_slider">
+                        <div class="row align-items-center justify-content-between">
+                            {% for product in products %}
+                            {% if not product.is_listed or not product.category.is_listed or product.available_stock == 0 %}
+                            <div class="col-lg-3 col-sm-6">
+                                <div class="single_product_item" style="height: 30rem;">
+                                    <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                                    <div class="single_product_text">
+                                        <h4>{{product.product_name}}</h4>
+                                        {% if product.offer %}
+                                        <h3><del>{{product.price}} Rs</del></h3>
+                                        <h3>{{product.discount_price}} Rs</h3>
+                                        {% else %}
+                                        <h3>{{product.price}} Rs</h3>
+                                        {% endif %}
+                                        <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">
+                                            UNAVAILABLE</h3>
+                                    </div>
+                                </div>
+                            </div>
                             {% else %}
-                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3>
+                            <a href="{% url 'product_app:single_product' product.id %}" style="text-decoration: none;">
+                                <div class="col-lg-3 col-sm-6">
+                                    <div class="single_product_item" style="height: 30rem;">
+                                        <img height="300rem" src="{{ product.image_1.url }}"
+                                            alt="{{product.product_name}}">
+
+                                        <h5>{{product.product_name}}</h5>
+                                        {% if product.offer %}
+                                        <h5><del>{{product.price}} Rs</del></h5>
+                                        <h5>{{product.discount_price}} Rs</h5>
+                                        {% else %}
+                                        <h5>{{product.price}} Rs</h5>
+                                        {% endif %}
+                                        <div class="single_product_text">
+                                            <div id="wishlistLogoProduct">
+                                                <a href="#" class="add-to-cart" data-product-id="{{ product.id }}"
+                                                    style="text-decoration: none;">+ Add to cart</a>
+                                                <a href="#" class="add-to-wishlist like_us"
+                                                    data-product-id="{{ product.id }}" style="text-decoration: none;">
+                                                    <i class="ti-heart"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="page-btn">
+                            {% if products.has_previous %}
+                            <a href="?page={{products.previous_page_number}}#products-section"><span
+                                    style="margin-right: 10px;">&lt;&lt;</span></a>
                             {% endif %}
 
-                            <img src="{{latest_product.image_1.url}}" alt="{{latest_product.product_name}}" width="400" height="350">
+                            {% for i in products.paginator.page_range %}
+                            <a href="?page={{i}}#products-section" {% if i == products.number %}class="active-page" {% endif %}>
+                                <span style="margin: 10px;"> {{i}} </span></a>
+                            {% endfor %}
+
+                            {% if products.has_next %}
+                            <a href="?page={{products.next_page_number}}#products-section"><span
+                                    style="margin-left: 10px;">&gt;&gt;</span></a>
+                            {% endif %}
                         </div>
-                        {% if latest_product.offer %}
-                            <h5><del>Price : {{latest_product.price}} Rs</del></h5>
-                            <h5>Deal Price : {{latest_product.discount_price}} Rs</h5>
-                        {% else %}
-                            <h5>Price : {{latest_product.price}} Rs</h5>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                <!-- <div class="col-lg-5 col-sm-6">
-                    <div class="single_feature_post_text">
-                        <p>Premium Quality</p>
-                        <h3>Latest foam Sofa</h3>
-                        <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
-                        <img src="{% static 'img/feature/feature_2.png' %}" alt="">
                     </div>
                 </div>
-                <div class="col-lg-5 col-sm-6">
-                    <div class="single_feature_post_text">
-                        <p>Premium Quality</p>
-                        <h3>Latest foam Sofa</h3>
-                        <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
-                        <img src="{% static 'img/feature/feature_3.png' %}" alt="">
-                    </div>
-                </div>
-                <div class="col-lg-7 col-sm-6">
-                    <div class="single_feature_post_text">
-                        <p>Premium Quality</p>
-                        <h3>Latest foam Sofa</h3>
-                        <a href="#" class="feature_btn">EXPLORE NOW <i class="fas fa-play"></i></a>
-                        <img src="{% static 'img/feature/feature_4.png' %}" alt="">
-                    </div>
-                </div> -->
             </div>
         </div>
-    </section>
-    <!-- upcoming_event part start-->
+    </div>
+</section>
+<!-- product_list part start-->
 
-    <!-- product_list start-->
-    <section id="products-section" class="product_list section_padding">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    <div class="section_tittle text-center">
-                        <h2>awesome <span>shop</span></h2>
-                    </div>
+<!-- product_list part start-->
+<section class="product_list best_seller section_padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="section_tittle text-center">
+                    <h2>Best Sellers <span>shop</span></h2>
                 </div>
             </div>
-
-            <!-- Sorting and search section -->
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    <a href="{% url 'user_app:home' %}#products-section">
-                        <button type="button" class="btn btn-sm btn-outline-danger">
-                            All
-                        </button>
-                    </a>
-                    <a href="{% url 'user_app:home' %}?sort_with=price{% if query %}&search_query={{query}}{% endif %}#products-section">
-                        <button type="button" class="btn btn-sm btn-outline-danger">
-                            Price Low To High
-                        </button>
-                    </a>
-                    <a href="{% url 'user_app:home' %}?sort_with=-price{% if query %}&search_query={{query}}{% endif %}#products-section">
-                        <button type="button" class="btn btn-sm btn-outline-danger">
-                            Price High To Low
-                        </button>
-                    </a>
-                    <a href="{% url 'user_app:home' %}?sort_with=product_name{% if query %}&search_query={{query}}{% endif %}#products-section">
-                        <button type="button" class="btn btn-sm btn-outline-danger">
-                            Name Aa-Zz
-                        </button>
-                    </a>
-                    <a href="{% url 'user_app:home' %}?sort_with=-product_name{% if query %}&search_query={{query}}{% endif %}#products-section">
-                        <button type="button" class="btn btn-sm btn-outline-danger">
-                            Name Zz-Aa
-                        </button>
-                    </a>
-                    <form action="{% url 'user_app:home' %}#products-section" method="get" style="display: inline-block;">
-                        {% if sort_with %}
-                        <input type="hidden" name="sort_with" value="{{sort_with}}">
-                        {% endif %}
-                        <input id="search" type="search" name="search_query" placeholder="Search category..." {% if query %} value="{{query}}" {% endif %}>
-                        <button class="btn btn-md btn-outline-danger" type="submit">Search</button>
-                    </form>
-                </div>
-            </div>
-            <br>
-
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="product_list_slider owl-carousel">
-                        <div class="single_product_list_slider">
-                            <div class="row align-items-center justify-content-between">
-                                {% for product in products %}
-                                {% if not product.is_listed or not product.category.is_listed or product.available_stock == 0 %}
-                                        <div class="col-lg-3 col-sm-6">
-                                        <div class="single_product_item" style="height: 30rem;">
-                                            <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
-                                            <div class="single_product_text">
-                                                <h4>{{product.product_name}}</h4>
-                                                {% if product.offer %}
-                                                    <h3><del>{{product.price}} Rs</del></h3>
-                                                    <h3>{{product.discount_price}} Rs</h3>
-                                                {% else %}
-                                                    <h3>{{product.price}} Rs</h3>
-                                                {% endif %}
-                                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
-                                            </div>
-                                        </div>
-                                    </div>
+        </div>
+        <div class="row align-items-center justify-content-between">
+            <div class="col-lg-12">
+                <div class="best_product_slider owl-carousel">
+                    {% for best_seller in best_sellers %}
+                    {% if best_seller.is_listed and best_seller.category.is_listed and best_seller.available_stock > 0 %}
+                    <a href="{% url 'product_app:single_product' best_seller.id %}" style="text-decoration: none;">
+                        <div class="single_product_item">
+                            <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
+                            <div class="single_product_text">
+                                <h4>{{best_seller.product_name}}</h4>
+                                {% if best_seller.offer %}
+                                <h3><del>{{best_seller.price}} Rs</del></h3>
+                                <h3>{{best_seller.discount_price}} Rs</h3>
                                 {% else %}
-                                    <a href="{% url 'product_app:single_product' product.id %}" style="text-decoration: none;">
-                                    <div class="col-lg-3 col-sm-6">
-                                            <div class="single_product_item" style="height: 30rem;">
-                                                <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
-                                                
-                                                    <h5>{{product.product_name}}</h5>
-                                                    {% if product.offer %}
-                                                        <h5><del>{{product.price}} Rs</del></h5>
-                                                        <h5>{{product.discount_price}} Rs</h5>
-                                                    {% else %}
-                                                        <h5>{{product.price}} Rs</h5>
-                                                    {% endif %}
-                                                    <div class="single_product_text">
-                                                    <div id="wishlistLogoProduct">
-                                                        <a href="#" class="add-to-cart" data-product-id="{{ product.id }}" style="text-decoration: none;">+ Add to cart</a>
-                                                        <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}" style="text-decoration: none;">
-                                                        <i class="ti-heart"></i> 
-                                                    </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                {% endif %}
-                                {% endfor %}
-                            </div>
-                            <div class="page-btn">
-                                {% if products.has_previous %}
-                                    <a href="?page={{products.previous_page_number}}#products-section"><span style="margin-right: 10px;">&lt;&lt;</span></a>
-                                {% endif %}
-
-                                {% for i in products.paginator.page_range %}
-                                    <a href="?page={{i}}#products-section" {% if i == products.number %}class="active-page"{% endif %}>
-                                        <span style="margin: 10px;"> {{i}} </span></a>
-                                {% endfor %}
-
-                                {% if products.has_next %}
-                                    <a href="?page={{products.next_page_number}}#products-section"><span style="margin-left: 10px;">&gt;&gt;</span></a>
+                                <h3>{{best_seller.price}} Rs</h3>
                                 {% endif %}
                             </div>
                         </div>
-                        <!-- <div class="single_product_list_slider">
-                            <div class="row align-items-center justify-content-between">
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_1.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_2.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_3.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_4.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_5.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_6.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_7.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item">
-                                        <img src="{% static 'img/product/product_8.png' %}" alt="">
-                                        <div class="single_product_text">
-                                            <h4>Quartz Belt Watch</h4>
-                                            <h3>$150.00</h3>
-                                            <a href="#" class="add_cart">+ add to cart<i class="ti-heart"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
+                    </a>
+                    {% else %}
+                    <div class="single_product_item">
+                        <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
+                        <div class="single_product_text">
+                            <h4>{{best_seller.product_name}}</h4>
+                            {% if best_seller.offer %}
+                            <h3><del>{{best_seller.price}} Rs</del></h3>
+                            <h3>{{best_seller.discount_price}} Rs</h3>
+                            {% else %}
+                            <h3>{{best_seller.price}} Rs</h3>
+                            {% endif %}
+                            <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3>
+                        </div>
                     </div>
+                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
-    </section>
-    <!-- product_list part start-->
+    </div>
+</section>
+<!-- product_list part end-->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
-    <!-- awesome_shop start-->
-    <!-- <section class="our_offer section_padding">
-        <div class="container">
-            <div class="row align-items-center justify-content-between">
-                <div class="col-lg-6 col-md-6">
-                    <div class="offer_img">
-                        <img src="{% static 'img/offer_img.png' %}" alt="">
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="offer_text">
-                        <h2>Weekly Sale on
-                            60% Off All Products</h2>
-                        <div class="date_countdown">
-                            <div id="timer">
-                                <div id="days" class="date"></div>
-                                <div id="hours" class="date"></div>
-                                <div id="minutes" class="date"></div>
-                                <div id="seconds" class="date"></div>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="enter email address"
-                                aria-label="Recipient's username" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <a href="#" class="input-group-text btn_2" id="basic-addon2">book now</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> -->
-    <!-- awesome_shop part start-->
-
-    <!-- product_list part start-->
-    <section class="product_list best_seller section_padding">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-12">
-                    <div class="section_tittle text-center">
-                        <h2>Best Sellers <span>shop</span></h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row align-items-center justify-content-between">
-                <div class="col-lg-12">
-                    <div class="best_product_slider owl-carousel">
-                        <!-- {% for product in products %}
-                                {% if not product.is_listed or not product.category.is_listed %}
-                                        <div class="single_product_item" style="margin-left: -20rem;">
-                                            <img height="300" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
-                                            <div class="single_product_text">
-                                                <h4>{{product.product_name}}</h4>
-                                                {% if product.offer %}
-                                                    <h3><del>{{product.price}} Rs</del></h3>
-                                                    <h3>{{product.discount_price}} Rs</h3>
-                                                {% else %}
-                                                    <h3>{{product.price}} Rs</h3>
-                                                {% endif %}
-                                                <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
-                                            </div>
-                                        </div>
-                                {% else %}
-                                    <a href="{% url 'product_app:single_product' product.id %}">
-                                            <div class="single_product_item">
-                                                <img height="300" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
-                                                <div class="single_product_text">
-                                                    <h4>{{product.product_name}}</h4>
-                                                    {% if product.offer %}
-                                                        <h3><del>{{product.price}} Rs</del></h3>
-                                                        <h3>{{product.discount_price}} Rs</h3>
-                                                    {% else %}
-                                                        <h3>{{product.price}} Rs</h3>
-                                                    {% endif %}
-                                                    <div id="wishlistLogoProduct">
-                                                        <a href="{% url 'cart_app:add_to_cart' product.id %}" class="add_cart" >+ add to cart</a>
-                                                        <a href="{% url 'wishlist_app:add_to_wishlist' product.id %}" class="add_cart" id="wishlistLogoProduct" ><i class="ti-heart"></i></a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    </a>
-                                {% endif %}
-                                {% endfor %} -->
-                                        {% for best_seller in best_sellers %}
-                                        {% if best_seller.is_listed and best_seller.category.is_listed and best_seller.available_stock > 0 %}
-                                        <a href="{% url 'product_app:single_product' best_seller.id %}" style="text-decoration: none;">
-                                            <div class="single_product_item">
-                                                <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
-                                                <div class="single_product_text">
-                                                    <h4>{{best_seller.product_name}}</h4>
-                                                    {% if best_seller.offer %}
-                                                        <h3><del>{{best_seller.price}} Rs</del></h3>
-                                                        <h3>{{best_seller.discount_price}} Rs</h3>
-                                                    {% else %}
-                                                        <h3>{{best_seller.price}} Rs</h3>
-                                                    {% endif %}
-                                                    <!-- <div id="wishlistLogoProduct">
-                                                        <a href="#" class="add-to-cart" data-product-id="{{ product.id }}">+ Add to cart</a>
-                                                    <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}">
-                                                        <i class="ti-heart"></i> 
-                                                    </a>
-                                                    </div> -->
-                                                </div>
-                                            </div>
-                                        </a>
-                                        {% else %}
-                                            <div class="single_product_item">
-                                                <img src="{{best_seller.image_1.url}}" alt="{{best_seller.product_name}}">
-                                                <div class="single_product_text">
-                                                    <h4>{{best_seller.product_name}}</h4>
-                                                    {% if best_seller.offer %}
-                                                        <h3><del>{{best_seller.price}} Rs</del></h3>
-                                                        <h3>{{best_seller.discount_price}} Rs</h3>
-                                                    {% else %}
-                                                        <h3>{{best_seller.price}} Rs</h3>
-                                                    {% endif %}
-                                                    <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                        {% endfor %}
-                        <!-- <div class="single_product_item">
-                            <img src="{% static 'img/product/product_2.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_3.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_4.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div>
-                        <div class="single_product_item">
-                            <img src="{% static 'img/product/product_5.png' %}" alt="">
-                            <div class="single_product_text">
-                                <h4>Quartz Belt Watch</h4>
-                                <h3>$150.00</h3>
-                            </div>
-                        </div> -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- product_list part end-->
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-
-    <script>
-    $(document).ready(function() {
+<script>
+    $(document).ready(function () {
         // CSRF token setup
         function getCookie(name) {
             let cookieValue = null;
@@ -512,58 +318,58 @@
             return cookieValue;
         }
         const csrftoken = getCookie('csrftoken');
-    
+
         // AJAX for adding to cart
-        $('.add-to-cart').on('click', function(event) {
+        $('.add-to-cart').on('click', function (event) {
             event.preventDefault();
             let productId = $(this).data('product-id');
-            
+
             $.ajax({
                 url: `{% url 'cart_app:add_to_cart' 0 %}`.replace('0', productId),
                 type: 'POST',
                 dataType: 'json',
                 headers: { 'X-CSRFToken': csrftoken },
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         alert(response.message);
                         $('#cart-quantity').text(response.quantity);  // Update cart quantity display if needed
                     } else if (response.status === 'exists') {
                         alert(response.message);// Alert if product is already in cart
-                    }else if (response.redirect_url) {
+                    } else if (response.redirect_url) {
                         window.location.href = response.redirect_url;
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                 }
             });
         });
-    
+
         // AJAX for adding to wishlist
-        $('.add-to-wishlist').on('click', function(event) {
+        $('.add-to-wishlist').on('click', function (event) {
             event.preventDefault();
             let productId = $(this).data('product-id');
-            
+
             $.ajax({
                 url: `{% url 'wishlist_app:add_to_wishlist' 0 %}`.replace('0', productId),
                 type: 'POST',
                 dataType: 'json',
                 headers: { 'X-CSRFToken': csrftoken },
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         alert(response.message);
-                    }else if (response.status === 'exists') {
+                    } else if (response.status === 'exists') {
                         alert(response.message); // Alert if product is already in wishlist
                     } else if (response.redirect_url) {
                         window.location.href = response.redirect_url;
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                 }
             });
         });
     });
-    </script>
-        
-    {% endblock content %}
+</script>
+
+{% endblock content %}

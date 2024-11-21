@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <style>
-    #block{
+    #block {
         width: 5rem;
         height: 2rem;
         background-color: #ff7d00;
@@ -10,110 +10,117 @@
         border-radius: 1rem;
         color: white;
     }
-    #block:hover{
+
+    #block:hover {
         background-color: #d4a373;
     }
 </style>
 <!--================Cart Area =================-->
 <section class="cart_area padding_top">
     <div class="container">
-      <div class="cart_inner">
-        <div class="table-responsive">
-          {% if wishlist_items %}
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">Product</th>
-                <th scope="col">Price</th>
-                <th scope="col">Discount price</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody>
-                {% for item in wishlist_items %}
-                <tr>
-                    <td>
-                    <div class="media">
-                        <div class="d-flex">
-                        <img src="{{item.product.image_1.url}}" alt="{{item.product.product_name}}" width="100" height="100"/>
-                        </div>
-                        <div class="media-body">
-                        <p>{{item.product.product_name}}</p>
-                        </div>
-                    </div>
-                    </td>
-                    <td>
-                    <h5>{{item.product.price}}</h5>
-                    </td>
-                    <td>
-                    <h5>{{item.product.discount_price}}</h5>
-                    </td>
-                    
-                    </td>
-                    <td>
-                        <h5>{{item.total_price}} </h5>
-                    </td>
-                    <td>
-                        <a href="#" class="add-to-cart btn_3" data-product-id="{{ item.product.id }}">Add to cart</a>
-                    </td>
-                    <td>
-                        <form class="remove_item" action="{% url 'wishlist_app:remove_from_wishlist' item.id %}" method="post" >
-                            {% csrf_token %}
-                            <button id="block" type="submit" >Remove</button>
-                        </form>
-                    </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          {% else %}
-            <div style="background-image: url({% static 'img/order.jpg' %}); height: 20rem;display: flex; align-items: center; justify-content:center;">
-                <h2 style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">No Items In Wishlist.</h2>
+        <div class="cart_inner">
+            <div class="table-responsive">
+                {% if wishlist_items %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Product</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Discount price</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in wishlist_items %}
+                        <tr>
+                            <td>
+                                <div class="media">
+                                    <div class="d-flex">
+                                        <img src="{{item.product.image_1.url}}" alt="{{item.product.product_name}}"
+                                            width="100" height="100" />
+                                    </div>
+                                    <div class="media-body">
+                                        <p>{{item.product.product_name}}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <h5>{{item.product.price}}</h5>
+                            </td>
+                            <td>
+                                <h5>{{item.product.discount_price}}</h5>
+                            </td>
+
+                            </td>
+                            <td>
+                                <h5>{{item.total_price}} </h5>
+                            </td>
+                            <td>
+                                <a href="#" class="add-to-cart btn_3" data-product-id="{{ item.product.id }}">Add to
+                                    cart</a>
+                            </td>
+                            <td>
+                                <form class="remove_item" action="{% url 'wishlist_app:remove_from_wishlist' item.id %}"
+                                    method="post">
+                                    {% csrf_token %}
+                                    <button id="block" type="submit">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div
+                    style="background-image: url({% static 'img/order.jpg' %}); height: 20rem;display: flex; align-items: center; justify-content:center;">
+                    <h2
+                        style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+                        No Items In Wishlist.</h2>
+                </div>
+                {% endif %}
             </div>
-          {% endif %}
         </div>
-      </div>
-  </section>
-  <!--================End Cart Area =================-->
-  <!-- swal cdn  -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</section>
+<!--================End Cart Area =================-->
+<!-- swal cdn  -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- remove from wishlist swal -->
-  <script>
+<script>
     document.querySelectorAll(".remove_item").forEach(form => {
-        form.addEventListener("submit", function(event) {
-            event.preventDefault(); 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Show success alert after deletion confirmation
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Your address has been deleted.",
-                    icon: "success",
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    // Submit the form after confirmation
-                    event.target.submit();
-                });
-            }
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show success alert after deletion confirmation
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Your address has been deleted.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Submit the form after confirmation
+                        event.target.submit();
+                    });
+                }
+            });
         });
     });
-});
 </script>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         // CSRF token setup
         function getCookie(name) {
             let cookieValue = null;
@@ -130,59 +137,59 @@
             return cookieValue;
         }
         const csrftoken = getCookie('csrftoken');
-    
+
         // AJAX for adding to cart
-        $('.add-to-cart').on('click', function(event) {
+        $('.add-to-cart').on('click', function (event) {
             event.preventDefault();
             let productId = $(this).data('product-id');
-            
+
             $.ajax({
                 url: `{% url 'cart_app:add_to_cart' 0 %}`.replace('0', productId),
                 type: 'POST',
                 dataType: 'json',
                 headers: { 'X-CSRFToken': csrftoken },
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         alert(response.message);
                         $('#cart-quantity').text(response.quantity);  // Update cart quantity display if needed
                     } else if (response.status === 'exists') {
                         alert(response.message);// Alert if product is already in cart
-                    }else if (response.redirect_url) {
+                    } else if (response.redirect_url) {
                         window.location.href = response.redirect_url;
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                 }
             });
         });
-    
+
         // AJAX for adding to wishlist
-        $('.add-to-wishlist').on('click', function(event) {
+        $('.add-to-wishlist').on('click', function (event) {
             event.preventDefault();
             let productId = $(this).data('product-id');
-            
+
             $.ajax({
                 url: `{% url 'wishlist_app:add_to_wishlist' 0 %}`.replace('0', productId),
                 type: 'POST',
                 dataType: 'json',
                 headers: { 'X-CSRFToken': csrftoken },
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         alert(response.message);
-                    }else if (response.status === 'exists') {
+                    } else if (response.status === 'exists') {
                         alert(response.message); // Alert if product is already in wishlist
                     } else if (response.redirect_url) {
                         window.location.href = response.redirect_url;
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error:', error);
                 }
             });
         });
     });
-    </script>
-       
+</script>
 
-  {% endblock content %}
+
+{% endblock content %}

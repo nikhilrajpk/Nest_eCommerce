@@ -2,17 +2,17 @@
 {% load static %}
 {% block content %}
 <style>
-    #user_header{
+    #user_header {
         background-color: #ff3368;
     }
 </style>
 <!-- breadcrumbs start-->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'user_app:account' %}">Account</a></li>
-    <li class="breadcrumb-item active" aria-current="page"><a href="">Edit Profile</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'user_app:account' %}">Account</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><a href="">Edit Profile</a></li>
     </ol>
-  </nav>
+</nav>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -24,18 +24,11 @@
                 <!-- alert box  -->
                 {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-{{message.tags}}">
-                        <strong>{{message}}</strong>
-                    </div>
+                <div class="alert alert-{{message.tags}}">
+                    <strong>{{message}}</strong>
+                </div>
                 {% endfor %}
                 {% endif %}
-
-                <script>
-                setTimeout (() => {
-                    $(".alert").alert("close")
-                },3000)
-                </script>
-
 
                 <div class="card-body">
                     <form id="edit-profile-form" method="POST" action="{% url 'user_app:edit_profile' %}">
@@ -43,49 +36,55 @@
                         <!-- First Name -->
                         <div class="form-group">
                             <label for="first-name">First Name</label>
-                            <input type="text" class="form-control" id="first-name" name="first_name" value="{{ user.first_name }}" required>
-                            <div id="first-warning" style="display:none; color: red;">Please enter a valid first name. First name only contains letters.</div>
+                            <input type="text" class="form-control" id="first-name" name="first_name"
+                                value="{{ user.first_name }}" required>
+                            <div id="first-warning" style="display:none; color: red;">Please enter a valid first name.
+                                First name only contains letters.</div>
                         </div>
-                        
+
                         <!-- Last Name -->
                         <div class="form-group">
                             <label for="last-name">Last Name</label>
-                            <input type="text" class="form-control" id="last-name" name="last_name" value="{{ user.last_name }}" required>
-                            <div id="last-warning" style="display:none; color: red;">Please enter a valid last name. Last name only contains letters.</div>
+                            <input type="text" class="form-control" id="last-name" name="last_name"
+                                value="{{ user.last_name }}" required>
+                            <div id="last-warning" style="display:none; color: red;">Please enter a valid last name.
+                                Last name only contains letters.</div>
                         </div>
 
                         <!-- Save Changes Button -->
                         <button type="submit" class="btn btn-success btn-block mt-4">Save Changes</button>
-                    </form>  
+                    </form>
 
-                        <!-- Address Section -->
-                        <h5 class="mt-4">Addresses:</h5>
-                        {% for address in user.addresses.all %}
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h6 class="card-title">{{ address.get_address_type_display }} Address</h6>
-                                    <p class="card-text">
-                                        {{ address.street_address }}<br>
-                                        {% if address.landmark != None %}
-                                            {{ address.landmark }}
-                                        {% endif%}<br>
-                                        {{ address.state }}, {{ address.country }}<br>
-                                        Postal Code: {{ address.postal_code }}<br>
-                                        Phone: {{ address.phone }}<br>
-                                        {% if address.alternative_phone != '' %}
-                                            Alternative Phone: {{ address.alternative_phone }}
-                                        {% endif %}
-                                    </p>
-                                </div>
-                                    <div class="card-footer">
-                                        <a href="{% url 'user_app:edit_address' address.id %}" class="btn btn-sm btn-warning">Edit Address</a>
-                                        <form class="delete_address" action="{% url 'user_app:delete_address' address.id %}" method="post" style="display: inline-block;" >
-                                            {% csrf_token %}
-                                            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-                                        </form>
-                                    </div> 
-                            </div>
-                        {% endfor %}
+                    <!-- Address Section -->
+                    <h5 class="mt-4">Addresses:</h5>
+                    {% for address in user.addresses.all %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ address.get_address_type_display }} Address</h6>
+                            <p class="card-text">
+                                {{ address.street_address }}<br>
+                                {% if address.landmark != None %}
+                                {{ address.landmark }}
+                                {% endif%}<br>
+                                {{ address.state }}, {{ address.country }}<br>
+                                Postal Code: {{ address.postal_code }}<br>
+                                Phone: {{ address.phone }}<br>
+                                {% if address.alternative_phone != '' %}
+                                Alternative Phone: {{ address.alternative_phone }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'user_app:edit_address' address.id %}" class="btn btn-sm btn-warning">Edit
+                                Address</a>
+                            <form class="delete_address" action="{% url 'user_app:delete_address' address.id %}"
+                                method="post" style="display: inline-block;">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
 
                 </div>
                 <div class="card-footer text-center">
@@ -96,7 +95,7 @@
     </div>
 </div>
 <!-- form validation -->
- <script>
+<script>
     let editProfileForm = document.getElementById('edit-profile-form')
 
     let firstInput = document.getElementById('first-name')
@@ -108,55 +107,55 @@
     let regex = /^[a-zA-Z]+$/
 
     //first name validation
-    firstInput.addEventListener('input',function(){
+    firstInput.addEventListener('input', function () {
         let firstName = firstInput.value.trim()
-        if(!regex.test(firstName) || firstName === ""){
+        if (!regex.test(firstName) || firstName === "") {
             firstWarning.style.display = "block"
         }
-        else{
+        else {
             firstWarning.style.display = "none"
         };
     });
 
     //last name validation
-    lastInput.addEventListener('input',function(){
+    lastInput.addEventListener('input', function () {
         let lastName = lastInput.value.trim()
-        if(!regex.test(lastName) || lastName === ""){
+        if (!regex.test(lastName) || lastName === "") {
             lastWarning.style.display = "block"
-        }else{
+        } else {
             lastWarning.style.display = "none"
         };
     });
 
     //form submission validation
-    editProfileForm.addEventListener('submit',function(e){
+    editProfileForm.addEventListener('submit', function (e) {
         isValid = true
 
         // first name
         let firstName = firstInput.value.trim()
-        if(!regex.test(firstName) || firstName === ""){
+        if (!regex.test(firstName) || firstName === "") {
             isValid = false
             firstWarning.style.display = "block"
         }
-        else{
+        else {
             firstWarning.style.display = "none"
         };
 
         //last name
         let lastName = lastInput.value.trim()
-        if(!regex.test(lastName) || lastName === ""){
+        if (!regex.test(lastName) || lastName === "") {
             isValid = false
             lastWarning.style.display = "block"
-        }else{
+        } else {
             lastWarning.style.display = "none"
         };
 
-        if(!isValid){
+        if (!isValid) {
             e.preventDefault()
         }
 
     });
- </script>
+</script>
 
 
 <!-- swal cdn  -->
@@ -164,43 +163,47 @@
 
 <script>
     // Get all elements with the class "delete_address"
-let deleteForms = document.getElementsByClassName("delete_address");
+    let deleteForms = document.getElementsByClassName("delete_address");
 
-// Loop through each form and attach the event listener
-Array.from(deleteForms).forEach(function(form) {
-    form.addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent the form from submitting immediately
+    // Loop through each form and attach the event listener
+    Array.from(deleteForms).forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the form from submitting immediately
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Show success alert after deletion confirmation
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Your profile has been deleted.",
-                    icon: "success",
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    // Submit the form after confirmation
-                    form.submit();
-                });
-            }
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show success alert after deletion confirmation
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Your profile has been deleted.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Submit the form after confirmation
+                        form.submit();
+                    });
+                }
+            });
         });
     });
-});
 </script>
 
-<script
-  src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous">
+    </script>
+
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 3000)
 </script>
 {% endblock content %}

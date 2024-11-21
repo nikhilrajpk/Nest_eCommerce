@@ -2,25 +2,21 @@
 {% load static %}
 {% block content %}
 <style>
-    #user_header{
+    #user_header {
         background-color: #ff3368;
     }
 </style>
 
-<script>
-setTimeout (() => {
-    $(".alert").alert("close")
-},3000)
-</script>
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <!-- alert box  -->
             {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{message.tags}}">
-                    <strong>{{message}}</strong>
-                </div>
+            <div class="alert alert-{{message.tags}}">
+                <strong>{{message}}</strong>
+            </div>
             {% endfor %}
             {% endif %}
             <!-- User Details Card -->
@@ -29,10 +25,6 @@ setTimeout (() => {
                     <h4 class="text-center text-white">User Details</h4>
                 </div>
                 <div class="card-body">
-                    <!-- <div class="text-center mb-4">
-                        <img src="https://via.placeholder.com/150" alt="User Avatar" class="rounded-circle" width="150" height="150">
-                    </div> -->
-
                     <!-- User Info Table -->
                     <table class="table table-striped">
                         <tbody>
@@ -54,24 +46,24 @@ setTimeout (() => {
                     <!-- Address Section -->
                     <h5 class="mt-4">Addresses:</h5>
                     {% for address in user.addresses.all %}
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h6 class="card-title">{{ address.get_address_type_display }} Address</h6>
-                                <p class="card-text">
-                                    {{ address.street_address }}<br>
-                                    {% if address.landmark != None %}
-                                        {{ address.landmark }}
-                                    {% endif %}
-                                        <br>
-                                    {{ address.state }}, {{ address.country }}<br>
-                                    Postal Code: {{ address.postal_code }}<br>
-                                    Phone: {{ address.phone }}<br>
-                                    {% if address.alternative_phone %}
-                                        Alternative Phone: {{ address.alternative_phone }}
-                                    {% endif %}
-                                </p>
-                            </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ address.get_address_type_display }} Address</h6>
+                            <p class="card-text">
+                                {{ address.street_address }}<br>
+                                {% if address.landmark != None %}
+                                {{ address.landmark }}
+                                {% endif %}
+                                <br>
+                                {{ address.state }}, {{ address.country }}<br>
+                                Postal Code: {{ address.postal_code }}<br>
+                                Phone: {{ address.phone }}<br>
+                                {% if address.alternative_phone %}
+                                Alternative Phone: {{ address.alternative_phone }}
+                                {% endif %}
+                            </p>
                         </div>
+                    </div>
                     {% endfor %}
                 </div>
                 <div class="card-footer text-center">
@@ -82,9 +74,12 @@ setTimeout (() => {
         </div>
     </div>
 </div>
-<script
-  src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous">
+    </script>
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 3000)
 </script>
 {% endblock content %}

@@ -2,48 +2,54 @@
 {% load static %}
 {% block content %}
 <style>
-    .unblock-btn{
+    .unblock-btn {
         width: 4rem;
         background-color: #d4a373;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    .unblock-btn:hover{
+
+    .unblock-btn:hover {
         background-color: #ff7d00;
     }
-    .block-btn{
+
+    .block-btn {
         width: 4rem;
         background-color: #ff7d00;
         border: none;
         border-radius: 1rem;
         color: white;
     }
-    .block-btn:hover{
+
+    .block-btn:hover {
         background-color: #d4a373;
     }
-    #search{
-		color: black;
-		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-		font-weight: 500;
-		border-radius: 10px;
+
+    #search {
+        color: black;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-weight: 500;
+        border-radius: 10px;
         border: 1px solid #666;
-		padding-left: 13px;
-		width: 12rem;
-		height: 30px;
-		
-	}
-	#search_btn{
-		color: #000;
-		background-color: violet;
-		height: 30px;
+        padding-left: 13px;
+        width: 12rem;
+        height: 30px;
+
+    }
+
+    #search_btn {
+        color: #000;
+        background-color: violet;
+        height: 30px;
         width: 5rem;
-		border-radius: 15px;
-		border: #666;
-		font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-		font-weight: 500;
-	}
-    #tdiv{
+        border-radius: 15px;
+        border: #666;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        font-weight: 500;
+    }
+
+    #tdiv {
         position: sticky;
         z-index: 1;
         top: 4.2rem;
@@ -56,7 +62,8 @@
     <div class="col-sm-5" id="tdiv">
         <h2 class="mb-4">User Information</h2>
         <form action="" method="get">
-            <input id="search" type="search" name="search_query" placeholder="Search users..." {% if query %} value="{{ query }}" {% endif %} >
+            <input id="search" type="search" name="search_query" placeholder="Search users..." {% if query %}
+                value="{{ query }}" {% endif %}>
             <button id="search_btn" type="submit">Search</button>
         </form>
     </div><br>
@@ -83,12 +90,9 @@
                     <td>{{ user.referral.referral_code }}</td>
                     <td>{{ user.date_joined }}</td>
                     <td>
-                        <button 
-                            id="block-button-{{ user.id }}" 
+                        <button id="block-button-{{ user.id }}"
                             class="btn_3 {% if user.is_block %}unblock-btn{% else %}block-btn{% endif %}"
-                            data-user-id="{{ user.id }}"
-                            style="width: 4rem; border-radius: 1rem; color: white;"
-                        >
+                            data-user-id="{{ user.id }}" style="width: 4rem; border-radius: 1rem; color: white;">
                             {% if user.is_block %}Unblock{% else %}Block{% endif %}
                         </button>
                     </td>
@@ -98,7 +102,7 @@
         </table>
     </div>
 </div>
-
+<!-- user block -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {

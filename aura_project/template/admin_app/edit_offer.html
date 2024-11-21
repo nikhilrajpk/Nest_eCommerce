@@ -5,8 +5,8 @@
 <!-- breadcrumbs start-->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_offer' %}">Offer</a></li>
-    <li class="breadcrumb-item"><a href="">Edit offer</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_offer' %}">Offer</a></li>
+        <li class="breadcrumb-item"><a href="">Edit offer</a></li>
     </ol>
 </nav>
 <div class="container mt-5">
@@ -17,35 +17,42 @@
         <!-- Offer Title -->
         <div class="mb-3">
             <label for="offer-title" class="form-label">Offer Title:</label>
-            <input type="text" class="form-control" id="offer-title" name="offer_title" required value="{{offer.offer_title}}">
+            <input type="text" class="form-control" id="offer-title" name="offer_title" required
+                value="{{offer.offer_title}}">
             <div id="offer-warning" style="display:none; color: red;">Please enter a valid offer title.</div>
         </div>
 
         <!-- Offer Description -->
         <div class="mb-3">
             <label for="offer-description" class="form-label">Offer Description:</label>
-            <textarea class="form-control" id="offer-description" name="offer_description" rows="4" required>{{offer.offer_description}}</textarea>
+            <textarea class="form-control" id="offer-description" name="offer_description" rows="4"
+                required>{{offer.offer_description}}</textarea>
             <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
         </div>
 
         <!-- Offer Percentage -->
         <div class="mb-3">
             <label for="offer-percentage" class="form-label">Offer Percentage:</label>
-            <input type="number" class="form-control" id="offer-percentage" name="offer_percentage" min="0" max="100" required value="{{offer.offer_percentage}}">
+            <input type="number" class="form-control" id="offer-percentage" name="offer_percentage" min="0" max="100"
+                required value="{{offer.offer_percentage}}">
         </div>
 
         <!-- Start Date -->
         <div class="mb-3">
             <label for="start-date" class="form-label">Start Date:</label>
-            <input type="datetime-local" class="form-control" id="start-date" name="start_date" required value="{{offer.start_date|date:'Y-m-d\\TH:i'}}">
+            <input type="datetime-local" class="form-control" id="start-date" name="start_date" required
+                value="{{offer.start_date|date:'Y-m-d\\TH:i'}}">
         </div>
 
         <!-- End Date -->
         <div class="mb-3">
             <label for="end-date" class="form-label">End Date:</label>
-            <input type="datetime-local" class="form-control" id="end-date" name="end_date" required value="{{offer.end_date|date:'Y-m-d\\TH:i'}}">
-            <div id="end-date-warning-past" style="display:none; color: red;">End date cannot be set in the past. Please select a future date.</div>
-            <div id="end-date-warning-start" style="display:none; color: red;">End date cannot be earlier than the start date. Please select a valid end date.</div>
+            <input type="datetime-local" class="form-control" id="end-date" name="end_date" required
+                value="{{offer.end_date|date:'Y-m-d\\TH:i'}}">
+            <div id="end-date-warning-past" style="display:none; color: red;">End date cannot be set in the past. Please
+                select a future date.</div>
+            <div id="end-date-warning-start" style="display:none; color: red;">End date cannot be earlier than the start
+                date. Please select a valid end date.</div>
         </div>
 
         <!-- Submit Button -->
@@ -53,6 +60,7 @@
     </form>
 </div>
 <br>
+<!-- form validation -->
 <script>
     let offerForm = document.getElementById('offer-form')
 
@@ -72,64 +80,64 @@
     let descriptionRegex = /^[a-zA-Z0-9 \.,\-]+$/
 
     //offer title validation
-    offerTitleInput.addEventListener('input',function(){
+    offerTitleInput.addEventListener('input', function () {
         let offerTitle = offerTitleInput.value.trim()
-        if(!offerRegex.test(offerTitle) || offerTitle === ""){
+        if (!offerRegex.test(offerTitle) || offerTitle === "") {
             offerWarning.style.display = "block"
         }
-        else{
+        else {
             offerWarning.style.display = "none"
         }
     });
     //description validation
-    descriptionInput.addEventListener('input',function(){
+    descriptionInput.addEventListener('input', function () {
         let description = descriptionInput.value.trim()
-        if(!descriptionRegex.test(description) || description === ""){
+        if (!descriptionRegex.test(description) || description === "") {
             descriptionWarning.style.display = "block"
         }
-        else{
+        else {
             descriptionWarning.style.display = "none"
         }
     });
     // end date validation
-    endDateInput.addEventListener('input',function(){
+    endDateInput.addEventListener('input', function () {
         let startDate = new Date(startDateInput.value)
         let endDate = new Date(endDateInput.value)
         let now = new Date()
 
-        if(endDate < now){
+        if (endDate < now) {
             endDateWarningPast.style.display = "block"
             endDateWarningStart.style.display = "none"
         }
-        else if(endDate < startDate){
+        else if (endDate < startDate) {
             endDateWarningStart.style.display = "block"
             endDateWarningPast.style.display = "none"
         }
-        else{
+        else {
             endDateWarningPast.style.display = "none"
             endDateWarningStart.style.display = "none"
         }
     });
 
     // form submission checking
-    offerForm.addEventListener('submit',function(e){
+    offerForm.addEventListener('submit', function (e) {
         let isValid = true
 
         let offerTitle = offerTitleInput.value.trim()
-        if(!offerRegex.test(offerTitle) || offerTitle === ""){
+        if (!offerRegex.test(offerTitle) || offerTitle === "") {
             isValid = false
             offerWarning.style.display = "block"
         }
-        else{
+        else {
             offerWarning.style.display = "none"
         };
 
         let description = descriptionInput.value.trim()
-        if(!descriptionRegex.test(description) || description === ""){
+        if (!descriptionRegex.test(description) || description === "") {
             isValid = false
             descriptionWarning.style.display = "block"
         }
-        else{
+        else {
             descriptionWarning.style.display = "none"
         };
 
@@ -138,22 +146,22 @@
         let endDate = new Date(endDateInput.value)
         let now = new Date()
 
-        if(endDate < now){
+        if (endDate < now) {
             isValid = false
             endDateWarningPast.style.display = "block"
             endDateWarningStart.style.display = "none"
         }
-        else if(endDate < startDate){
+        else if (endDate < startDate) {
             isValid = false
             endDateWarningStart.style.display = "block"
             endDateWarningPast.style.display = "none"
         }
-        else{
+        else {
             endDateWarningPast.style.display = "none"
             endDateWarningStart.style.display = "none"
         }
 
-        if(!isValid){
+        if (!isValid) {
             e.preventDefault();
         };
     });

@@ -2,72 +2,73 @@
 {% load static %}
 {% block content %}
 <style>
-        .wallet-card {
-            background: linear-gradient(135deg, #00d4ff, #90f7ec);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: left;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            font-weight: bold;
-        }
-        .search-bar {
-            margin-bottom: 20px;
-        }
-    </style>
+    .wallet-card {
+        background: linear-gradient(135deg, #00d4ff, #90f7ec);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: left;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-weight: bold;
+    }
 
-    <div class="container mt-5">
-        <!-- Wallet Card -->
-        <div class="wallet-card mb-4">
-            <h4>BIT WALLET</h4>
-            <!-- <div>Balance: ₹{{wallet.balance}}</div> -->
-            <div>Created CVV</div>
-            <div>Balance: ₹{{wallet.balance}}</div>
-        </div>
+    .search-bar {
+        margin-bottom: 20px;
+    }
+</style>
 
-        <!-- Search and Filter -->
-        <div class="search-bar">
-            <input type="text" id="transactionSearch" class="form-control" placeholder="Search transactions...">
-        </div>
-
-        <!-- Transactions Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="thead-light">
-                    <tr>
-                        <th>No</th>
-                        <th>Transaction Id</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionTable">
-                    {% for transaction in wallet_transactions %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{transaction.id}}</td>
-                        <td>₹{{transaction.amount}}</td>
-                        <td>{{transaction.transaction_type}}</td>
-                        <td>{{transaction.created_at}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="container mt-5">
+    <!-- Wallet Card -->
+    <div class="wallet-card mb-4">
+        <h4>BIT WALLET</h4>
+        <!-- <div>Balance: ₹{{wallet.balance}}</div> -->
+        <div>Created CVV</div>
+        <div>Balance: ₹{{wallet.balance}}</div>
     </div>
 
-    <!-- JavaScript for Search Filter -->
-    <script>
-        document.getElementById('transactionSearch').addEventListener('keyup', function() {
-            const searchValue = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#transactionTable tr');
+    <!-- Search and Filter -->
+    <div class="search-bar">
+        <input type="text" id="transactionSearch" class="form-control" placeholder="Search transactions...">
+    </div>
 
-            rows.forEach(row => {
-                const rowText = row.textContent.toLowerCase();
-                row.style.display = rowText.includes(searchValue) ? '' : 'none';
-            });
+    <!-- Transactions Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>No</th>
+                    <th>Transaction Id</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="transactionTable">
+                {% for transaction in wallet_transactions %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{transaction.id}}</td>
+                    <td>₹{{transaction.amount}}</td>
+                    <td>{{transaction.transaction_type}}</td>
+                    <td>{{transaction.created_at}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- JavaScript for Search Filter -->
+<script>
+    document.getElementById('transactionSearch').addEventListener('keyup', function () {
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#transactionTable tr');
+
+        rows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+            row.style.display = rowText.includes(searchValue) ? '' : 'none';
         });
-    </script>
+    });
+</script>
 <hr>
 {% endblock content %}

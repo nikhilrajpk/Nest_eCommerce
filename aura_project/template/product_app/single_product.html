@@ -3,570 +3,440 @@
 {% block content %}
 
 <style>
-    
-    #images_product{
-      margin-top: 3rem;
-        display: flex;
-        width: 40rem;
-    }
-    #large_image{
-        height: 30rem;
-        background-color: rgb(250, 240, 240);
-    }
-    .small_image{
-        background-color: rgb(250, 240, 240);
-        overflow: hidden;
-    }
-    .small_image img{
-      object-fit: contain;
-    }
-    .zoom-container {
-      aspect-ratio: 3/2;
-      position: relative;
-      overflow: hidden;
-      width: 500px; /* Set to the width of your main image */
-      height: 300px; /* Set to the height of your main image */
-      border: 1px solid #ddd;
+  #images_product {
+    margin-top: 3rem;
+    display: flex;
+    width: 40rem;
+  }
+
+  #large_image {
+    height: 30rem;
+    background-color: rgb(250, 240, 240);
+  }
+
+  .small_image {
+    background-color: rgb(250, 240, 240);
+    overflow: hidden;
+  }
+
+  .small_image img {
+    object-fit: contain;
+  }
+
+  .zoom-container {
+    aspect-ratio: 3/2;
+    position: relative;
+    overflow: hidden;
+    width: 500px;
+    /* Set to the width of your main image */
+    height: 300px;
+    /* Set to the height of your main image */
+    border: 1px solid #ddd;
   }
 
   #l_img {
-      object-fit: contain;
-      width: 100%;
-      height: 100%;
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
   }
 
   /* Styles for the zoomed image */
   #zoomed_image {
-      position: absolute;
-      top: 0;
-      left: 530px; /* Adjust this to control distance from the main image */
-      width: 450px;
-      height: 300px;
-      background-repeat: no-repeat;
-      background-size: 200%; /* Double the size for zoom */
-      display: none; /* Hide by default */
-      border: 1px solid #ddd;
+    position: absolute;
+    top: 0;
+    left: 530px;
+    /* Adjust this to control distance from the main image */
+    width: 450px;
+    height: 300px;
+    background-repeat: no-repeat;
+    background-size: 200%;
+    /* Double the size for zoom */
+    display: none;
+    /* Hide by default */
+    border: 1px solid #ddd;
   }
 </style>
- <!-- breadcrumbs start-->
- <nav aria-label="breadcrumb">
+<!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-  <li class="breadcrumb-item"><a href="{% url 'category_app:category' %}">Category</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'product_app:products_view' product.category.id %}">{{product.category.category_name}}</a></li>
-  <li class="breadcrumb-item active" aria-current="page">{{product.product_name}}</li>
+    <li class="breadcrumb-item"><a href="{% url 'category_app:category' %}">Category</a></li>
+    <li class="breadcrumb-item"><a
+        href="{% url 'product_app:products_view' product.category.id %}">{{product.category.category_name}}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{product.product_name}}</li>
   </ol>
 </nav>
-  <!--================Single Product Area =================-->
-  <div class="product_image_area section_padding">
-    <div class="container">
-      <div class="row s_product_inner justify-content-between">
-        <div class="col-lg-7 col-xl-7">
-          <div class="product_slider_img">
-            <div id="vertical">
-              <div id="large_image" class="zoom-container">
-                <img id="l_img" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
-              </div>
-              <div id="zoomed_image"></div>
-                <div id="images_product">
-                    <div class="m-2 small_image" onclick="changeImage('{{product.image_1.url}}')">
-                        <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
-                    </div>
-                    <div class="m-2 small_image" onclick="changeImage('{{product.image_2.url}}')">
-                        <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_2.url}}" alt="{{product.product_name}}" />
-                    </div>
-                    <div class="m-2 small_image" onclick="changeImage('{{product.image_3.url}}')">
-                        <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_3.url}}" alt="{{product.product_name}}" />
-                    </div>
-                </div>
-
+<!--================Single Product Area =================-->
+<div class="product_image_area section_padding">
+  <div class="container">
+    <div class="row s_product_inner justify-content-between">
+      <div class="col-lg-7 col-xl-7">
+        <div class="product_slider_img">
+          <div id="vertical">
+            <div id="large_image" class="zoom-container">
+              <img id="l_img" src="{{product.image_1.url}}" alt="{{product.product_name}}" />
             </div>
+            <div id="zoomed_image"></div>
+            <div id="images_product">
+              <div class="m-2 small_image" onclick="changeImage('{{product.image_1.url}}')">
+                <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_1.url}}"
+                  alt="{{product.product_name}}" />
+              </div>
+              <div class="m-2 small_image" onclick="changeImage('{{product.image_2.url}}')">
+                <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_2.url}}"
+                  alt="{{product.product_name}}" />
+              </div>
+              <div class="m-2 small_image" onclick="changeImage('{{product.image_3.url}}')">
+                <img style="width: 100%; height: 100%; object-fit: cover;" src="{{product.image_3.url}}"
+                  alt="{{product.product_name}}" />
+              </div>
+            </div>
+
           </div>
         </div>
-        <div class="col-lg-5 col-xl-4">
-          <div class="s_product_text">
-            <h3>{{product.product_name}}</h3>
-            {% if product.offer %}
-                <h4><del>{{product.price}} Rs</del></h4>
-                <h4>{{product.discount_price}} Rs</h4>
-            {% else %}
-                <h4>{{product.price}} Rs</h4>
-            {% endif %}
-            <br>
-            <ul class="list">
-              <li>
-                  <span>Category</span> : {{product.category.category_name}}
-              </li>
-              <li>
-                {% if product.available_stock > 0 %}
-                    <span>Availibility</span> : In stock : {{product.available_stock}}
-                {% else %}
-                    <span>Unavailable</span>
-                {% endif %}
-              </li>
-              {% if product.offer %}
-                <li>
-                    <span>Offer</span> : {{product.offer.offer_title}}
-                </li>
+      </div>
+      <div class="col-lg-5 col-xl-4">
+        <div class="s_product_text">
+          <h3>{{product.product_name}}</h3>
+          {% if product.offer %}
+          <h4><del>{{product.price}} Rs</del></h4>
+          <h4>{{product.discount_price}} Rs</h4>
+          {% else %}
+          <h4>{{product.price}} Rs</h4>
+          {% endif %}
+          <br>
+          <ul class="list">
+            <li>
+              <span>Category</span> : {{product.category.category_name}}
+            </li>
+            <li>
+              {% if product.available_stock > 0 %}
+              <span>Availibility</span> : In stock : {{product.available_stock}}
+              {% else %}
+              <span>Unavailable</span>
               {% endif %}
-            </ul>
-            <p>
-            </p>
-            <div class="card_area d-flex justify-content-between align-items-center">
-              <!-- <div class="product_count">
-                <span class="inumber-decrement"> <i class="ti-minus"></i></span>
-                <input class="input-number" type="text" value="1" min="0" max="{{product.available_stock}}">
-                <span class="number-increment"> <i class="ti-plus"></i></span>
-              </div> -->
-              <a href="#" class="add-to-cart btn_3" data-product-id="{{ product.id }}">Add to cart</a>
-              <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}">
-                  <i class="ti-heart"></i> 
-              </a>
+            </li>
+            {% if product.offer %}
+            <li>
+              <span>Offer</span> : {{product.offer.offer_title}}
+            </li>
+            {% endif %}
+          </ul>
+          <p>
+          </p>
+          <div class="card_area d-flex justify-content-between align-items-center">
+            <a href="#" class="add-to-cart btn_3" data-product-id="{{ product.id }}">Add to cart</a>
+            <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}">
+              <i class="ti-heart"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--================End Single Product Area =================-->
+
+<!--================Product Description Area =================-->
+<section class="product_description_area">
+  <div class="container">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+          aria-selected="true">Description</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+          aria-selected="false">Specification</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review"
+          aria-selected="false">Reviews</a>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
+        <p>
+          {{product.description}}
+        </p>
+        <p>
+
+        </p>
+      </div>
+      <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+        <div class="table-responsive">
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>
+                  <h5>Material</h5>
+                </td>
+                <td>
+                  <h5>{{product.material}}</h5>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h5>Color</h5>
+                </td>
+                <td>
+                  <h5>{{product.color}}</h5>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h5>Width</h5>
+                </td>
+                <td>
+                  <h5>{{product.width}}cm</h5>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h5>Length</h5>
+                </td>
+                <td>
+                  <h5>{{product.length}}cm</h5>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h5>Height</h5>
+                </td>
+                <td>
+                  <h5>{{product.height}}cm</h5>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <h5>Manufactured at</h5>
+                </td>
+                <td>
+                  <h5>{{product.created_at|date:'Y-m-d'}}</h5>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="row total_rate">
+              <div class="col-6">
+                <div class="box_total">
+                  <h5>Overall</h5>
+                  <h4>{{average_rating}}</h4>
+                  <h6>({{total_review}} Reviews)</h6>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="rating_list">
+                  <h3>Based on {{total_review}} Reviews</h3>
+                </div>
+              </div>
+            </div>
+            <div class="review_list">
+              {% for review in product.productreview_set.all %}
+              <div class="review_item">
+                <div class="media">
+                  <div class="d-flex">
+                    <img src="{{ review.product.image_1.url }}" alt="{{review.product.product_name}}" width="100" />
+                  </div>
+                  <div class="media-body">
+                    <h4>{{review.user.first_name}}</h4>
+                    {{review.get_rating_display}}
+                  </div>
+                </div>
+                <p>
+                  {{review.comment}}
+                </p>
+              </div>
+              {% endfor %}
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <!--================End Single Product Area =================-->
-
-  <!--================Product Description Area =================-->
-  <section class="product_description_area">
-    <div class="container">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
-            aria-selected="true">Description</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
-            aria-selected="false">Specification</a>
-        </li>
-        <!-- <li class="nav-item">
-          <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact"
-            aria-selected="false">Comments</a>
-        </li> -->
-        <li class="nav-item">
-          <a class="nav-link active" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review"
-            aria-selected="false">Reviews</a>
-        </li>
-      </ul>
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
-          <p>
-            {{product.description}}
-          </p>
-          <p>
-           
-          </p>
-        </div>
-        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-          <div class="table-responsive">
-            <table class="table">
-              <tbody>
-                <tr>
-                  <td>
-                    <h5>Material</h5>
-                  </td>
-                  <td>
-                    <h5>{{product.material}}</h5>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>Color</h5>
-                  </td>
-                  <td>
-                    <h5>{{product.color}}</h5>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>Width</h5>
-                  </td>
-                  <td>
-                    <h5>{{product.width}}cm</h5>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>Length</h5>
-                  </td>
-                  <td>
-                    <h5>{{product.length}}cm</h5>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>Height</h5>
-                  </td>
-                  <td>
-                    <h5>{{product.height}}cm</h5>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>Manufactured at</h5>
-                  </td>
-                  <td>
-                    <h5>{{product.created_at|date:'Y-m-d'}}</h5>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <!-- <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="comment_list">
-                <div class="review_item">
-                  <div class="media">
-                    <div class="d-flex">
-                      <img src="img/product/single-product/review-1.png" alt="" />
-                    </div>
-                    <div class="media-body">
-                      <h4>Blake Ruiz</h4>
-                      <h5>12th Feb, 2017 at 05:56 pm</h5>
-                      <a class="reply_btn" href="#">Reply</a>
-                    </div>
-                  </div>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo
-                  </p>
-                </div>
-                <div class="review_item reply">
-                  <div class="media">
-                    <div class="d-flex">
-                      <img src="img/product/single-product/review-2.png" alt="" />
-                    </div>
-                    <div class="media-body">
-                      <h4>Blake Ruiz</h4>
-                      <h5>12th Feb, 2017 at 05:56 pm</h5>
-                      <a class="reply_btn" href="#">Reply</a>
-                    </div>
-                  </div>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo
-                  </p>
-                </div>
-                <div class="review_item">
-                  <div class="media">
-                    <div class="d-flex">
-                      <img src="img/product/single-product/review-3.png" alt="" />
-                    </div>
-                    <div class="media-body">
-                      <h4>Blake Ruiz</h4>
-                      <h5>12th Feb, 2017 at 05:56 pm</h5>
-                      <a class="reply_btn" href="#">Reply</a>
-                    </div>
-                  </div>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="review_box">
-                <h4>Post a comment</h4>
-                <form class="row contact_form" action="contact_process.php" method="post" id="contactForm"
-                  novalidate="novalidate">
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <input type="text" class="form-control" id="name" name="name" placeholder="Your Full name" />
-                    </div>
-                  </div>
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" />
-                    </div>
-                  </div>
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <input type="text" class="form-control" id="number" name="number" placeholder="Phone Number" />
-                    </div>
-                  </div>
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <textarea class="form-control" name="message" id="message" rows="1"
-                        placeholder="Message"></textarea>
-                    </div>
-                  </div>
-                  <div class="col-md-12 text-right">
-                    <button type="submit" value="submit" class="btn_3">
-                      Submit Now
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div> -->
-        <div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="row total_rate">
-                <div class="col-6">
-                  <div class="box_total">
-                    <h5>Overall</h5>
-                    <h4>{{average_rating}}</h4>
-                    <h6>({{total_review}} Reviews)</h6>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="rating_list">
-                    <h3>Based on {{total_review}} Reviews</h3>
-                  </div>
-                </div>
-              </div>
-              <div class="review_list">
-                {% for review in product.productreview_set.all %}
-                <div class="review_item">
-                  <div class="media">
-                    <div class="d-flex">
-                      <img src="{{ review.product.image_1.url }}" alt="{{review.product.product_name}}" width="100" />
-                    </div>
-                    <div class="media-body">
-                      <h4>{{review.user.first_name}}</h4>
-                      {{review.get_rating_display}}
-                    </div>
-                  </div>
-                  <p>
-                    {{review.comment}}
-                  </p>
-                </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!--================End Product Description Area =================-->
-  <section id="products-section" class="product_list section_padding">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-                <div class="section_tittle text-center">
-                    <h2>Related <span>Products</span></h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="product_list_slider owl-carousel">
-                    <div class="single_product_list_slider">
-                        <div class="row align-items-center">
-                            {% for product in related_products %}
-                            {% if not product.is_listed or not product.category.is_listed or product.available_stock == 0 %}
-                                    <div class="col-lg-3 col-sm-6">
-                                    <div class="single_product_item" style="height: 30rem;">
-                                        <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
-                                        <div class="single_product_text">
-                                            <h4>{{product.product_name}}</h4>
-                                            {% if product.offer %}
-                                                <h3><del>{{product.price}} Rs</del></h3>
-                                                <h3>{{product.discount_price}} Rs</h3>
-                                            {% else %}
-                                                <h3>{{product.price}} Rs</h3>
-                                            {% endif %}
-                                            <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3> 
-                                        </div>
-                                    </div>
-                                </div>
-                            {% else %}
-                                <a href="{% url 'product_app:single_product' product.id %}">
-                                <div class="col-lg-3 col-sm-6">
-                                        <div class="single_product_item" style="height: 30rem;">
-                                            <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
-                                            <h5>{{product.product_name}}</h5>
-                                            {% if product.offer %}
-                                            <h4><del>{{product.price}} Rs</del></h4>
-                                            <h4>{{product.discount_price}} Rs</h4>
-                                            {% else %}
-                                            <h4>{{product.price}} Rs</h4>
-                                            {% endif %}
-                                            <div class="single_product_text">
-                                                <div id="wishlistLogoProduct">
-                                                    <a href="#" class="add-to-cart" data-product-id="{{ product.id }}" style="transform: translateX(-1rem);">+ Add to cart</a>
-                                                <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}" style="transform: translateY(-2rem);">
-                                                    <i class="ti-heart"></i> 
-                                                </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                        <!-- <div class="page-btn">
-                            {% if products.has_previous %}
-                                <a href="?page={{products.previous_page_number}}#products-section"><span style="margin-right: 10px;">&lt;&lt;</span></a>
-                            {% endif %}
-
-                            {% for i in products.paginator.page_range %}
-                                <a href="?page={{i}}#products-section" {% if i == products.number %}class="active-page"{% endif %}>
-                                    <span style="margin: 10px;"> {{i}} </span></a>
-                            {% endfor %}
-
-                            {% if products.has_next %}
-                                <a href="?page={{products.next_page_number}}#products-section"><span style="margin-left: 10px;">&gt;&gt;</span></a>
-                            {% endif %}
-                        </div> -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </section>
-  <!-- product_list part start-->
-  <!-- <section class="product_list best_seller">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-12">
-          <div class="section_tittle text-center">
-            <h2>Best Sellers <span>shop</span></h2>
-          </div>
+<!--================End Product Description Area =================-->
+<section id="products-section" class="product_list section_padding">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-12">
+        <div class="section_tittle text-center">
+          <h2>Related <span>Products</span></h2>
         </div>
       </div>
-      <div class="row align-items-center justify-content-between">
-        <div class="col-lg-12">
-          <div class="best_product_slider owl-carousel">
-            <div class="single_product_item">
-              <img src="img/product/product_1.png" alt="">
-              <div class="single_product_text">
-                <h4>Quartz Belt Watch</h4>
-                <h3>$150.00</h3>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="product_list_slider owl-carousel">
+          <div class="single_product_list_slider">
+            <div class="row align-items-center">
+              {% for product in related_products %}
+              {% if not product.is_listed or not product.category.is_listed or product.available_stock == 0 %}
+              <div class="col-lg-3 col-sm-6">
+                <div class="single_product_item" style="height: 30rem;">
+                  <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                  <div class="single_product_text">
+                    <h4>{{product.product_name}}</h4>
+                    {% if product.offer %}
+                    <h3><del>{{product.price}} Rs</del></h3>
+                    <h3>{{product.discount_price}} Rs</h3>
+                    {% else %}
+                    <h3>{{product.price}} Rs</h3>
+                    {% endif %}
+                    <h3 class="text-warning" style="font-size: 1rem; font-weight: bolder;">UNAVAILABLE</h3>
+                  </div>
+                </div>
               </div>
+              {% else %}
+              <a href="{% url 'product_app:single_product' product.id %}">
+                <div class="col-lg-3 col-sm-6">
+                  <div class="single_product_item" style="height: 30rem;">
+                    <img height="300rem" src="{{ product.image_1.url }}" alt="{{product.product_name}}">
+                    <h5>{{product.product_name}}</h5>
+                    {% if product.offer %}
+                    <h4><del>{{product.price}} Rs</del></h4>
+                    <h4>{{product.discount_price}} Rs</h4>
+                    {% else %}
+                    <h4>{{product.price}} Rs</h4>
+                    {% endif %}
+                    <div class="single_product_text">
+                      <div id="wishlistLogoProduct">
+                        <a href="#" class="add-to-cart" data-product-id="{{ product.id }}"
+                          style="transform: translateX(-1rem);">+ Add to cart</a>
+                        <a href="#" class="add-to-wishlist like_us" data-product-id="{{ product.id }}"
+                          style="transform: translateY(-2rem);">
+                          <i class="ti-heart"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              {% endif %}
+              {% endfor %}
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section> -->
-  <!-- product_list part end-->
-  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  </div>
+</section>
+<!-- product_list part end-->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
 <!-- Script to add to cart and add to wishlist -->
 
 <script>
-  $(document).ready(function() {
-      // CSRF token setup
-      function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-              const cookies = document.cookie.split(';');
-              for (let i = 0; i < cookies.length; i++) {
-                  const cookie = cookies[i].trim();
-                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                      break;
-                  }
-              }
+  $(document).ready(function () {
+    // CSRF token setup
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
           }
-          return cookieValue;
+        }
       }
-      const csrftoken = getCookie('csrftoken');
-  
-      // AJAX for adding to cart
-      $('.add-to-cart').on('click', function(event) {
-          event.preventDefault();
-          let productId = $(this).data('product-id');
-          
-          $.ajax({
-              url: `{% url 'cart_app:add_to_cart' 0 %}`.replace('0', productId),
-              type: 'POST',
-              dataType: 'json',
-              headers: { 'X-CSRFToken': csrftoken },
-              success: function(response) {
-                  if (response.status === 'success') {
-                      alert(response.message);
-                      $('#cart-quantity').text(response.quantity);  // Update cart quantity display if needed
-                  } else if (response.status === 'exists') {
-                      alert(response.message);// Alert if product is already in cart
-                  }else if (response.redirect_url) {
-                      window.location.href = response.redirect_url;
-                  }
-              },
-              error: function(xhr, status, error) {
-                  console.error('Error:', error);
-              }
-          });
+      return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // AJAX for adding to cart
+    $('.add-to-cart').on('click', function (event) {
+      event.preventDefault();
+      let productId = $(this).data('product-id');
+
+      $.ajax({
+        url: `{% url 'cart_app:add_to_cart' 0 %}`.replace('0', productId),
+        type: 'POST',
+        dataType: 'json',
+        headers: { 'X-CSRFToken': csrftoken },
+        success: function (response) {
+          if (response.status === 'success') {
+            alert(response.message);
+            $('#cart-quantity').text(response.quantity);  // Update cart quantity display if needed
+          } else if (response.status === 'exists') {
+            alert(response.message);// Alert if product is already in cart
+          } else if (response.redirect_url) {
+            window.location.href = response.redirect_url;
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('Error:', error);
+        }
       });
-  
-      // AJAX for adding to wishlist
-      $('.add-to-wishlist').on('click', function(event) {
-          event.preventDefault();
-          let productId = $(this).data('product-id');
-          
-          $.ajax({
-              url: `{% url 'wishlist_app:add_to_wishlist' 0 %}`.replace('0', productId),
-              type: 'POST',
-              dataType: 'json',
-              headers: { 'X-CSRFToken': csrftoken },
-              success: function(response) {
-                  if (response.status === 'success') {
-                      alert(response.message);
-                  }else if (response.status === 'exists') {
-                      alert(response.message); // Alert if product is already in wishlist
-                  } else if (response.redirect_url) {
-                      window.location.href = response.redirect_url;
-                  }
-              },
-              error: function(xhr, status, error) {
-                  console.error('Error:', error);
-              }
-          });
+    });
+
+    // AJAX for adding to wishlist
+    $('.add-to-wishlist').on('click', function (event) {
+      event.preventDefault();
+      let productId = $(this).data('product-id');
+
+      $.ajax({
+        url: `{% url 'wishlist_app:add_to_wishlist' 0 %}`.replace('0', productId),
+        type: 'POST',
+        dataType: 'json',
+        headers: { 'X-CSRFToken': csrftoken },
+        success: function (response) {
+          if (response.status === 'success') {
+            alert(response.message);
+          } else if (response.status === 'exists') {
+            alert(response.message); // Alert if product is already in wishlist
+          } else if (response.redirect_url) {
+            window.location.href = response.redirect_url;
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('Error:', error);
+        }
       });
+    });
   });
-  </script>
-      
+</script>
+
 <!-- Script to change images -->
 <script>
-function changeImage(imageUrl){
-  document.getElementById('l_img').src = imageUrl;
-}
+  function changeImage(imageUrl) {
+    document.getElementById('l_img').src = imageUrl;
+  }
 </script>
 <!-- Script for zoom effect -->
- <script>
+<script>
   const largeImage = document.getElementById("large_image");
-    const lImg = document.getElementById("l_img");
-    const zoomedImage = document.getElementById("zoomed_image");
+  const lImg = document.getElementById("l_img");
+  const zoomedImage = document.getElementById("zoomed_image");
 
-    largeImage.addEventListener("mousemove", function (e) {
-        // Show the zoomed image
-        zoomedImage.style.display = "block";
-        
-        // Get position of the mouse inside the main image container
-        const rect = largeImage.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+  largeImage.addEventListener("mousemove", function (e) {
+    // Show the zoomed image
+    zoomedImage.style.display = "block";
 
-        // Calculate background position of zoomed image
-        const bgX = (x / largeImage.offsetWidth) * 100;
-        const bgY = (y / largeImage.offsetHeight) * 100;
+    // Get position of the mouse inside the main image container
+    const rect = largeImage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-        // Update the background of the zoomed image
-        zoomedImage.style.backgroundImage = `url(${lImg.src})`;
-        zoomedImage.style.backgroundPosition = `${bgX}% ${bgY}%`;
-    });
+    // Calculate background position of zoomed image
+    const bgX = (x / largeImage.offsetWidth) * 100;
+    const bgY = (y / largeImage.offsetHeight) * 100;
 
-    largeImage.addEventListener("mouseleave", function () {
-        // Hide the zoomed image when mouse leaves the main image container
-        zoomedImage.style.display = "none";
-    });
+    // Update the background of the zoomed image
+    zoomedImage.style.backgroundImage = `url(${lImg.src})`;
+    zoomedImage.style.backgroundPosition = `${bgX}% ${bgY}%`;
+  });
 
- </script>
+  largeImage.addEventListener("mouseleave", function () {
+    // Hide the zoomed image when mouse leaves the main image container
+    zoomedImage.style.display = "none";
+  });
+
+</script>
 {% endblock content %}

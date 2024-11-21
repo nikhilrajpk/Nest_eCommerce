@@ -6,25 +6,20 @@
 <!-- breadcrumbs start-->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_product' %}">Product</a></li>
-    <li class="breadcrumb-item"><a href="">Edit product</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_product' %}">Product</a></li>
+        <li class="breadcrumb-item"><a href="">Edit product</a></li>
     </ol>
 </nav>
 
 <!-- alert box  -->
 {% if messages %}
 {% for message in messages %}
-    <div class="alert alert-{{message.tags}}">
-        <strong>{{message}}</strong>
-    </div>
+<div class="alert alert-{{message.tags}}">
+    <strong>{{message}}</strong>
+</div>
 {% endfor %}
 {% endif %}
 
-<script>
-setTimeout (() => {
-    $(".alert").alert("close")
-},3000)
-</script>
 <div class="container mt-5">
     <h2 class="mb-4">Edit Product</h2>
     <form id="product-form" action="" method="POST" enctype="multipart/form-data">
@@ -32,36 +27,39 @@ setTimeout (() => {
 
         <div class="mb-3">
             <label for="product-name" class="form-label">Product Name:</label>
-            <input type="text" class="form-control" id="product-name" name="product_name" value="{{product.product_name}}" required>
+            <input type="text" class="form-control" id="product-name" name="product_name"
+                value="{{product.product_name}}" required>
             <div id="product-name-warning" style="display:none; color: red;">Please enter a valid product name.</div>
         </div>
 
         <div class="mb-3">
             <label for="description" class="form-label">Description:</label>
-            <textarea class="form-control" id="description" name="description" rows="4" required>{{product.description}}</textarea>
+            <textarea class="form-control" id="description" name="description" rows="4"
+                required>{{product.description}}</textarea>
             <div id="description-warning" style="display:none; color: red;">Please enter a valid description.</div>
         </div>
 
         <div class="mb-3">
             <label for="price" class="form-label">Price:</label>
-            <input type="number" step="0.01" class="form-control" id="price" min="0" name="price" required value="{{product.price}}">
+            <input type="number" step="0.01" class="form-control" id="price" min="0" name="price" required
+                value="{{product.price}}">
             <div id="price-warning" style="display:none; color: red;">Price cannot be 0.</div>
         </div>
-        
+
         <div class="mb-3">
             <label for="offer" class="form-label">Offer:</label>
             <select class="form-select" id="offer" name="offer">
                 {% if product.offer %}
-                    <option value="{{ product.offer.id }}">{{product.offer.offer_title}}</option>
-                    <option value="0">None</option>
-                    {% for offer in offers %}
-                        <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
-                    {% endfor %}
+                <option value="{{ product.offer.id }}">{{product.offer.offer_title}}</option>
+                <option value="0">None</option>
+                {% for offer in offers %}
+                <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
+                {% endfor %}
                 {% else %}
-                    <option value="">None</option>
-                    {% for offer in offers %}
-                        <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
-                    {% endfor %}
+                <option value="">None</option>
+                {% for offer in offers %}
+                <option value="{{ offer.id }}">{{ offer.offer_title }}</option>
+                {% endfor %}
                 {% endif %}
             </select>
         </div>
@@ -70,21 +68,22 @@ setTimeout (() => {
             <label for="category" class="form-label">Category:</label>
             <select class="form-select" id="category" name="category">
                 {% if product.category %}
-                    <option value="{{ product.category.id }}">{{ product.category.category_name }}</option>
-                    {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.category_name }}</option>
-                    {% endfor %}
+                <option value="{{ product.category.id }}">{{ product.category.category_name }}</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.category_name }}</option>
+                {% endfor %}
                 {% else %}
-                    {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.category_name }}</option>
-                    {% endfor %}
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.category_name }}</option>
+                {% endfor %}
                 {% endif %}
             </select>
         </div>
 
         <div class="mb-3">
             <label for="available-stock" class="form-label">Available Stock:</label>
-            <input type="number" class="form-control" id="available-stock" name="available_stock" min="0" required value="{{product.available_stock}}">
+            <input type="number" class="form-control" id="available-stock" name="available_stock" min="0" required
+                value="{{product.available_stock}}">
         </div>
 
         <div class="mb-3">
@@ -92,13 +91,15 @@ setTimeout (() => {
 
             <!-- Image Preview -->
             {% if product.image_1 %}
-                <div class="mb-2">
-                    <img src="{{ product.image_1.url }}" alt="{{ product.product_name }}" width="100" height="100">
-                </div>
+            <div class="mb-2">
+                <img src="{{ product.image_1.url }}" alt="{{ product.product_name }}" width="100" height="100">
+            </div>
             {% endif %}
 
-            <input type="file" class="form-control image-input" id="image-1" name="image_1" accept=".jpg, .jpeg, .png, .gif">
-            <div id="image1-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
+            <input type="file" class="form-control image-input" id="image-1" name="image_1"
+                accept=".jpg, .jpeg, .png, .gif">
+            <div id="image1-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg,
+                .png, .gif).</div>
         </div>
 
         <div class="mb-3">
@@ -106,13 +107,15 @@ setTimeout (() => {
 
             <!-- Image Preview -->
             {% if product.image_2 %}
-                <div class="mb-2">
-                    <img src="{{ product.image_2.url }}" alt="{{ product.product_name }}" width="100" height="100">
-                </div>
+            <div class="mb-2">
+                <img src="{{ product.image_2.url }}" alt="{{ product.product_name }}" width="100" height="100">
+            </div>
             {% endif %}
 
-            <input type="file" class="form-control image-input" id="image-2" name="image_2" accept=".jpg, .jpeg, .png, .gif">
-            <div id="image2-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
+            <input type="file" class="form-control image-input" id="image-2" name="image_2"
+                accept=".jpg, .jpeg, .png, .gif">
+            <div id="image2-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg,
+                .png, .gif).</div>
         </div>
 
         <div class="mb-3">
@@ -120,33 +123,35 @@ setTimeout (() => {
 
             <!-- Image Preview -->
             {% if product.image_3 %}
-                <div class="mb-2">
-                    <img src="{{ product.image_3.url }}" alt="{{ product.product_name }}" width="100" height="100">
-                </div>
+            <div class="mb-2">
+                <img src="{{ product.image_3.url }}" alt="{{ product.product_name }}" width="100" height="100">
+            </div>
             {% endif %}
 
-            <input type="file" class="form-control image-input" id="image-3" name="image_3" accept=".jpg, .jpeg, .png, .gif">
-            <div id="image3-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg, .png, .gif).</div>
+            <input type="file" class="form-control image-input" id="image-3" name="image_3"
+                accept=".jpg, .jpeg, .png, .gif">
+            <div id="image3-warning" style="display:none; color: red;">Please upload a valid image file (.jpg, .jpeg,
+                .png, .gif).</div>
         </div>
 
         <!-- Modal for cropping -->
         <div id="cropperModal" class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title">Crop Image</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Crop Image</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <img id="cropperImage" src="" alt="Crop Image Preview" style="max-width: 100%;">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                <img id="cropperImage" src="" alt="Crop Image Preview" style="max-width: 100%;">
-                </div>
-                <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
             </div>
         </div>
 
@@ -154,11 +159,11 @@ setTimeout (() => {
             <label for="is-listed" class="form-label">Is Listed:</label>
             <select class="form-select" id="is-listed" name="is_listed" required>
                 {% if product.is_listed %}
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
                 {% else %}
-                    <option value="False">No</option>
-                    <option value="True">Yes</option>
+                <option value="False">No</option>
+                <option value="True">Yes</option>
                 {% endif %}
             </select>
         </div>
@@ -167,11 +172,11 @@ setTimeout (() => {
             <label for="in-stock" class="form-label">In Stock:</label>
             <select class="form-select" id="in-stock" name="in_stock" required>
                 {% if product.in_stock %}
-                    <option value="True">Yes</option>
-                    <option value="False">No</option>
+                <option value="True">Yes</option>
+                <option value="False">No</option>
                 {% else %}
-                    <option value="False">No</option>
-                    <option value="True">Yes</option>
+                <option value="False">No</option>
+                <option value="True">Yes</option>
                 {% endif %}
             </select>
         </div>
@@ -209,52 +214,52 @@ setTimeout (() => {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script>
     let cropper;
-let activeInput;
+    let activeInput;
 
-document.querySelectorAll('.image-input').forEach(input => {
-  input.addEventListener('change', function () {
-    const file = this.files[0];
-    activeInput = this; // Store reference to the active input
-    
-    // Validate the file type
-    if (file && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        document.getElementById('cropperImage').src = e.target.result;
-        $('#cropperModal').modal('show');
+    document.querySelectorAll('.image-input').forEach(input => {
+        input.addEventListener('change', function () {
+            const file = this.files[0];
+            activeInput = this; // Store reference to the active input
 
-        if (cropper) {
-          cropper.destroy();
-        }
+            // Validate the file type
+            if (file && /\.(jpg|jpeg|png|gif)$/i.test(file.name)) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('cropperImage').src = e.target.result;
+                    $('#cropperModal').modal('show');
 
-        cropper = new Cropper(document.getElementById('cropperImage'), {
-          aspectRatio: 16 / 9, // Width:Height
-          viewMode: 1,
-          autoCropArea: 1,
-          responsive: true,
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(document.getElementById('cropperImage'), {
+                        aspectRatio: 16 / 9, // Width:Height
+                        viewMode: 1,
+                        autoCropArea: 1,
+                        responsive: true,
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Show an error message and reset the file input if invalid
+                alert('Please upload a valid image file (.jpg, .jpeg, .png, .gif).');
+                this.value = ''; // Reset the input value
+            }
         });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // Show an error message and reset the file input if invalid
-      alert('Please upload a valid image file (.jpg, .jpeg, .png, .gif).');
-      this.value = ''; // Reset the input value
-    }
-  });
-});
-
-function cropImage() {
-  if (cropper && activeInput) {
-    const canvas = cropper.getCroppedCanvas();
-    canvas.toBlob((blob) => {
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(new File([blob], 'cropped_image.png', { type: 'image/png' }));
-      activeInput.files = dataTransfer.files;
-
-      $('#cropperModal').modal('hide');
     });
-  }
-}
+
+    function cropImage() {
+        if (cropper && activeInput) {
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob((blob) => {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(new File([blob], 'cropped_image.png', { type: 'image/png' }));
+                activeInput.files = dataTransfer.files;
+
+                $('#cropperModal').modal('hide');
+            });
+        }
+    }
 
 </script>
 <!-- Form validation -->
@@ -292,9 +297,9 @@ function cropImage() {
     let colorRegex = /^[a-zA-Z ]+$/;
 
     // Product name validation
-    productNameInput.addEventListener('input', function(){
+    productNameInput.addEventListener('input', function () {
         let productName = productNameInput.value.trim();
-        if(!productNameRegex.test(productName) || productName === ""){
+        if (!productNameRegex.test(productName) || productName === "") {
             productNameWarning.style.display = "block";
         } else {
             productNameWarning.style.display = "none";
@@ -302,9 +307,9 @@ function cropImage() {
     });
 
     // Description validation
-    descriptionInput.addEventListener('input', function(){
+    descriptionInput.addEventListener('input', function () {
         let description = descriptionInput.value.trim();
-        if(!descriptionRegex.test(description) || description === ""){
+        if (!descriptionRegex.test(description) || description === "") {
             descriptionWarning.style.display = "block";
         } else {
             descriptionWarning.style.display = "none";
@@ -312,9 +317,9 @@ function cropImage() {
     });
 
     // Material validation
-    materialInput.addEventListener('input', function(){
+    materialInput.addEventListener('input', function () {
         let material = materialInput.value.trim();
-        if(!materialRegex.test(material) || material === ""){
+        if (!materialRegex.test(material) || material === "") {
             materialWarning.style.display = "block";
         } else {
             materialWarning.style.display = "none";
@@ -322,9 +327,9 @@ function cropImage() {
     });
 
     // Color validation
-    colorInput.addEventListener('input', function(){
+    colorInput.addEventListener('input', function () {
         let color = colorInput.value.trim();
-        if(!colorRegex.test(color) || color === ""){
+        if (!colorRegex.test(color) || color === "") {
             colorWarning.style.display = "block";
         } else {
             colorWarning.style.display = "none";
@@ -332,12 +337,12 @@ function cropImage() {
     });
 
     // Form submission validation
-    productForm.addEventListener('submit', function(e){
+    productForm.addEventListener('submit', function (e) {
         let isValid = true;
 
         // Product name validation
         let productName = productNameInput.value.trim();
-        if(!productNameRegex.test(productName) || productName === ""){
+        if (!productNameRegex.test(productName) || productName === "") {
             isValid = false;
             productNameWarning.style.display = "block";
         } else {
@@ -346,7 +351,7 @@ function cropImage() {
 
         // Description validation
         let description = descriptionInput.value.trim();
-        if(!descriptionRegex.test(description) || description === ""){
+        if (!descriptionRegex.test(description) || description === "") {
             isValid = false;
             descriptionWarning.style.display = "block";
         } else {
@@ -355,7 +360,7 @@ function cropImage() {
 
         // Price validation
         let price = priceInput.value;
-        if(price === "" || price <= 0){
+        if (price === "" || price <= 0) {
             isValid = false;
             priceWarning.style.display = "block";
         } else {
@@ -366,7 +371,7 @@ function cropImage() {
         let image1 = image1Input.value.trim();
         let image2 = image2Input.value.trim();
         let image3 = image3Input.value.trim();
-        if(image1 === ""){
+        if (image1 === "") {
             image1Warning.style.display = "none";
         }
         else if (!validImageRegex.test(image1)) {
@@ -376,7 +381,7 @@ function cropImage() {
             image1Warning.style.display = "none";
         }
 
-        if(image2 === ""){
+        if (image2 === "") {
             image2Warning.style.display = "none";
         }
         else if (!validImageRegex.test(image2)) {
@@ -385,8 +390,8 @@ function cropImage() {
         } else {
             image2Warning.style.display = "none";
         }
-        
-        if(image3 === ""){
+
+        if (image3 === "") {
             image3Warning.style.display = "none";
         }
         else if (!validImageRegex.test(image3)) {
@@ -398,7 +403,7 @@ function cropImage() {
 
         // Material validation
         let material = materialInput.value.trim();
-        if(!materialRegex.test(material) || material === ""){
+        if (!materialRegex.test(material) || material === "") {
             isValid = false;
             materialWarning.style.display = "block";
         } else {
@@ -407,7 +412,7 @@ function cropImage() {
 
         // Color validation
         let color = colorInput.value.trim();
-        if(!colorRegex.test(color) || color === ""){
+        if (!colorRegex.test(color) || color === "") {
             isValid = false;
             colorWarning.style.display = "block";
         } else {
@@ -418,5 +423,11 @@ function cropImage() {
             e.preventDefault();  // Prevent form submission if validation fails
         }
     });
+</script>
+
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 3000)
 </script>
 {% endblock content %}

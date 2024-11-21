@@ -3,101 +3,84 @@
 {% load socialaccount %}
 {% block content %}
 
-    <!-- breadcrumb start-->
-    <!-- <section class="breadcrumb breadcrumb_bg">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="breadcrumb_iner">
-                        <div class="breadcrumb_iner_item">
-                            <h2>Login</h2>
-                            <p>Home <span>-</span> Login</p>
-                        </div>
+
+
+<!--================login_part Area =================-->
+
+<section class="login_part padding_top">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-md-6">
+                <div class="login_part_text text-center">
+                    <div class="login_part_text_iner">
+                        <h2>New to our Shop?</h2>
+                        <p>Every day, new trends and innovations are reshaping the world of home furnishings.
+                            A perfect example of this is how modern furniture combines style, comfort,
+                            and smart technology to create the perfect living experience for your home.</p>
+                        <a href="{% url 'authentication_app:sign_up' %}" class="btn_3">Create an Account</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section> -->
-    <!-- breadcrumb start
+            <div class="col-lg-6 col-md-6">
+                <div class="login_part_form">
+                    <div class="login_part_form_iner">
+                        <h3>Welcome Back ! <br>
+                            Please Sign in now</h3>
 
-    <!--================login_part Area =================-->
-    
-    <section class="login_part padding_top">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 col-md-6">
-                    <div class="login_part_text text-center">
-                        <div class="login_part_text_iner">
-                            <h2>New to our Shop?</h2>
-                            <p>Every day, new trends and innovations are reshaping the world of home furnishings.
-                                A perfect example of this is how modern furniture combines style, comfort,
-                                 and smart technology to create the perfect living experience for your home.</p>
-                            <a href="{% url 'authentication_app:sign_up' %}" class="btn_3">Create an Account</a>
+                        <!-- alert box  -->
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{message.tags}}">
+                            <strong>{{message}}</strong>
                         </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="login_part_form">
-                        <div class="login_part_form_iner">
-                            <h3>Welcome Back ! <br>
-                                Please Sign in now</h3>
+                        {% endfor %}
+                        {% endif %}
 
-                            <!-- alert box  -->
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{message.tags}}">
-                                        <strong>{{message}}</strong>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-
-                            <script>
-                                setTimeout (() => {
-                                    $(".alert").alert("close")
-                                },3000)
-                            </script>
-
-                            <form id="login-form" class="row contact_form" action="" method="post" novalidate="novalidate">
-                                {% csrf_token %}
-                                <div class="col-md-12 form-group p_star">
-                                    <input type="email" class="form-control" id="email" name="email" value="{{email}}"
-                                        placeholder="Email" required>
-                                    <div id="email-warning" style="display:none; color: red;">Please enter a valid Email.</div>
+                        <form id="login-form" class="row contact_form" action="" method="post" novalidate="novalidate">
+                            {% csrf_token %}
+                            <div class="col-md-12 form-group p_star">
+                                <input type="email" class="form-control" id="email" name="email" value="{{email}}"
+                                    placeholder="Email" required>
+                                <div id="email-warning" style="display:none; color: red;">Please enter a valid Email.
                                 </div>
-                                <div class="col-md-12 form-group p_star">
-                                    <input type="password" class="form-control" id="password" name="password" 
-                                        placeholder="Password" required>
+                            </div>
+                            <div class="col-md-12 form-group p_star">
+                                <input type="password" class="form-control" id="password" name="password"
+                                    placeholder="Password" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <div class="creat_account d-flex align-items-center">
+                                    <input type="checkbox" id="f-option" name="remember_me">
+                                    <label for="f-option">Remember me</label>
                                 </div>
-                                <div class="col-md-12 form-group">
-                                    <div class="creat_account d-flex align-items-center">
-                                        <input type="checkbox" id="f-option" name="remember_me">
-                                        <label for="f-option">Remember me</label>
-                                    </div>
-                                    <button type="submit" value="submit" class="btn_3">
-                                        log in
-                                    </button>
-                                    <a href="{% provider_login_url 'google' %}" class="field google"><button type="button" value="submit" class="btn_3"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
-                                        <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z"/>
-                                      </svg>
-                                          Sign in using Google
+                                <button type="submit" value="submit" class="btn_3">
+                                    log in
+                                </button>
+                                <a href="{% provider_login_url 'google' %}" class="field google"><button type="button"
+                                        value="submit" class="btn_3"><svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                            height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
+                                            <path
+                                                d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z" />
+                                        </svg>
+                                        Sign in using Google
                                     </button></a>
-                                    <a class="lost_pass" href="{% url 'authentication_app:forgot_password' %}">forget password?</a>
-                                </div>
-                            </form>
-                        </div>
+                                <a class="lost_pass" href="{% url 'authentication_app:forgot_password' %}">forget
+                                    password?</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-    <script
-  src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous"></script>
-    <!--================login_part end =================-->
+    </div>
+</section>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous">
+    </script>
+<!--================login_part end =================-->
 
 <!-- form validation -->
- <script>
+<script>
     let loginForm = document.getElementById('login-form')
 
     let emailInput = document.getElementById('email')
@@ -106,34 +89,39 @@
     let emailRegex = /^[a-zA-Z0-9\._%+-]+@[a-zA-Z0-9\.-]+.[a-zA-Z]{2,}$/;
 
     //email
-    emailInput.addEventListener('input',function(){
-        let email=emailInput.value.trim()
-        if(!emailRegex.test(email) || email === ""){
+    emailInput.addEventListener('input', function () {
+        let email = emailInput.value.trim()
+        if (!emailRegex.test(email) || email === "") {
             emailWarning.style.display = "block"
         }
-        else{
+        else {
             emailWarning.style.display = "none"
         };
     });
 
     // form submission validation
-    loginForm.addEventListener('submit',function(e){
+    loginForm.addEventListener('submit', function (e) {
         isValid = true
 
         //email
-        let email=emailInput.value.trim()
-        if(!emailRegex.test(email) || email === ""){
+        let email = emailInput.value.trim()
+        if (!emailRegex.test(email) || email === "") {
             isValid = false
             emailWarning.style.display = "block"
         }
-        else{
+        else {
             emailWarning.style.display = "none"
         };
 
-        if(!isValid){
+        if (!isValid) {
             e.preventDefault()
         }
     });
- </script>
+</script>
 
-    {% endblock content %}
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 3000)
+</script>
+{% endblock content %}

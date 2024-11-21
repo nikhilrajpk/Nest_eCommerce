@@ -2,27 +2,23 @@
 {% load static %}
 {% block content %}
 <br><br><br>
-    <!-- breadcrumbs start-->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+<!-- breadcrumbs start-->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'admin_app:admin_coupon' %}">Coupon</a></li>
         <li class="breadcrumb-item"><a href="">Edit coupon</a></li>
-        </ol>
-    </nav>
-    <!-- alert box  -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{message.tags}}">
-                <strong>{{message}}</strong>
-            </div>
-        {% endfor %}
-    {% endif %}
+    </ol>
+</nav>
+<!-- alert box  -->
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{message.tags}}">
+    <strong>{{message}}</strong>
+</div>
+{% endfor %}
+{% endif %}
 
-    <script>
-        setTimeout (() => {
-            $(".alert").alert("close")
-        },3000)
-    </script>
+
 <div class="container mt-5">
     <h2 class="mb-4">Edit Coupon</h2>
     <form id="coupon-form" action="" method="POST">
@@ -32,54 +28,67 @@
         <div class="mb-3">
             <label for="code" class="form-label">Code:</label>
             <input type="text" class="form-control" id="code" name="code" value="{{coupon.code}}" required>
-            <div id="code-warning" style="display:none; color: red;">Please enter a valid coupon code. Code contains only digits and letters.</div>
+            <div id="code-warning" style="display:none; color: red;">Please enter a valid coupon code. Code contains
+                only digits and letters.</div>
         </div>
 
         <!-- minimum_order_amount -->
         <div class="mb-3">
             <label for="minimum-order-amount" class="form-label">Minimum order amount:</label>
-            <input type="number" class="form-control" id="minimum-order-amount" name="minimum_order_amount" min="0" max="100000" value="{{coupon.minimum_order_amount}}" required>
+            <input type="number" class="form-control" id="minimum-order-amount" name="minimum_order_amount" min="0"
+                max="100000" value="{{coupon.minimum_order_amount}}" required>
         </div>
 
         <!-- maximum_order_amount -->
         <div class="mb-3">
             <label for="maximum-order-amount" class="form-label">Maximum order amount:</label>
-            <input type="number" class="form-control" id="maximum-order-amount" name="maximum_order_amount" min="0" max="1000000" value="{{coupon.maximum_order_amount}}" required>
-            <div id="maximum-warning" style="display:none; color: red;">Maximum order amount cannot be less than minimum order amount.</div>
+            <input type="number" class="form-control" id="maximum-order-amount" name="maximum_order_amount" min="0"
+                max="1000000" value="{{coupon.maximum_order_amount}}" required>
+            <div id="maximum-warning" style="display:none; color: red;">Maximum order amount cannot be less than minimum
+                order amount.</div>
         </div>
 
         <!-- Used limit -->
         <div class="mb-3">
             <label for="used_limit" class="form-label">Used limit:</label>
-            <input type="number" class="form-control" id="used_limit" name="used_limit" min="0" max="500" value="{{coupon.used_limit}}" required>
+            <input type="number" class="form-control" id="used_limit" name="used_limit" min="0" max="500"
+                value="{{coupon.used_limit}}" required>
         </div>
-        
+
         <!-- Expiry Date -->
         <div class="mb-3">
             <label for="expiry-date" class="form-label">Expiry Date:</label>
-            <input type="datetime-local" class="form-control" id="expiry-date" name="expiry_date" value="{{coupon.expiry_date|date:'Y-m-d\\TH:i'}}" required>
-            <div id="expiry-warning" style="display:none; color: red;">Expiry date cannot be a past time. Enter a future time.</div>
+            <input type="datetime-local" class="form-control" id="expiry-date" name="expiry_date"
+                value="{{coupon.expiry_date|date:'Y-m-d\\TH:i'}}" required>
+            <div id="expiry-warning" style="display:none; color: red;">Expiry date cannot be a past time. Enter a future
+                time.</div>
         </div>
-        
+
         <!-- Discount amount -->
         <div class="mb-3">
             <label for="discount-amount" class="form-label">Discount Amount:</label>
-            <input type="number" class="form-control" id="discount-amount" name="discount_amount" min="0" max="100000" value="{{coupon.discount_amount}}" required>
-            <div id="discount-warning" style="display:none; color: red;">Discount amount cannot be greater than minimum order amount.</div>
+            <input type="number" class="form-control" id="discount-amount" name="discount_amount" min="0" max="100000"
+                value="{{coupon.discount_amount}}" required>
+            <div id="discount-warning" style="display:none; color: red;">Discount amount cannot be greater than minimum
+                order amount.</div>
         </div>
-        
+
 
         <!-- Submit Button -->
         <button type="submit" class="btn btn-primary">Edit Coupon</button>
     </form>
 </div>
 <br>
-<script
-  src="https://code.jquery.com/jquery-3.7.1.js"
-  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-  crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous">
+    </script>
+<script>
+    setTimeout(() => {
+        $(".alert").alert("close")
+    }, 3000)
 </script>
 
+<!-- form validation -->
 <script>
     let couponForm = document.getElementById('coupon-form')
 
@@ -101,87 +110,87 @@
     let codeRegex = /^[a-zA-Z0-9]+$/
 
     // code validation
-    codeInput.addEventListener('input',function(){
+    codeInput.addEventListener('input', function () {
         let code = codeInput.value.trim();
-        
-        codeWarning.style.display = (!codeRegex.test(code) || code === "")? "block":"none";
+
+        codeWarning.style.display = (!codeRegex.test(code) || code === "") ? "block" : "none";
     });
 
     //maximum order amount validation
-    maximumInput.addEventListener('input',function(){
-        let minimumAmount = parseFloat(minimumInput.value) ||0
-        let maximumAmount = parseFloat(maximumInput.value) ||0
+    maximumInput.addEventListener('input', function () {
+        let minimumAmount = parseFloat(minimumInput.value) || 0
+        let maximumAmount = parseFloat(maximumInput.value) || 0
 
-        maximumWarning.style.display = (maximumAmount <= minimumAmount)? "block":"none";
+        maximumWarning.style.display = (maximumAmount <= minimumAmount) ? "block" : "none";
     });
 
     //expiry date validation
-    expiryDateInput.addEventListener('input',function(){
+    expiryDateInput.addEventListener('input', function () {
         let expiryDate = new Date(expiryDateInput.value)
         let now = new Date()
 
-        expiryWarning.style.display = (expiryDate < now)? "block":"none";
+        expiryWarning.style.display = (expiryDate < now) ? "block" : "none";
     });
 
     //discount amount validation
-    discountInput.addEventListener('input',function(){
-        let minimumAmount = parseFloat(minimumInput.value) ||0
-        let discountAmount = parseFloat(discountInput.value) ||0
+    discountInput.addEventListener('input', function () {
+        let minimumAmount = parseFloat(minimumInput.value) || 0
+        let discountAmount = parseFloat(discountInput.value) || 0
 
-        discountWarning.style.display = (minimumAmount <= discountAmount)? "block":"none"
+        discountWarning.style.display = (minimumAmount <= discountAmount) ? "block" : "none"
     });
 
 
     // form submission time validation
-    couponForm.addEventListener('submit',function(e){
+    couponForm.addEventListener('submit', function (e) {
         isValid = true
 
         // code
         let code = codeInput.value.trim();
-        if(!codeRegex.test(code) || code === ""){
+        if (!codeRegex.test(code) || code === "") {
             isValid = false
             codeWarning.style.display = "block"
         }
-        else{
+        else {
             codeWarning.style.display = "none"
         };
 
         //maximum order amount
-        let minimumAmount = parseFloat(minimumInput.value) ||0
-        let maximumAmount = parseFloat(maximumInput.value) ||0
-        if(maximumAmount <= minimumAmount){
+        let minimumAmount = parseFloat(minimumInput.value) || 0
+        let maximumAmount = parseFloat(maximumInput.value) || 0
+        if (maximumAmount <= minimumAmount) {
             isValid = false
             maximumWarning.style.display = "block"
         }
-        else{
+        else {
             maximumWarning.style.display = "none"
         };
 
         //expiry date
         let expiryDate = new Date(expiryDateInput.value)
         let now = new Date()
-        if(expiryDate < now){
+        if (expiryDate < now) {
             isValid = false
             expiryWarning.style.display = "block"
         }
-        else{
+        else {
             expiryWarning.style.display = "none"
         };
 
         //discount price
-        let minAmount = parseFloat(minimumInput.value) ||0
-        let discountAmount = parseFloat(discountInput.value) ||0
-        if(minAmount <= discountAmount){
+        let minAmount = parseFloat(minimumInput.value) || 0
+        let discountAmount = parseFloat(discountInput.value) || 0
+        if (minAmount <= discountAmount) {
             isValid = false
             discountWarning.style.display = "block"
         }
-        else{
+        else {
             discountWarning.style.display = "none"
         };
-        
+
 
         //preventing form submission
-        if(!isValid){
+        if (!isValid) {
             e.preventDefault()
         }
 

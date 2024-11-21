@@ -4,11 +4,11 @@
 <!-- breadcrumbs start-->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'user_app:account' %}">Account</a></li>
-    <li class="breadcrumb-item "><a href="{% url 'user_app:edit_profile' %}">Edit Profile</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Address</li>
+        <li class="breadcrumb-item"><a href="{% url 'user_app:account' %}">Account</a></li>
+        <li class="breadcrumb-item "><a href="{% url 'user_app:edit_profile' %}">Edit Profile</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Address</li>
     </ol>
-  </nav>
+</nav>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -28,73 +28,90 @@
                                 <option value="OT">Other</option>
                             </select>
                         </div>
-                        
+
 
                         <div class="mb-3">
                             <label for="street_address" class="form-label">Street Address</label>
-                            <input type="text" class="form-control" id="street_address" name="street_address" required value="{{address.street_address}}">
-                            <div id="street-warning" style="display:none; color: red;">Please enter a valid street address. Street address only contains letters, numbers ',' '()'.</div>
+                            <input type="text" class="form-control" id="street_address" name="street_address" required
+                                value="{{address.street_address}}">
+                            <div id="street-warning" style="display:none; color: red;">Please enter a valid street
+                                address. Street address only contains letters, numbers ',' '()'.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="landmark" class="form-label">Landmark</label>
                             <input type="text" class="form-control" id="landmark" name="landmark" {% if address.landmark %} value="{{address.landmark}}" {% endif %}>
-                            <div id="landmark-warning" style="display:none; color: red;">Please enter a valid landmark. landmark only contains letters, numbers ',' '()'.</div>
+                            <div id="landmark-warning" style="display:none; color: red;">Please enter a valid landmark.
+                                landmark only contains letters, numbers ',' '()'.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="state" class="form-label">State*</label>
-                            <select class="form-control" id="state" name="state" required size="5" style="max-height: 150px; overflow-y: auto;">
+                            <select class="form-control" id="state" name="state" required size="5"
+                                style="max-height: 150px; overflow-y: auto;">
                                 <option value="" disabled>Select your state</option>
-                                
+
                                 <!-- Display the current state -->
                                 {% if address.state %}
-                                    <option value="{{ address.state }}" selected>{{ address.state }}</option>
+                                <option value="{{ address.state }}" selected>{{ address.state }}</option>
                                 {% endif %}
-                                
+
                                 <!-- Display other states -->
                                 {% for state in states %}
-                                    {% if state != address.state %}
-                                        <option value="{{ state }}">{{ state }}</option>
-                                    {% endif %}
+                                {% if state != address.state %}
+                                <option value="{{ state }}">{{ state }}</option>
+                                {% endif %}
                                 {% endfor %}
                             </select>
                             <div id="state-warning" style="display:none; color: red;">Please choose a state.</div>
                         </div>
-                        
-                        
+
+
 
                         <div class="mb-3">
                             <label for="country" class="form-label">Country</label>
-                            <input type="text" class="form-control" id="country" name="country" required value="{{address.country}}">
-                            <div id="country-warning" style="display:none; color: red;">Please enter a valid country. country only contains.</div>
+                            <input type="text" class="form-control" id="country" name="country" required
+                                value="{{address.country}}">
+                            <div id="country-warning" style="display:none; color: red;">Please enter a valid country.
+                                country only contains.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="postal_code" class="form-label">Postal Code</label>
-                            <input type="text" class="form-control" id="postal_code" name="postal_code" required value="{{address.postal_code}}">
-                            <div id="postal-warning" style="display:none; color: red;">Please enter a 6 digit postal code.</div>
-                            <div id="postal-start-warning" style="display:none; color: red;">Postal code cannot start with 0.</div>
+                            <input type="text" class="form-control" id="postal_code" name="postal_code" required
+                                value="{{address.postal_code}}">
+                            <div id="postal-warning" style="display:none; color: red;">Please enter a 6 digit postal
+                                code.</div>
+                            <div id="postal-start-warning" style="display:none; color: red;">Postal code cannot start
+                                with 0.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="phone" class="form-label">Phone</label>
-                            <input type="text" class="form-control" id="phone" name="phone" required value="{{address.phone}}">
-                            <div id="phone-warning" style="display:none; color: red;">Please enter a 10 digit phone number.</div>
-                            <div id="phone-start-warning" style="display:none; color: red;">Phone number cannot start with 0.</div>
+                            <input type="text" class="form-control" id="phone" name="phone" required
+                                value="{{address.phone}}">
+                            <div id="phone-warning" style="display:none; color: red;">Please enter a 10 digit phone
+                                number.</div>
+                            <div id="phone-start-warning" style="display:none; color: red;">Phone number cannot start
+                                with 0.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="alternative_phone" class="form-label">Alternative Phone</label>
-                            <input type="text" class="form-control" id="alternative_phone" name="alternative_phone" value="{{address.alternative_phone}}">
-                            <div id="alternative-phone-warning" style="display:none; color: red;">Please enter a 10 digit alternative phone number.</div>
-                            <div id="alternative-phone-start-warning" style="display:none; color: red;">Alternative phone number cannot start with 0.</div>
+                            <input type="text" class="form-control" id="alternative_phone" name="alternative_phone"
+                                value="{{address.alternative_phone}}">
+                            <div id="alternative-phone-warning" style="display:none; color: red;">Please enter a 10
+                                digit alternative phone number.</div>
+                            <div id="alternative-phone-start-warning" style="display:none; color: red;">Alternative
+                                phone number cannot start with 0.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="address" class="form-label">Address Details</label>
-                            <textarea class="form-control" id="address" name="address" rows="3" required>{{address.address}}</textarea>
-                            <div id="address-warning" style="display:none; color: red;">Please enter a valid address. address only contains letters, numbers ',' '()'.</div>
+                            <textarea class="form-control" id="address" name="address" rows="3"
+                                required>{{address.address}}</textarea>
+                            <div id="address-warning" style="display:none; color: red;">Please enter a valid address.
+                                address only contains letters, numbers ',' '()'.</div>
                         </div>
                         <button type="submit" class="btn btn-success w-100">Save Address</button>
                     </form>
@@ -140,140 +157,140 @@
     let countryRegex = /^[a-zA-Z ]+$/
 
     //street address validation
-    streetInput.addEventListener('input',function(){
+    streetInput.addEventListener('input', function () {
         let street = streetInput.value.trim()
-        if(!regex.test(street) || street === ""){
+        if (!regex.test(street) || street === "") {
             streetWarning.style.display = "block"
-        }else{
+        } else {
             streetWarning.style.display = "none"
         };
     });
 
     //landmark validation
-    landmarkInput.addEventListener('input',function(){
+    landmarkInput.addEventListener('input', function () {
         let landmark = landmarkInput.value.trim()
-        if(landmark && !regex.test(landmark)){
+        if (landmark && !regex.test(landmark)) {
             landmarkWarning.style.display = "block"
-        }else{
+        } else {
             landmarkWarning.style.display = "none"
         };
     });
 
     // country validation
-    countryInput.addEventListener('input',function(){
+    countryInput.addEventListener('input', function () {
         let country = countryInput.value.trim()
-        if(!countryRegex.test(country) || country === ""){
+        if (!countryRegex.test(country) || country === "") {
             countryWarning.style.display = "block"
-        }else{
+        } else {
             countryWarning.style.display = "none"
         };
     });
 
     //address validation
-    addressInput.addEventListener('input',function(){
+    addressInput.addEventListener('input', function () {
         let address = addressInput.value.trim()
-        if(!regex.test(address) || address === ""){
+        if (!regex.test(address) || address === "") {
             addressWarning.style.display = "block"
-        }else{
+        } else {
             addressWarning.style.display = "none"
         };
     });
 
     //phone validation
-    document.getElementById('phone').addEventListener('input',function(){
+    document.getElementById('phone').addEventListener('input', function () {
         let phoneNumber = String(this.value.trim())
-        if(phoneNumber.startsWith(0)){
+        if (phoneNumber.startsWith(0)) {
             phoneStartWarning.style.display = "block"
             phoneWarning.style.display = "none"
         }
-        else{
+        else {
             phoneStartWarning.style.display = "none"
             phoneWarning.style.display = "none"
         };
     });
 
     //alternative phone validation
-    document.getElementById('alternative_phone').addEventListener('input',function(){
+    document.getElementById('alternative_phone').addEventListener('input', function () {
         let alternativePhone = String(this.value.trim())
-        if(alternativePhone && alternativePhone.startsWith(0)){
+        if (alternativePhone && alternativePhone.startsWith(0)) {
             alternativePhoneStartWarning.style.display = "block"
             alternativePhoneWarning.style.display = "none"
         }
-        else{
+        else {
             alternativePhoneWarning.style.display = "none"
             alternativePhoneStartWarning.style.display = "none"
         };
     });
 
     //postal code validation
-    postalInput.addEventListener('input',function(){
+    postalInput.addEventListener('input', function () {
         let postalCode = String(postalInput.value.trim())
-        if(postalCode.startsWith(0)){
+        if (postalCode.startsWith(0)) {
             postalStartWarning.style.display = "block"
             postalWarning.style.display = "none"
         }
-        else{
+        else {
             postalWarning.style.display = "none"
             postalStartWarning.style.display = "none"
         }
     })
 
     //form validation
-    addressForm.addEventListener('submit',function(e){
+    addressForm.addEventListener('submit', function (e) {
         e.preventDefault()
         isValid = true
         //street
         let street = streetInput.value.trim()
-        if(!regex.test(street) || street === ""){
+        if (!regex.test(street) || street === "") {
             isValid = false
             streetWarning.style.display = "block"
-        }else{
+        } else {
             streetWarning.style.display = "none"
         };
         //landmark
         let landmark = landmarkInput.value.trim()
-        if(landmark && !regex.test(landmark)){
+        if (landmark && !regex.test(landmark)) {
             isValid = false
             landmarkWarning.style.display = "block"
-        }else{
+        } else {
             landmarkWarning.style.display = "none"
         };
 
         //country
         let country = countryInput.value.trim()
-        if(!countryRegex.test(country) || country === ""){
-            isValid =false
+        if (!countryRegex.test(country) || country === "") {
+            isValid = false
             countryWarning.style.display = "block"
-        }else{
+        } else {
             countryWarning.style.display = "none"
         };
         //address
         let address = addressInput.value.trim()
-        if(!regex.test(address) || address === ""){
+        if (!regex.test(address) || address === "") {
             isValid = false
             addressWarning.style.display = "block"
-        }else{
+        } else {
             addressWarning.style.display = "none"
         };
 
         let phone = document.getElementById("phone").value.trim();
-        
+
 
         if (phone.length !== 10 || isNaN(phone)) {
             isValid = false;
             phoneWarning.style.display = "block"
             phoneStartWarning.style.display = "none"
         }
-        else if(String(phone).startsWith(0)){
+        else if (String(phone).startsWith(0)) {
             isValid = false
             phoneStartWarning.style.display = "block"
             phoneWarning.style.display = "none"
         }
-        else{
+        else {
             phoneWarning.style.display = "none"
             phoneStartWarning.style.display = "none"
         };
-    
+
         let alternativePhone = document.getElementById("alternative_phone").value.trim();
 
         if (alternativePhone && (alternativePhone.length !== 10 || isNaN(alternativePhone))) {
@@ -281,42 +298,42 @@
             alternativePhoneWarning.style.display = "block"
             alternativePhoneStartWarning.style.display = "none"
         }
-        else if(alternativePhone && String(alternativePhone).startsWith(0)){
+        else if (alternativePhone && String(alternativePhone).startsWith(0)) {
             isValid = false
             alternativePhoneStartWarning.style.display = "block"
             alternativePhoneWarning.style.display = "none"
         }
-        else{
+        else {
             alternativePhoneWarning.style.display = "none"
             alternativePhoneStartWarning.style.display = "none"
         };
 
         //postal code
         let postalCode = postalInput.value.trim()
-        if(postalCode.length !== 6 || isNaN(postalCode)){
+        if (postalCode.length !== 6 || isNaN(postalCode)) {
             isValid = false
             postalWarning.style.display = "block"
             postalStartWarning.style.display = "none"
         }
-        else if(String(postalCode).startsWith(0)){
+        else if (String(postalCode).startsWith(0)) {
             isValid = false
             postalStartWarning.style.display = "block"
             postalWarning.style.display = "none"
         }
-        else{
+        else {
             postalWarning.style.display = "none"
             postalStartWarning.style.display = "none"
         }
 
         //state
         let state = stateInput.value.trim()
-        if(!state){
+        if (!state) {
             isValid = false
             stateWarning.style.display = "block"
-        }else{
+        } else {
             stateWarning.style.display = "none"
         };
-            
+
         // Only proceed if all validations pass
         if (isValid) {
             console.log("Form is valid. Triggering SweetAlert...");
@@ -331,7 +348,7 @@
         } else {
             console.log("Form is invalid. Stopping submission.");
         }
-                
+
     });
 </script>
 {% endblock content %}
