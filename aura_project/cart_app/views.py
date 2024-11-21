@@ -224,7 +224,7 @@ def checkout(request,cart_id):
     
     cart_total_with_discount = float(cart_total) - float(discount)
     cart_total_with_discount += 50
-    
+    cart_total_with_discount = round(cart_total_with_discount,2)
     request.session['cart_total'] = float(cart_total_with_discount)
 
     coupon_code = request.session.pop('coupon_code', '')
@@ -248,7 +248,6 @@ def checkout(request,cart_id):
     }
     return render(request,'cart_app/checkout.html',context)
 
-# {% url 'checkout_app:process_order' %}
 
 def check_coupon(request):
     if request.user.is_authenticated and request.user.is_staff:

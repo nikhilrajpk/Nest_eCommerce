@@ -82,6 +82,7 @@ def confirm_order(request):
     cart_total = sum(item.total_price for item in cart_items)
     cart_total_with_discount = float(cart_total) - float(discount)
     cart_total_with_discount += float(50)
+    cart_total_with_discount = round(cart_total_with_discount,2)
     
     if cart_total_with_discount == 50:
         total_amount = request.POST.get('total_amount')
