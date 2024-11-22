@@ -145,8 +145,12 @@
                 success: function (response) {
                     if (response.is_listed) {
                         button.removeClass("list-btn").addClass("unlist-btn").text("Unlist").css("background-color", "#d4a373");
-                    } else {
+                    } else if (response.is_listed == false) {
                         button.removeClass("unlist-btn").addClass("list-btn").text("List").css("background-color", "#ff7d00");
+                    }else if (response.mesg) {
+                        alert('Category does not exist. Please refesh the page.'); 
+                    } else {
+                        alert("Unexpected response. Please try again.");
                     }
                 },
                 error: function () {

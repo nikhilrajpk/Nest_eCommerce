@@ -107,14 +107,20 @@ def users(request):
 @never_cache
 @require_POST
 def user_block(request, id):
-    user = CustomUser.objects.get(id=id)
-    if user.is_block:
-        user.is_block = False
-    else:
-        user.is_block = True
-    user.save()
-    return JsonResponse({"is_block": user.is_block})
-  
+    try:
+        user = CustomUser.objects.get(id=id)
+        
+        if user.is_block:
+            user.is_block = False
+        else:
+            user.is_block = True
+        user.save()
+        return JsonResponse({"is_block": user.is_block})
+    except CustomUser.DoesNotExist:  # Catch the specific exception
+        mesg = 'No user exists. Please refresh the page.'
+        return JsonResponse({'mesg': mesg}, status=404)  
+    except Exception as e:  # Handle unexpected errors
+        return JsonResponse({'error': str(e)}, status=500)
 
 # Category management
 
@@ -144,11 +150,15 @@ def top_selling_category(request):
 
 @require_POST
 def category_listed(request, id):
-    category = Category.objects.get(id=id)
-    category.is_listed = not category.is_listed  # Toggle the listed status
-    category.save()
-    return JsonResponse({"is_listed": category.is_listed})
-
+    try:
+        category = Category.objects.get(id=id)
+        category.is_listed = not category.is_listed  # Toggle the listed status
+        category.save()
+        return JsonResponse({"is_listed": category.is_listed})
+    except Category.DoesNotExist:
+        return JsonResponse({'mesg':'Category is not available.'},status = 404)
+    except Exception as e:  # Handle unexpected errors
+        return JsonResponse({'error': str(e)}, status=500)
 
 @never_cache
 
@@ -213,70 +223,76 @@ def edit_category(request,id):
 
     if request.user.is_authenticated and request.user.is_staff:
 
-        category = Category.objects.get(id = id)# Retriving data of the catgory
+        try:
+            category = Category.objects.get(id = id)# Retriving data of the catgory
 
-        if request.method == 'POST':
+            if request.method == 'POST':
 
-            category_name = request.POST.get('category_name')
+                category_name = request.POST.get('category_name')
 
-            offer_id = request.POST.get('offer')
-            
-            category_image = request.FILES.get('category_image')
-            is_listed = request.POST.get('available')
-
-            if offer_id == '0' or not offer_id:
-                offer = None  # No offer selected
-            else:
-                offer = get_object_or_404(Offer, id=offer_id)
+                offer_id = request.POST.get('offer')
                 
-            
-            # Validation checking
-            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
-            
-            if not re.match(name_regex,category_name):
-                messages.error(request,'Invalid category name. Please use alphabets, spaces or hyphens.')
-            
-            else:
-                # Updating category object
-                category.offer = offer 
+                category_image = request.FILES.get('category_image')
+                is_listed = request.POST.get('available')
 
-
-                category.category_name = category_name
-
-                category.is_listed = is_listed
-
-                if category_image:
-                    category.cat_image = category_image
-
-                category.save()
-
-            
-
-                # Updating products without an individual offer
-                if offer is None:  
-                    products = category.product.all()  
-                    for product in products:
-                        product.offer = None 
-                        product.save()
-
+                if offer_id == '0' or not offer_id:
+                    offer = None  # No offer selected
                 else:
-                    products = category.product.filter(offer__isnull=True)  # products with no offer
-                    for product in products:
-                        product.offer = offer  
-                        product.save()
+                    offer = get_object_or_404(Offer, id=offer_id)
                     
+                
+                # Validation checking
+                name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+                
+                if not re.match(name_regex,category_name):
+                    messages.error(request,'Invalid category name. Please use alphabets, spaces or hyphens.')
+                
+                else:
+                    # Updating category object
+                    category.offer = offer 
 
-                messages.success(request,f'Category {category_name} edited.')
 
-                return redirect('admin_app:admin_category')
+                    category.category_name = category_name
 
-        if category.offer:
-            offers = Offer.objects.exclude(id = category.offer.id)
-            offers = offers.exclude( end_date__lt = timezone.now())
-        else:
-            offers = Offer.objects.exclude(end_date__lt = timezone.now())
-    
-        return render(request,'admin_app/edit_category.html',{'category':category,'offers':offers})
+                    category.is_listed = is_listed
+
+                    if category_image:
+                        category.cat_image = category_image
+
+                    category.save()
+
+                
+
+                    # Updating products without an individual offer
+                    if offer is None:  
+                        products = category.product.all()  
+                        for product in products:
+                            product.offer = None 
+                            product.save()
+
+                    else:
+                        products = category.product.filter(offer__isnull=True)  # products with no offer
+                        for product in products:
+                            product.offer = offer  
+                            product.save()
+                        
+
+                    messages.success(request,f'Category {category_name} edited.')
+
+                    return redirect('admin_app:admin_category')
+
+            if category.offer:
+                offers = Offer.objects.exclude(id = category.offer.id)
+                offers = offers.exclude( end_date__lt = timezone.now())
+            else:
+                offers = Offer.objects.exclude(end_date__lt = timezone.now())
+        
+            return render(request,'admin_app/edit_category.html',{'category':category,'offers':offers})
+        
+        except Category.DoesNotExist:
+            return JsonResponse({'mesg':'Category is not available.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
 
     else:
 
@@ -311,10 +327,15 @@ def top_selling_products(request):
 
 @require_POST
 def product_listed(request, id):
-    product = Product.objects.get(id=id)
-    product.is_listed = not product.is_listed  # Toggle the listed status
-    product.save()
-    return JsonResponse({"is_listed": product.is_listed})
+    try:
+        product = Product.objects.get(id=id)
+        product.is_listed = not product.is_listed  # Toggle the listed status
+        product.save()
+        return JsonResponse({"is_listed": product.is_listed})
+    except Product.DoesNotExist:
+        return JsonResponse({'mesg':'Product is not available.'},status = 404)
+    except Exception as e:  # Handle unexpected errors
+        return JsonResponse({'error': str(e)}, status=500)
 
 @never_cache
 def add_product(request):
@@ -432,89 +453,94 @@ def add_product(request):
 @never_cache
 def edit_product(request,id):
     if request.user.is_authenticated and request.user.is_staff:
-        product = Product.objects.get(id = id)    # Retrive data of the product
-        if request.method == 'POST':
-            product_name = request.POST.get('product_name')
-            product_description = request.POST.get('description')
-            price = request.POST.get('price')
-            offer_id = request.POST.get('offer')
-            category_id = request.POST.get('category')
-            available_stock = request.POST.get('available_stock')
-            image_1 = request.FILES.get('image_1')
-            image_2 = request.FILES.get('image_2')
-            image_3 = request.FILES.get('image_3')
-            is_listed = request.POST.get('is_listed')
-            in_stock = request.POST.get('in_stock')
-            material = request.POST.get('material')
-            color = request.POST.get('color')
-            width = request.POST.get('width')
-            height = request.POST.get('height')
-            length = request.POST.get('length')
-            
-            # Validation checking
-            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
-            description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
-                        
-            if not re.match(name_regex,product_name):
-                messages.error(request,'Invalid product name. Please use alphabets, spaces or hyphens.')
-            
-            elif not re.match(description_regex,product_description):
-                messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
-            
-            elif not re.match(name_regex,material):
-                messages.error(request,'Invalid material. Please use alphabets, spaces or hyphens.')
-            
-            elif not re.match(name_regex,color):
-                messages.error(request,'Invalid color. Please use alphabets, spaces or hyphens.')
+        try:
+            product = Product.objects.get(id = id)    # Retrive data of the product
+            if request.method == 'POST':
+                product_name = request.POST.get('product_name')
+                product_description = request.POST.get('description')
+                price = request.POST.get('price')
+                offer_id = request.POST.get('offer')
+                category_id = request.POST.get('category')
+                available_stock = request.POST.get('available_stock')
+                image_1 = request.FILES.get('image_1')
+                image_2 = request.FILES.get('image_2')
+                image_3 = request.FILES.get('image_3')
+                is_listed = request.POST.get('is_listed')
+                in_stock = request.POST.get('in_stock')
+                material = request.POST.get('material')
+                color = request.POST.get('color')
+                width = request.POST.get('width')
+                height = request.POST.get('height')
+                length = request.POST.get('length')
+                
+                # Validation checking
+                name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+                description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
+                            
+                if not re.match(name_regex,product_name):
+                    messages.error(request,'Invalid product name. Please use alphabets, spaces or hyphens.')
+                
+                elif not re.match(description_regex,product_description):
+                    messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                
+                elif not re.match(name_regex,material):
+                    messages.error(request,'Invalid material. Please use alphabets, spaces or hyphens.')
+                
+                elif not re.match(name_regex,color):
+                    messages.error(request,'Invalid color. Please use alphabets, spaces or hyphens.')
 
-            else:
-                # product object updating
-                product.product_name = product_name
-                product.description = product_description
-                product.price = price
-                
-                if offer_id == '0':
-                    product.offer = None
-                elif offer_id:
-                    offer = Offer.objects.get(id = offer_id)
-                    product.offer = offer
-                
-                category = Category.objects.get(id = category_id)
-                product.category = category
-                
-                product.available_stock = available_stock
-                
-                if image_1:
-                    product.image_1 = image_1
-                if image_2:
-                    product.image_2 = image_2
-                if image_3:
-                    product.image_3 = image_3
+                else:
+                    # product object updating
+                    product.product_name = product_name
+                    product.description = product_description
+                    product.price = price
                     
-                product.is_listed = is_listed
-                product.in_stock = in_stock
-                product.material = material
-                product.color = color
-                product.width = width
-                product.length = length
-                product.height = height
-                
-                product.save()
-                
-                messages.success(request,f'Product {product_name} edited.')
-                return redirect('admin_app:admin_product')
-        categories = Category.objects.all().exclude(id = product.category.id)
-        if product.offer:
-            offers = Offer.objects.all().exclude(id = product.offer.id)
-            offers = offers.exclude(end_date__lt=timezone.now())
-        else:
-            offers = Offer.objects.exclude(end_date__lt=timezone.now())
-        context = {
-            'product':product,
-            'categories' : categories,
-            'offers' : offers
-        }
-        return render(request,'admin_app/edit_product.html',context)
+                    if offer_id == '0':
+                        product.offer = None
+                    elif offer_id:
+                        offer = Offer.objects.get(id = offer_id)
+                        product.offer = offer
+                    
+                    category = Category.objects.get(id = category_id)
+                    product.category = category
+                    
+                    product.available_stock = available_stock
+                    
+                    if image_1:
+                        product.image_1 = image_1
+                    if image_2:
+                        product.image_2 = image_2
+                    if image_3:
+                        product.image_3 = image_3
+                        
+                    product.is_listed = is_listed
+                    product.in_stock = in_stock
+                    product.material = material
+                    product.color = color
+                    product.width = width
+                    product.length = length
+                    product.height = height
+                    
+                    product.save()
+                    
+                    messages.success(request,f'Product {product_name} edited.')
+                    return redirect('admin_app:admin_product')
+            categories = Category.objects.all().exclude(id = product.category.id)
+            if product.offer:
+                offers = Offer.objects.all().exclude(id = product.offer.id)
+                offers = offers.exclude(end_date__lt=timezone.now())
+            else:
+                offers = Offer.objects.exclude(end_date__lt=timezone.now())
+            context = {
+                'product':product,
+                'categories' : categories,
+                'offers' : offers
+            }
+            return render(request,'admin_app/edit_product.html',context)
+        except Product.DoesNotExist:
+            return JsonResponse({'mesg':'Product is not available.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return redirect('user_app:home')
     
@@ -594,37 +620,42 @@ def add_offer(request):
 @never_cache
 def edit_offer(request,id):
     if request.user.is_authenticated and request.user.is_staff:
-        offer = Offer.objects.get(id = id)    # Retrive data of the offer
-        if request.method == 'POST':
-            offer_title = request.POST.get('offer_title')
-            offer_description = request.POST.get('offer_description')
-            offer_percentage = request.POST.get('offer_percentage')
-            start_date = request.POST.get('start_date')
-            end_date = request.POST.get('end_date')
-            
-            # Validation checking
-            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
-            description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
-            
-            if not re.match(name_regex,offer_title):
-                messages.error(request,'Invalid offer title. Please use alphabets, spaces or hyphens.')
-            
-            elif not re.match(description_regex,offer_description):
-                messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
-            
-            else:            
-                offer.offer_title = offer_title
-                offer.offer_description = offer_description
-                offer.offer_percentage = offer_percentage
-                offer.start_date = start_date
-                offer.end_date = end_date
+        try:
+            offer = Offer.objects.get(id = id)    # Retrive data of the offer
+            if request.method == 'POST':
+                offer_title = request.POST.get('offer_title')
+                offer_description = request.POST.get('offer_description')
+                offer_percentage = request.POST.get('offer_percentage')
+                start_date = request.POST.get('start_date')
+                end_date = request.POST.get('end_date')
                 
+                # Validation checking
+                name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+                description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
                 
-                offer.save()
+                if not re.match(name_regex,offer_title):
+                    messages.error(request,'Invalid offer title. Please use alphabets, spaces or hyphens.')
                 
-                messages.success(request,f'Offer {offer_title} edited.')
-                return redirect('admin_app:admin_offer')
-        return render(request,'admin_app/edit_offer.html',{'offer':offer})
+                elif not re.match(description_regex,offer_description):
+                    messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                
+                else:            
+                    offer.offer_title = offer_title
+                    offer.offer_description = offer_description
+                    offer.offer_percentage = offer_percentage
+                    offer.start_date = start_date
+                    offer.end_date = end_date
+                    
+                    
+                    offer.save()
+                    
+                    messages.success(request,f'Offer {offer_title} edited.')
+                    return redirect('admin_app:admin_offer')
+            return render(request,'admin_app/edit_offer.html',{'offer':offer})
+        except Offer.DoesNotExist:
+            return JsonResponse({'mesg':'Offer is not available. Please refresh the page.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return redirect('user_app:home')
     
@@ -632,14 +663,19 @@ def edit_offer(request,id):
 @never_cache
 def remove_offer(request,id):
     if request.user.is_authenticated and request.user.is_staff:
-        offer = Offer.objects.get(id = id)    # Retrive data of the offer
-        if request.method == 'POST':
-            offer_title = offer.offer_title
-            offer.delete()
-            
-            messages.success(request,f'Offer {offer_title} removed.')
+        try:
+            offer = Offer.objects.get(id = id)    # Retrive data of the offer
+            if request.method == 'POST':
+                offer_title = offer.offer_title
+                offer.delete()
+                
+                messages.success(request,f'Offer {offer_title} removed.')
+                return redirect('admin_app:admin_offer')
             return redirect('admin_app:admin_offer')
-        return redirect('admin_app:admin_offer')
+        except Offer.DoesNotExist:
+            return JsonResponse({'mesg':'Offer is not available. Please refresh the page.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return redirect('user_app:home')
     
@@ -718,59 +754,69 @@ def add_banner(request):
 
 def edit_banner(request,id):
     if request.user.is_authenticated and request.user.is_staff:
-        banner = Banner.objects.get(id = id)
-        if request.method == 'POST':
-            banner_name = request.POST.get('banner_name')
-            description = request.POST.get('description')
-            banner_image = request.FILES.get('banner_image')
-            start_date = request.POST.get('start_date')
-            end_date = request.POST.get('end_date')
-            
-            # Validation checking
-            name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
-            description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
-            
-            if not re.match(name_regex,banner_name):
-                messages.error(request,'Invalid banner name. Please use alphabets, spaces or hyphens.')
+        try:
+            banner = Banner.objects.get(id = id)
+            if request.method == 'POST':
+                banner_name = request.POST.get('banner_name')
+                description = request.POST.get('description')
+                banner_image = request.FILES.get('banner_image')
+                start_date = request.POST.get('start_date')
+                end_date = request.POST.get('end_date')
                 
-            
-            elif not re.match(description_regex,description):
-                messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                # Validation checking
+                name_regex = r'^[a-zA-z][a-zA-Z \-]+$'
+                description_regex = r'^[a-zA-Z][a-zA-Z0-9 \.\-,]'
                 
-                
-            else:
-                banner.banner_name = banner_name
-                banner.banner_description = description
-                banner.start_date = start_date
-                banner.end_date = end_date
-                
-                if banner_image:
-                    banner.banner_image = banner_image
+                if not re.match(name_regex,banner_name):
+                    messages.error(request,'Invalid banner name. Please use alphabets, spaces or hyphens.')
                     
-                banner.save()
                 
-                messages.success(request,f' banner {banner_name} edited.')
-                return redirect('admin_app:admin_banner')
+                elif not re.match(description_regex,description):
+                    messages.error(request,'Invalid description. Please use alphabets, numbers, spaces or hyphens.')
+                    
+                    
+                else:
+                    banner.banner_name = banner_name
+                    banner.banner_description = description
+                    banner.start_date = start_date
+                    banner.end_date = end_date
+                    
+                    if banner_image:
+                        banner.banner_image = banner_image
+                        
+                    banner.save()
+                    
+                    messages.success(request,f' banner {banner_name} edited.')
+                    return redirect('admin_app:admin_banner')
+                
             
-        
-        context = {
-            'banner':banner,
-        }
-        
-        return render(request,'admin_app/edit_banner.html',context)
+            context = {
+                'banner':banner,
+            }
+            
+            return render(request,'admin_app/edit_banner.html',context)
+        except Banner.DoesNotExist:
+            return JsonResponse({'mesg':'Banner is not available. Please refresh the page.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return redirect('user_app:home')
     
 def remove_banner(request,id):
     if request.user.is_authenticated and request.user.is_staff:
-        banner = Banner.objects.get(id = id)    # Retrive Banner
-        if request.method == 'POST':
-            banner_name = banner.banner_name
-            banner.delete()
-            
-            messages.success(request,f'Banner {banner_name} removed.')
+        try:
+            banner = Banner.objects.get(id = id)    # Retrive Banner
+            if request.method == 'POST':
+                banner_name = banner.banner_name
+                banner.delete()
+                
+                messages.success(request,f'Banner {banner_name} removed.')
+                return redirect('admin_app:admin_banner')
             return redirect('admin_app:admin_banner')
-        return redirect('admin_app:admin_banner')
+        except Banner.DoesNotExist:
+            return JsonResponse({'mesg':'Banner is not available. Please refresh the page.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return redirect('user_app:home')
     
@@ -850,51 +896,56 @@ def add_coupon(request):
     
 def edit_coupon(request,coupon_id):
     if request.user.is_authenticated and request.user.is_staff:
-        coupon = Coupons.objects.get(id = coupon_id)
-        
-        if request.method == 'POST':
-            code = request.POST.get('code')
+        try:
+            coupon = Coupons.objects.get(id = coupon_id)
             
-            code_regex = r'^[a-zA-Z0-9]+$'
-            
-            if re.match(code_regex,code):
-                minimum_order_amount = float(request.POST.get('minimum_order_amount'))
-                maximum_order_amount = float(request.POST.get('maximum_order_amount'))
-                used_limit = int(request.POST.get('used_limit'))
-                expiry_date_str = request.POST.get('expiry_date')
-                discount_amount = float(request.POST.get('discount_amount'))
+            if request.method == 'POST':
+                code = request.POST.get('code')
                 
-                # Converting string expiry date to datetime object.
-                expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+                code_regex = r'^[a-zA-Z0-9]+$'
                 
-                # Converting naive datetime to timezone-aware datetime
-                expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
-                
-                if maximum_order_amount <= minimum_order_amount:
-                    messages.error(request,'minimum order amount cannot be greater than maximum order amount!')
-                elif minimum_order_amount <= discount_amount:
-                    messages.error(request,'Discount amount cannot be greater than minimum order amount!')
-                elif expiry_date < timezone.now():
-                    messages.error(request,'Expiry date cannot be a past time!')
+                if re.match(code_regex,code):
+                    minimum_order_amount = float(request.POST.get('minimum_order_amount'))
+                    maximum_order_amount = float(request.POST.get('maximum_order_amount'))
+                    used_limit = int(request.POST.get('used_limit'))
+                    expiry_date_str = request.POST.get('expiry_date')
+                    discount_amount = float(request.POST.get('discount_amount'))
+                    
+                    # Converting string expiry date to datetime object.
+                    expiry_date_naive = datetime.strptime(expiry_date_str, '%Y-%m-%dT%H:%M')
+                    
+                    # Converting naive datetime to timezone-aware datetime
+                    expiry_date = timezone.make_aware(expiry_date_naive, timezone.get_current_timezone())
+                    
+                    if maximum_order_amount <= minimum_order_amount:
+                        messages.error(request,'minimum order amount cannot be greater than maximum order amount!')
+                    elif minimum_order_amount <= discount_amount:
+                        messages.error(request,'Discount amount cannot be greater than minimum order amount!')
+                    elif expiry_date < timezone.now():
+                        messages.error(request,'Expiry date cannot be a past time!')
+                    else:
+                        coupon.code = code
+                        coupon.minimum_order_amount = minimum_order_amount
+                        coupon.maximum_order_amount = maximum_order_amount
+                        coupon.used_limit = used_limit
+                        coupon.expiry_date = expiry_date
+                        coupon.discount_amount = discount_amount
+                        
+                        coupon.save()
+                        
+                        messages.success(request,f'Coupon {code} edited.')
+                        return redirect('admin_app:admin_coupon')
                 else:
-                    coupon.code = code
-                    coupon.minimum_order_amount = minimum_order_amount
-                    coupon.maximum_order_amount = maximum_order_amount
-                    coupon.used_limit = used_limit
-                    coupon.expiry_date = expiry_date
-                    coupon.discount_amount = discount_amount
-                    
-                    coupon.save()
-                    
-                    messages.success(request,f'Coupon {code} edited.')
-                    return redirect('admin_app:admin_coupon')
-            else:
-                messages.error(request,'Coupon code should only be numbers and letters!')
-        
-        context = {
-            'coupon':coupon
-        }
-        return render(request,'admin_app/edit_coupon.html',context)
+                    messages.error(request,'Coupon code should only be numbers and letters!')
+            
+            context = {
+                'coupon':coupon
+            }
+            return render(request,'admin_app/edit_coupon.html',context)
+        except Coupons.DoesNotExist:
+            return JsonResponse({'mesg':'Coupon is not available. Please refresh the page.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     
     else:
         return redirect('user_app:home')
@@ -902,14 +953,17 @@ def edit_coupon(request,coupon_id):
     
 def remove_coupon(request,coupon_id):
     if request.user.is_authenticated and request.user.is_staff:
-        
-        coupon = Coupons.objects.get(id = coupon_id)
-        
-        if request.method == 'POST':
-            coupon.delete()
-            messages.success(request,f'Coupon {coupon.code} removed.')
-            return redirect('admin_app:admin_coupon')
-    
+        try:
+            coupon = Coupons.objects.get(id = coupon_id)
+            
+            if request.method == 'POST':
+                coupon.delete()
+                messages.success(request,f'Coupon {coupon.code} removed.')
+                return redirect('admin_app:admin_coupon')
+        except Coupons.DoesNotExist:
+            return JsonResponse({'mesg':'Coupon is not available. Please refresh the page.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return redirect('user_app:home')
     
@@ -938,64 +992,68 @@ def admin_orders(request):
 
 def show_order(request,order_id):
     if request.user.is_authenticated and request.user.is_staff:
-        order = Order.objects.get(id = order_id)
-        order_items = order.items.all()
-        
-        # Handling the form submission to change order status
-        if request.method == "POST":
-            new_status = request.POST.get('order_status')
-            if new_status in dict(STATUS):  # Ensure the status is valid
-                order.order_status = new_status
-                order.save()
-                messages.success(request, "Order status updated successfully.")
-            else:
-                messages.error(request, "Invalid order status.")
-        
-        
-        # Calculating total price
-        total_price = 0
-        item_total_prices = []
-        
-        for item in order_items:
-            # Check if product has an offer and calculate the item total
-            if item.product.offer:
-                item_total = item.quantity * item.product.discount_price
-            else:
-                item_total = item.quantity * item.product.price
-                
-            # Add item total to total order price
-            total_price += item_total
-            item_total_prices.append(item_total)  # Store each item's total price
-
-        address = order.orderAddress.first()
-        coupon_discount = 0
-        coupon_code = None
         try:
-            coupon_code = order.checkout.coupons.code
-            coupon = None
-            if coupon_code:
-                try:
-                    coupon = Coupons.objects.get(code=coupon_code)
-                    total_price = float(total_price) - float(coupon.discount_amount)
-                    coupon_discount = coupon.discount_amount
-                except Coupons.DoesNotExist:
-                    coupon = None
-                    messages.error(request, "Coupon not found or expired.")
-        except Exception as e:
-            pass
+            order = Order.objects.get(id = order_id)
+            order_items = order.items.all()
             
-        context = {
-            'order': order,
-            'order_items': zip(order_items, item_total_prices),  # Pass both items and their individual total prices
-            'total_price': total_price,
-            'status_choices': STATUS,
-            'items':order_items,
-            'address':address,
-            'coupon_discount':coupon_discount,
-            'coupon_code':coupon_code,
-        }
-        return render(request,'admin_app/show_order.html',context)
-    
+            # Handling the form submission to change order status
+            if request.method == "POST":
+                new_status = request.POST.get('order_status')
+                if new_status in dict(STATUS):  # Ensure the status is valid
+                    order.order_status = new_status
+                    order.save()
+                    messages.success(request, "Order status updated successfully.")
+                else:
+                    messages.error(request, "Invalid order status.")
+            
+            
+            # Calculating total price
+            total_price = 0
+            item_total_prices = []
+            
+            for item in order_items:
+                # Check if product has an offer and calculate the item total
+                if item.product.offer:
+                    item_total = item.quantity * item.product.discount_price
+                else:
+                    item_total = item.quantity * item.product.price
+                    
+                # Add item total to total order price
+                total_price += item_total
+                item_total_prices.append(item_total)  # Store each item's total price
+
+            address = order.orderAddress.first()
+            coupon_discount = 0
+            coupon_code = None
+            try:
+                coupon_code = order.checkout.coupons.code
+                coupon = None
+                if coupon_code:
+                    try:
+                        coupon = Coupons.objects.get(code=coupon_code)
+                        total_price = float(total_price) - float(coupon.discount_amount)
+                        coupon_discount = coupon.discount_amount
+                    except Coupons.DoesNotExist:
+                        coupon = None
+                        messages.error(request, "Coupon not found or expired.")
+            except Exception as e:
+                pass
+                
+            context = {
+                'order': order,
+                'order_items': zip(order_items, item_total_prices),  # Pass both items and their individual total prices
+                'total_price': total_price,
+                'status_choices': STATUS,
+                'items':order_items,
+                'address':address,
+                'coupon_discount':coupon_discount,
+                'coupon_code':coupon_code,
+            }
+            return render(request,'admin_app/show_order.html',context)
+        except Order.DoesNotExist:
+            return JsonResponse({'mesg':'Order is not available. Please refresh the page.'},status = 404)
+        except Exception as e:  # Handle unexpected errors
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         return redirect('user_app:home')
     

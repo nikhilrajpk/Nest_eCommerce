@@ -120,8 +120,12 @@
                 success: function (response) {
                     if (response.is_block) {
                         button.removeClass("block-btn").addClass("unblock-btn").text("Unblock").css("background-color", "#d4a373");
-                    } else {
+                    }else if (response.is_block == false){
                         button.removeClass("unblock-btn").addClass("block-btn").text("Block").css("background-color", "#ff7d00");
+                    }else if (response.mesg) {
+                        alert('User does not exist. Please refresh the page.'); 
+                    } else {
+                        alert("Unexpected response. Please try again.");
                     }
                 },
                 error: function () {
