@@ -32,7 +32,11 @@ def confirm_order(request):
         # Getting the address from the checkout page
         address_id = request.POST.get('address_id')
         request.session['address_id'] = address_id
-        address = get_object_or_404(Address, id=address_id, user=user)
+        try:
+            address = Address.objects.get(id=address_id, user=user)
+        except Exception as e:
+            messages.error(request,'Address is not available. Please order again.')
+            return redirect('order_app:order_view')
 
         payment_method = request.POST.get('payment_method')
         request.session['payment_method'] = payment_method
@@ -381,15 +385,7 @@ def order_details(request,order_id):
     request.session['order_id'] = order_id
     order_items = order.items.all()
     total_price = order.total_price
-    # for item in order_items:
-    #     if item.product.offer:
-    #         total_price += item.product.discount_price * item.quantity          ######**********
-    #     else:
-    #         total_price += item.price * item.quantity
     
-    # total_price += 50
-    # Get the coupon code from the request
-    # coupon_code = request.session.get('coupon_code', '')
     coupon_discount = 0
     coupon_code = None
     try:
