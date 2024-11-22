@@ -3,6 +3,7 @@ from .models import *
 from product_app.models import *
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib import messages
 # Create your views here.
 from django.http import JsonResponse
 
@@ -63,8 +64,9 @@ def remove_from_wishlist(request, wishlist_id):
         return redirect('admin_app:admin_home')
     if request.user.is_authenticated and request.user.is_block:
         return redirect('authentication_app:logout')
-    
-    wishlist_item = Wishlist_items.objects.get(id = wishlist_id)
-    wishlist_item.delete()
-    
+    try:
+        wishlist_item = Wishlist_items.objects.get(id = wishlist_id)
+        wishlist_item.delete()
+    except Exception as e:
+        messages.error(request,'This item is not available. Please refresh the page.')
     return redirect('wishlist_app:wishlist')
