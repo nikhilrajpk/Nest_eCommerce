@@ -13,6 +13,8 @@ from django.db.models import Q
 
 from django.core.paginator import Paginator
 
+from authentication_app.views import generate_referral_code
+
 def home(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_app:admin_home')
@@ -88,6 +90,17 @@ def account(request):
     
     user_logged = request.user
     user = CustomUser.objects.get(email = user_logged.email)
+    
+    # If the user have referral already then skip otherwise adding new referral
+    referral_user = UserReferral.objects.filter(user = user).exists()
+    
+    if not referral_user:
+        new_referral_code = generate_referral_code(user.id)
+        user_referral = UserReferral(
+            user=user,
+            referral_code = new_referral_code,
+        )
+        user_referral.save()
     
     context = {
         'user':user,
