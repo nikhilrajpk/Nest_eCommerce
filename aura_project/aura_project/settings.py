@@ -194,7 +194,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'nestinterior123@gmail.com' # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'agze nrpb yveg ctxv'  # Replace with the generated app password
+EMAIL_HOST_PASSWORD = 'auwl raln vrat zldm'  # Replace with the generated app password
 
 
 # Google sign in

@@ -71,95 +71,85 @@ def register_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
         referral_code = request.POST.get('referral_code')
-        
-        
+
         # Setting the token to access the verify_otp view
         request.session['otp_verification_allowed'] = True
-        
+
         # validating the request data
-        errors = validation_view(request,email,first_name,last_name,password,confirm_password)    
-        
+        errors = validation_view(request, email, first_name, last_name, password, confirm_password)
+
         if referral_code:
             try:
-                # Check if referral code exists in the UserReferral model
                 referral = UserReferral.objects.get(referral_code=referral_code)
                 request.session['referral_code'] = referral_code
             except UserReferral.DoesNotExist:
-                # If referral code is invalid, add an error message
                 errors['referral_error'] = "Invalid referral code. Please check and try again."
 
-            
         if errors:
             context = {
-                'errors' : errors,
-                'email' : email,
-                'first_name' : first_name,
-                'last_name' : last_name,
-                'referral_code' : referral_code,
+                'errors': errors,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+                'referral_code': referral_code,
             }
-            
-            return render(request,'authentication_app/sign_up.html', context)
-        
-        # checking the user is already exist or not
-        elif CustomUser.objects.filter(email = email).exists():
-            
-            user_obj = CustomUser.objects.get(email = email)
-            
-            if not user_obj.is_active:  # If user is not active 
-                # Generating OTP
+            return render(request, 'authentication_app/sign_up.html', context)
+
+        elif CustomUser.objects.filter(email=email).exists():
+            user_obj = CustomUser.objects.get(email=email)
+
+            if not user_obj.is_active:
+                # Generate and send OTP
                 otp = send_otp(request)
-                
-                # Save the OTP to session
                 request.session['registration_otp'] = otp
                 request.session['registered_email'] = email
 
-                # Send the OTP via email
                 mail_subject = 'Your OTP for email verification'
                 message = f'Your OTP is {otp}. Please enter it to verify your email.'
+
                 try:
                     email_message = EmailMessage(mail_subject, message, to=[email])
                     email_message.send()
                 except Exception as e:
                     messages.error(request, 'Error sending email. Please try again.')
-                    return None
+                    return render(request, 'authentication_app/sign_up.html', {'email': email})
 
-                
-                return redirect('authentication_app:verify_otp')  # Redirect to OTP verification page
+                return redirect('authentication_app:verify_otp')
             else:
                 messages.error(request, 'Email already exists!')
-        
+                return render(request, 'authentication_app/sign_up.html', {'email': email})
+
         else:
-            # Saving the user with field is_active as False
-            user = CustomUser(email = email,username = username, first_name = first_name, last_name = last_name)
+            user = CustomUser(
+                email=email,
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                is_active=False
+            )
             user.set_password(password)
-            user.is_active = False
             user.save()
-            
-            # Generating OTP
+
             otp = send_otp(request)
-            
-            # Save the OTP to session
             request.session['registration_otp'] = otp
             request.session['registered_email'] = email
 
-            # Send the OTP via email
             mail_subject = 'Your OTP for email verification'
             message = f'Your OTP is {otp}. Please enter it to verify your email.'
+
             try:
                 email_message = EmailMessage(mail_subject, message, to=[email])
                 email_message.send()
                 messages.success(request, 'OTP has been sent to your email.')
             except Exception as e:
                 messages.error(request, 'Error sending email. Please try again.')
-                return None
+                return render(request, 'authentication_app/sign_up.html', {'email': email})
 
-            
-            return redirect('authentication_app:verify_otp')  # Redirect to OTP verification page
+            return redirect('authentication_app:verify_otp')
 
-    else:
-        pass
-    
+    # If GET request or no POST data
     return render(request, 'authentication_app/sign_up.html')
+
 
 @never_cache
 def verify_otp(request):
